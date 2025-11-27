@@ -143,17 +143,29 @@ const AddVehicle = () => {
 
       if (vehicleError) throw vehicleError;
 
-      // Upload images (mock - storage would need to be configured)
-      // For now, we'll use placeholder URLs
-      const imagePromises = images.map(async (_, index) => {
-        // In a real implementation, you would upload to Supabase Storage here
-        const mockImageUrl = `https://images.unsplash.com/photo-1590362891991-f776e747a588?w=800&q=80`;
+      // Upload images to Supabase Storage
+      const imagePromises = images.map(async (image, index) => {
+        const fileExt = image.name.split('.').pop();
+        const fileName = `${user.id}/${vehicle.id}/${Date.now()}-${index}.${fileExt}`;
+        
+        const { error: uploadError, data: uploadData } = await supabase.storage
+          .from('vehicle-images')
+          .upload(fileName, image);
+
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('vehicle-images')
+          .getPublicUrl(fileName);
         
         return supabase
           .from("vehicle_images")
           .insert({
             vehicle_id: vehicle.id,
-            image_url: mockImageUrl,
+            image_url: publicUrl,
             is_primary: index === 0,
             display_order: index,
           });

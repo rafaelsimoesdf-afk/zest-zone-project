@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   Shield,
@@ -13,12 +14,23 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { CityAutocomplete } from "@/components/CityAutocomplete";
 import heroImage from "@/assets/hero-car.jpg";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [searchCity, setSearchCity] = useState("");
+
+  const handleSearch = () => {
+    if (searchCity) {
+      navigate(`/browse?city=${encodeURIComponent(searchCity)}`);
+    } else {
+      navigate('/browse');
+    }
+  };
+
   const featuredCars = [
     {
       id: 1,
@@ -133,13 +145,16 @@ const Index = () => {
             <div className="bg-background rounded-2xl p-4 shadow-xl border border-border mb-8">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
-                  <Input
+                  <CityAutocomplete
+                    value={searchCity}
+                    onChange={setSearchCity}
                     placeholder="Digite a cidade ou endereço..."
-                    className="border-0 bg-muted h-12"
+                    className="border-0 bg-muted h-12 pl-10"
                   />
                 </div>
                 <Button
                   size="lg"
+                  onClick={handleSearch}
                   className="bg-gradient-primary hover:opacity-90 transition-smooth shadow-glow"
                 >
                   <Search className="w-5 h-5 mr-2" />
