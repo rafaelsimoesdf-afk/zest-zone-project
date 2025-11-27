@@ -155,7 +155,7 @@ const Index = () => {
                 <Button
                   size="lg"
                   onClick={handleSearch}
-                  className="bg-gradient-primary hover:opacity-90 transition-smooth shadow-glow"
+                  className="bg-gradient-primary text-white hover:opacity-90 transition-smooth shadow-glow"
                 >
                   <Search className="w-5 h-5 mr-2" />
                   Buscar Carros
@@ -269,7 +269,7 @@ const Index = () => {
                         </span>
                         <span className="text-muted-foreground">/dia</span>
                       </div>
-                      <Button size="sm" className="bg-gradient-accent">
+                      <Button size="sm" className="bg-gradient-accent text-white">
                         Reservar
                       </Button>
                     </div>
@@ -366,7 +366,7 @@ const Index = () => {
                     <span>Suporte dedicado 24/7</span>
                   </li>
                 </ul>
-                <Button size="lg" className="bg-gradient-accent" asChild>
+                <Button size="lg" className="bg-gradient-accent text-white" asChild>
                   <Link to="/become-owner">
                     Começar Agora
                     <ArrowRight className="w-5 h-5 ml-2" />
