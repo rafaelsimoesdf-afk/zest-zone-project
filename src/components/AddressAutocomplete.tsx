@@ -36,7 +36,8 @@ export const AddressAutocomplete = ({ value, onChange, disabled }: AddressAutoco
 
       const apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
       if (!apiKey) {
-        console.error("Google Places API key not found");
+        console.error("Google Places API key not found. Please add VITE_GOOGLE_PLACES_API_KEY to your .env file");
+        setIsLoaded(true); // Allow manual input even without API
         return;
       }
 
@@ -45,6 +46,10 @@ export const AddressAutocomplete = ({ value, onChange, disabled }: AddressAutoco
       script.async = true;
       script.defer = true;
       script.onload = () => setIsLoaded(true);
+      script.onerror = () => {
+        console.error("Failed to load Google Maps API");
+        setIsLoaded(true); // Allow manual input even if API fails
+      };
       document.head.appendChild(script);
     };
 
@@ -52,7 +57,7 @@ export const AddressAutocomplete = ({ value, onChange, disabled }: AddressAutoco
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !inputRef.current) return;
+    if (!isLoaded || !inputRef.current || !window.google) return;
 
     // Initialize autocomplete
     autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
@@ -127,12 +132,17 @@ export const AddressAutocomplete = ({ value, onChange, disabled }: AddressAutoco
           id="address-search"
           ref={inputRef}
           type="text"
-          placeholder="Digite o endereço completo"
-          disabled={disabled || !isLoaded}
+          placeholder={!import.meta.env.VITE_GOOGLE_PLACES_API_KEY ? "Preencha os campos abaixo manualmente" : "Digite o endereço completo"}
+          disabled={disabled}
           defaultValue={displayValue}
         />
-        {!isLoaded && (
+        {!isLoaded && import.meta.env.VITE_GOOGLE_PLACES_API_KEY && (
           <p className="text-sm text-muted-foreground">Carregando Google Maps...</p>
+        )}
+        {!import.meta.env.VITE_GOOGLE_PLACES_API_KEY && (
+          <p className="text-sm text-amber-600">
+            Configure a Google Places API key no arquivo .env para habilitar a busca automática de endereços
+          </p>
         )}
       </div>
 
