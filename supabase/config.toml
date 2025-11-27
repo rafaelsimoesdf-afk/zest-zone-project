@@ -1,1 +1,4 @@
 project_id = "ptimwsvsizqpecakzkcn"
+
+[functions.google-places-autocomplete]
+verify_jwt = false
