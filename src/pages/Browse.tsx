@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, SlidersHorizontal, Star } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
+import { useBrands, useModels } from "@/hooks/useBrands";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -24,8 +25,12 @@ const Browse = () => {
     fuel: "all",
     maxPrice: undefined as number | undefined,
     city: "",
+    brandId: "all",
+    modelId: "all",
   });
 
+  const { data: brands } = useBrands();
+  const { data: models } = useModels(filters.brandId !== "all" ? filters.brandId : undefined);
   const { data: vehicles, isLoading } = useVehicles(filters);
 
   const handleSearch = () => {
@@ -50,7 +55,7 @@ const Browse = () => {
 
           {/* Search and Filters */}
           <div className="bg-card border rounded-2xl p-6 mb-8 shadow-md">
-            <div className="grid lg:grid-cols-5 gap-4">
+            <div className="grid lg:grid-cols-6 gap-4">
               <div className="lg:col-span-2">
                 <CityAutocomplete
                   value={filters.city}
@@ -60,11 +65,44 @@ const Browse = () => {
                 />
               </div>
               <Select
+                value={filters.brandId}
+                onValueChange={(value) => setFilters({ ...filters, brandId: value, modelId: "all" })}
+              >
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Marca" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as Marcas</SelectItem>
+                  {brands?.map((brand) => (
+                    <SelectItem key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={filters.modelId}
+                onValueChange={(value) => setFilters({ ...filters, modelId: value })}
+                disabled={filters.brandId === "all"}
+              >
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Modelo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os Modelos</SelectItem>
+                  {models?.map((model) => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
                 value={filters.vehicleType}
                 onValueChange={(value) => setFilters({ ...filters, vehicleType: value })}
               >
                 <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Tipo de Veículo" />
+                  <SelectValue placeholder="Tipo" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
@@ -74,20 +112,7 @@ const Browse = () => {
                   <SelectItem value="pickup">Pickup</SelectItem>
                 </SelectContent>
               </Select>
-              <Select
-                value={filters.transmission}
-                onValueChange={(value) => setFilters({ ...filters, transmission: value })}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Transmissão" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  <SelectItem value="manual">Manual</SelectItem>
-                  <SelectItem value="automatic">Automático</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="flex gap-2">
+              <div className="flex gap-2 lg:col-span-6">
                 <Button
                   variant="outline"
                   size="lg"
@@ -121,6 +146,19 @@ const Browse = () => {
                     <SelectItem value="150">Até R$ 150/dia</SelectItem>
                     <SelectItem value="200">Até R$ 200/dia</SelectItem>
                     <SelectItem value="300">Até R$ 300/dia</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={filters.transmission}
+                  onValueChange={(value) => setFilters({ ...filters, transmission: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Transmissão" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="automatic">Automático</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select
