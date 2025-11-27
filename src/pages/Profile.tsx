@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
+import { useDefaultAddress, useCreateAddress, useUpdateAddress } from "@/hooks/useAddresses";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,11 +9,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { User, Mail, Phone, Calendar } from "lucide-react";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
+import type { AddressData } from "@/components/AddressAutocomplete";
+import { toast } from "sonner";
 
 const Profile = () => {
   const { user } = useAuth();
   const { data: profile, isLoading } = useProfile();
+  const { data: defaultAddress, isLoading: isLoadingAddress } = useDefaultAddress();
   const updateProfile = useUpdateProfile();
+  const createAddress = useCreateAddress();
+  const updateAddress = useUpdateAddress();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     first_name: "",
@@ -20,9 +27,18 @@ const Profile = () => {
     phone_number: "",
     birth_date: "",
   });
+  const [addressData, setAddressData] = useState<AddressData>({
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    zip_code: "",
+  });
 
   // Update form when profile loads
-  useState(() => {
+  useEffect(() => {
     if (profile) {
       setFormData({
         first_name: profile.first_name || "",
@@ -31,17 +47,60 @@ const Profile = () => {
         birth_date: profile.birth_date || "",
       });
     }
-  });
+  }, [profile]);
 
-  const handleSave = () => {
+  // Update address form when default address loads
+  useEffect(() => {
+    if (defaultAddress) {
+      setAddressData({
+        street: defaultAddress.street,
+        number: defaultAddress.number,
+        complement: defaultAddress.complement || "",
+        neighborhood: defaultAddress.neighborhood,
+        city: defaultAddress.city,
+        state: defaultAddress.state,
+        zip_code: defaultAddress.zip_code,
+        latitude: defaultAddress.latitude || undefined,
+        longitude: defaultAddress.longitude || undefined,
+      });
+    }
+  }, [defaultAddress]);
+
+  const handleSave = async () => {
+    // Validate address is filled
+    if (!addressData.street || !addressData.number || !addressData.neighborhood || 
+        !addressData.city || !addressData.state || !addressData.zip_code) {
+      toast.error("Por favor, preencha todos os campos de endereço obrigatórios");
+      return;
+    }
+
+    // Update profile
     updateProfile.mutate(formData, {
-      onSuccess: () => {
+      onSuccess: async () => {
+        // Save or update address
+        if (defaultAddress) {
+          await updateAddress.mutateAsync({
+            id: defaultAddress.id,
+            updates: {
+              ...addressData,
+              is_default: true,
+            },
+          });
+        } else {
+          await createAddress.mutateAsync({
+            ...addressData,
+            complement: addressData.complement || null,
+            latitude: addressData.latitude || null,
+            longitude: addressData.longitude || null,
+            is_default: true,
+          });
+        }
         setIsEditing(false);
       },
     });
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingAddress) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
@@ -141,6 +200,15 @@ const Profile = () => {
                     onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
                   />
                 </div>
+              </div>
+
+              <div className="pt-6 border-t">
+                <h3 className="text-lg font-semibold mb-4">Endereço</h3>
+                <AddressAutocomplete
+                  value={addressData}
+                  onChange={setAddressData}
+                  disabled={!isEditing}
+                />
               </div>
 
               <div className="flex gap-3 pt-4">
