@@ -1,16 +1,22 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useMyVehicles } from "@/hooks/useVehicles";
+import { useMyVehicles, useDeleteVehicle } from "@/hooks/useVehicles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Car, Plus, Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const MyVehicles = () => {
   const { user } = useAuth();
   const { data: vehicles, isLoading } = useMyVehicles();
+  const deleteVehicle = useDeleteVehicle();
+
+  const handleDelete = (vehicleId: string) => {
+    deleteVehicle.mutate(vehicleId);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -103,13 +109,34 @@ const MyVehicles = () => {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1">
+                          <Button variant="outline" size="sm" className="flex-1" disabled>
                             <Edit className="w-4 h-4 mr-2" />
                             Editar
                           </Button>
-                          <Button variant="ghost" size="sm">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" disabled={deleteVehicle.isPending}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir este veículo? Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDelete(vehicle.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </div>
                     </CardContent>
