@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MapPin } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface AddressData {
   street: string;
@@ -21,101 +22,92 @@ interface AddressAutocompleteProps {
   disabled?: boolean;
 }
 
+interface Prediction {
+  place_id: string;
+  description: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
+}
+
 export const AddressAutocomplete = ({ value, onChange, disabled }: AddressAutocompleteProps) => {
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const [suggestions, setSuggestions] = useState<Prediction[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Load Google Maps API
-    const loadGoogleMaps = () => {
-      if (window.google) {
-        setIsLoaded(true);
-        return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node) &&
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
       }
-
-      const apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
-      if (!apiKey) {
-        console.error("Google Places API key not found. Please add VITE_GOOGLE_PLACES_API_KEY to your .env file");
-        setIsLoaded(true); // Allow manual input even without API
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=pt-BR`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => setIsLoaded(true);
-      script.onerror = () => {
-        console.error("Failed to load Google Maps API");
-        setIsLoaded(true); // Allow manual input even if API fails
-      };
-      document.head.appendChild(script);
     };
 
-    loadGoogleMaps();
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !inputRef.current || !window.google) return;
+    const fetchSuggestions = async () => {
+      if (!searchInput || searchInput.length < 3) {
+        setSuggestions([]);
+        return;
+      }
 
-    // Initialize autocomplete
-    autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-      componentRestrictions: { country: "br" },
-      fields: ["address_components", "geometry", "formatted_address"],
-      types: ["address"],
-    });
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('google-places-autocomplete', {
+          body: { input: searchInput, type: 'address' }
+        });
 
-    // Handle place selection
-    autocompleteRef.current.addListener("place_changed", () => {
-      const place = autocompleteRef.current?.getPlace();
-      if (!place?.address_components) return;
-
-      const addressComponents = place.address_components;
-      const newAddress: AddressData = {
-        street: "",
-        number: "",
-        complement: value.complement || "",
-        neighborhood: "",
-        city: "",
-        state: "",
-        zip_code: "",
-        latitude: place.geometry?.location?.lat(),
-        longitude: place.geometry?.location?.lng(),
-      };
-
-      addressComponents.forEach((component) => {
-        const types = component.types;
+        if (error) throw error;
         
-        if (types.includes("street_number")) {
-          newAddress.number = component.long_name;
-        }
-        if (types.includes("route")) {
-          newAddress.street = component.long_name;
-        }
-        if (types.includes("sublocality") || types.includes("neighborhood")) {
-          newAddress.neighborhood = component.long_name;
-        }
-        if (types.includes("administrative_area_level_2")) {
-          newAddress.city = component.long_name;
-        }
-        if (types.includes("administrative_area_level_1")) {
-          newAddress.state = component.short_name;
-        }
-        if (types.includes("postal_code")) {
-          newAddress.zip_code = component.long_name;
-        }
-      });
-
-      onChange(newAddress);
-    });
-
-    return () => {
-      if (autocompleteRef.current) {
-        google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        setSuggestions(data.predictions || []);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error fetching address suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoading(false);
       }
     };
-  }, [isLoaded, onChange]);
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchInput]);
+
+  const handleSelectSuggestion = (prediction: Prediction) => {
+    const parts = prediction.description.split(', ');
+    const newAddress = { ...value };
+    
+    if (parts.length >= 1) {
+      const streetPart = parts[0].split(' - ')[0];
+      const streetMatch = streetPart.match(/^(.+?)(?:,?\s*(\d+.*))?$/);
+      if (streetMatch) {
+        newAddress.street = streetMatch[1].trim();
+        if (streetMatch[2]) newAddress.number = streetMatch[2].trim();
+      }
+    }
+    if (parts.length >= 2) newAddress.neighborhood = parts[1];
+    if (parts.length >= 3) newAddress.city = parts[2];
+    if (parts.length >= 4) {
+      const statePart = parts[3].split(' - ')[0].trim();
+      newAddress.state = statePart;
+    }
+
+    onChange(newAddress);
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setSearchInput("");
+  };
 
   const displayValue = value.street 
     ? `${value.street}${value.number ? `, ${value.number}` : ""} - ${value.neighborhood}, ${value.city} - ${value.state}`
@@ -123,7 +115,7 @@ export const AddressAutocomplete = ({ value, onChange, disabled }: AddressAutoco
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
+      <div className="space-y-2 relative">
         <Label htmlFor="address-search">
           <MapPin className="w-4 h-4 inline mr-2" />
           Buscar Endereço *
@@ -132,17 +124,35 @@ export const AddressAutocomplete = ({ value, onChange, disabled }: AddressAutoco
           id="address-search"
           ref={inputRef}
           type="text"
-          placeholder={!import.meta.env.VITE_GOOGLE_PLACES_API_KEY ? "Preencha os campos abaixo manualmente" : "Digite o endereço completo"}
+          placeholder="Digite o endereço completo"
           disabled={disabled}
-          defaultValue={displayValue}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
         />
-        {!isLoaded && import.meta.env.VITE_GOOGLE_PLACES_API_KEY && (
-          <p className="text-sm text-muted-foreground">Carregando Google Maps...</p>
+        
+        {showSuggestions && suggestions.length > 0 && (
+          <div
+            ref={suggestionsRef}
+            className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto"
+          >
+            {suggestions.map((prediction) => (
+              <button
+                key={prediction.place_id}
+                type="button"
+                onClick={() => handleSelectSuggestion(prediction)}
+                className="w-full px-4 py-2 text-left hover:bg-accent transition-colors flex flex-col"
+              >
+                <span className="font-medium text-foreground">{prediction.structured_formatting.main_text}</span>
+                <span className="text-sm text-muted-foreground">{prediction.structured_formatting.secondary_text}</span>
+              </button>
+            ))}
+          </div>
         )}
-        {!import.meta.env.VITE_GOOGLE_PLACES_API_KEY && (
-          <p className="text-sm text-amber-600">
-            Configure a Google Places API key no arquivo .env para habilitar a busca automática de endereços
-          </p>
+        
+        {isLoading && (
+          <div className="absolute right-3 top-9">
+            <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+          </div>
         )}
       </div>
 

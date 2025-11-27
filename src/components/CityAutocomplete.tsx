@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CityAutocompleteProps {
   value: string;
@@ -9,82 +10,72 @@ interface CityAutocompleteProps {
   className?: string;
 }
 
+interface Prediction {
+  place_id: string;
+  description: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
+}
+
 export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou endereço...", className }: CityAutocompleteProps) => {
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const [suggestions, setSuggestions] = useState<Prediction[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Load Google Maps API
-    const loadGoogleMaps = () => {
-      if (window.google) {
-        setIsLoaded(true);
-        return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node) &&
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
       }
-
-      const apiKey = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
-      if (!apiKey) {
-        console.error("Google Places API key not found");
-        setIsLoaded(true); // Allow input even without API
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=pt-BR`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => setIsLoaded(true);
-      script.onerror = () => {
-        console.error("Failed to load Google Maps");
-        setIsLoaded(true); // Allow input even if API fails
-      };
-      document.head.appendChild(script);
     };
 
-    loadGoogleMaps();
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || !inputRef.current || !window.google) return;
-
-    // Initialize autocomplete
-    autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-      componentRestrictions: { country: "br" },
-      fields: ["address_components", "formatted_address"],
-      types: ["(cities)"],
-    });
-
-    // Handle place selection
-    autocompleteRef.current.addListener("place_changed", () => {
-      const place = autocompleteRef.current?.getPlace();
-      if (!place?.address_components) return;
-
-      const addressComponents = place.address_components;
-      let cityName = "";
-      let stateName = "";
-
-      addressComponents.forEach((component) => {
-        const types = component.types;
-        
-        if (types.includes("administrative_area_level_2")) {
-          cityName = component.long_name;
-        }
-        if (types.includes("administrative_area_level_1")) {
-          stateName = component.short_name;
-        }
-      });
-
-      if (cityName) {
-        onChange(stateName ? `${cityName}, ${stateName}` : cityName);
+    const fetchSuggestions = async () => {
+      if (!value || value.length < 3) {
+        setSuggestions([]);
+        return;
       }
-    });
 
-    return () => {
-      if (autocompleteRef.current) {
-        google.maps.event.clearInstanceListeners(autocompleteRef.current);
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('google-places-autocomplete', {
+          body: { input: value, type: 'city' }
+        });
+
+        if (error) throw error;
+        
+        setSuggestions(data.predictions || []);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Error fetching city suggestions:', error);
+        setSuggestions([]);
+      } finally {
+        setIsLoading(false);
       }
     };
-  }, [isLoaded, onChange]);
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [value]);
+
+  const handleSelectSuggestion = (prediction: Prediction) => {
+    onChange(prediction.structured_formatting.main_text);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
 
   return (
     <div className="relative">
@@ -97,6 +88,31 @@ export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou end
         onChange={(e) => onChange(e.target.value)}
         className={className}
       />
+      
+      {showSuggestions && suggestions.length > 0 && (
+        <div
+          ref={suggestionsRef}
+          className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto"
+        >
+          {suggestions.map((prediction) => (
+            <button
+              key={prediction.place_id}
+              type="button"
+              onClick={() => handleSelectSuggestion(prediction)}
+              className="w-full px-4 py-2 text-left hover:bg-accent transition-colors flex flex-col"
+            >
+              <span className="font-medium text-foreground">{prediction.structured_formatting.main_text}</span>
+              <span className="text-sm text-muted-foreground">{prediction.structured_formatting.secondary_text}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      
+      {isLoading && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+        </div>
+      )}
     </div>
   );
 };
