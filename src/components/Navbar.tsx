@@ -1,10 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Car, Menu, X, User } from "lucide-react";
+import { Car, Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -44,19 +54,50 @@ const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/login">
-                <User className="w-4 h-4 mr-2" />
-                Entrar
-              </Link>
-            </Button>
-            <Button
-              size="sm"
-              className="bg-gradient-accent hover:opacity-90 transition-fast shadow-md"
-              asChild
-            >
-              <Link to="/signup">Cadastrar</Link>
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Minha Conta
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    Perfil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Minhas Reservas
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Meus Veículos
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/auth">
+                    <User className="w-4 h-4 mr-2" />
+                    Entrar
+                  </Link>
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-gradient-accent hover:opacity-90 transition-fast shadow-md"
+                  asChild>
+                  <Link to="/auth">Cadastrar</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -99,21 +140,44 @@ const Navbar = () => {
               Anuncie seu Carro
             </Link>
             <div className="pt-3 space-y-2 border-t border-border">
-              <Button variant="outline" className="w-full" size="sm" asChild>
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <User className="w-4 h-4 mr-2" />
-                  Entrar
-                </Link>
-              </Button>
-              <Button
-                className="w-full bg-gradient-accent hover:opacity-90 transition-fast"
-                size="sm"
-                asChild
-              >
-                <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
-                  Cadastrar
-                </Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button variant="outline" className="w-full" size="sm">
+                    <User className="w-4 h-4 mr-2" />
+                    Meu Perfil
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    size="sm"
+                    onClick={() => {
+                      signOut();
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sair
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                      <User className="w-4 h-4 mr-2" />
+                      Entrar
+                    </Link>
+                  </Button>
+                  <Button
+                    className="w-full bg-gradient-accent hover:opacity-90 transition-fast"
+                    size="sm"
+                    asChild
+                  >
+                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                      Cadastrar
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
