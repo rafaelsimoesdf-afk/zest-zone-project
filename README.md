@@ -1,73 +1,193 @@
-# Welcome to your Lovable project
+# 🚗 CarShare - Marketplace P2P de Aluguel de Carros
 
-## Project info
+> Plataforma moderna que conecta proprietários de veículos com pessoas que precisam alugar carros, criando um marketplace peer-to-peer seguro, conveniente e transparente.
 
-**URL**: https://lovable.dev/projects/488c0394-257d-4b6b-8c08-38a2db48f20e
+![CarShare](https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1200&h=400&fit=crop)
 
-## How can I edit this code?
+## 📋 Sobre o Projeto
 
-There are several ways of editing your application.
+O **CarShare** é uma solução completa de aluguel de carros P2P que permite:
 
-**Use Lovable**
+- **Para Locatários**: Encontrar e alugar carros de pessoas físicas com preços competitivos e grande variedade
+- **Para Proprietários**: Monetizar veículos ociosos e gerar renda extra de forma segura
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/488c0394-257d-4b6b-8c08-38a2db48f20e) and start prompting.
+## ✨ Funcionalidades Principais
 
-Changes made via Lovable will be committed automatically to this repo.
+### Para Locatários (Clientes)
+- 🔍 **Busca Avançada**: Filtros por localização, tipo de veículo, preço, transmissão e mais
+- 🗺️ **Mapa Interativo**: Visualização de carros disponíveis em mapa
+- 📅 **Calendário de Disponibilidade**: Reserva com seleção de datas em tempo real
+- 💳 **Pagamento Seguro**: Múltiplos métodos (Cartão, PIX, carteira digital)
+- 💬 **Chat Integrado**: Comunicação direta com proprietários
+- ⭐ **Sistema de Avaliações**: Reviews verificados de outros locatários
 
-**Use your preferred IDE**
+### Para Proprietários (Locadores)
+- 🚙 **Cadastro de Veículos**: Upload de fotos, documentos e especificações
+- 💰 **Gestão Financeira**: Dashboard com ganhos, extratos e repasses
+- 📊 **Dashboard Completo**: Visão geral de reservas e calendário
+- 🔒 **Segurança Total**: Verificação de documentos e seguro completo
+- 📱 **Notificações**: Alertas em tempo real sobre reservas
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Funcionalidades de Apoio
+- 🛡️ **Sistema de Segurança**: Verificação de CNH, documentos e seguros
+- 🌟 **Avaliação Mútua**: Locatários e proprietários se avaliam
+- 📞 **Suporte 24/7**: Assistência completa durante toda a jornada
+- 🔐 **Pagamentos Protegidos**: Gateway seguro com proteção contra fraudes
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🎨 Design System
 
-Follow these steps:
+O CarShare utiliza um design system moderno e vibrante:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+### Cores Principais
+- **Primary (Royal Blue)**: `hsl(217 91% 60%)` - Confiança e profissionalismo
+- **Secondary (Turquoise)**: `hsl(174 62% 47%)` - Energia e inovação
+- **Accent (Coral)**: `hsl(14 90% 62%)` - Ação e conversão
+
+### Tipografia
+- **Display**: Lexend - Para títulos impactantes
+- **Body**: Inter - Para leitura confortável
+
+### Componentes
+- Cards com hover effects suaves
+- Gradientes vibrantes em CTAs
+- Animações de transição fluídas
+- Layout responsivo mobile-first
+
+## 🛠️ Stack Tecnológica
+
+### Frontend
+- **React 18** - Biblioteca UI moderna
+- **TypeScript** - Type safety
+- **Vite** - Build tool ultra-rápido
+- **Tailwind CSS** - Utility-first CSS
+- **shadcn/ui** - Componentes acessíveis
+- **React Router** - Roteamento
+- **TanStack Query** - State management
+
+### Backend (Próximos Passos)
+- **Supabase** - Backend as a Service
+  - PostgreSQL Database
+  - Authentication
+  - Storage
+  - Real-time subscriptions
+  - Edge Functions
+- **Stripe** - Pagamentos seguros
+
+## 📦 Estrutura do Projeto
+
+```
+src/
+├── assets/          # Imagens e recursos estáticos
+├── components/      # Componentes reutilizáveis
+│   ├── ui/         # Componentes base (shadcn)
+│   ├── Navbar.tsx
+│   └── Footer.tsx
+├── pages/          # Páginas da aplicação
+│   ├── Index.tsx          # Landing page
+│   ├── Browse.tsx         # Busca de carros
+│   ├── CarDetails.tsx     # Detalhes do veículo
+│   ├── BecomeOwner.tsx    # Página para proprietários
+│   ├── HowItWorks.tsx     # Como funciona
+│   └── NotFound.tsx       # 404
+├── hooks/          # Custom hooks
+├── lib/            # Utilitários
+└── App.tsx         # Componente raiz
+```
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+- Node.js 18+ 
+- npm ou yarn
+
+### Instalação
+
+```bash
+# Clone o repositório
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Entre no diretório
+cd carshare
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Instale as dependências
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Inicie o servidor de desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+A aplicação estará disponível em `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📱 Páginas Implementadas
 
-**Use GitHub Codespaces**
+- ✅ **/** - Landing page com hero, benefícios, carros em destaque
+- ✅ **/browse** - Busca de carros com filtros avançados
+- ✅ **/cars/:id** - Detalhes completos do veículo com galeria
+- ✅ **/become-owner** - Cadastro de proprietários com calculadora
+- ✅ **/how-it-works** - Explicação do processo para ambos perfis
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔜 Próximas Implementações
 
-## What technologies are used for this project?
+### Backend (Supabase)
+- [ ] Sistema de autenticação (email/senha, Google)
+- [ ] Perfis de usuário (clientes e proprietários)
+- [ ] CRUD de veículos com upload de imagens
+- [ ] Sistema de reservas com calendário
+- [ ] Sistema de pagamentos (Stripe)
+- [ ] Chat em tempo real entre usuários
+- [ ] Sistema de avaliações e reviews
+- [ ] Notificações push
+- [ ] Dashboard administrativo
 
-This project is built with:
+### Features Adicionais
+- [ ] Filtros avançados salvos
+- [ ] Favoritos e wishlists
+- [ ] Comparação de veículos
+- [ ] Histórico de reservas
+- [ ] Relatórios financeiros para proprietários
+- [ ] Sistema de cupons e promoções
+- [ ] Verificação de documentos (OCR)
+- [ ] Integração com mapas (localização real)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📊 Schema do Banco de Dados
 
-## How can I deploy this project?
+O projeto inclui um schema Prisma completo com:
+- **Users**: Gerenciamento de usuários (roles, status, documentos)
+- **Vehicles**: Cadastro completo de veículos
+- **Bookings**: Sistema de reservas
+- **Payments**: Transações financeiras
+- **Reviews**: Avaliações mútuas
+- **Notifications**: Sistema de notificações
+- **Support**: Tickets de suporte
 
-Simply open [Lovable](https://lovable.dev/projects/488c0394-257d-4b6b-8c08-38a2db48f20e) and click on Share -> Publish.
+Ver arquivo `Schema_Prisma.docx` para detalhes completos.
 
-## Can I connect a custom domain to my Lovable project?
+## 🎯 Público-Alvo
 
-Yes, you can!
+### Locatários
+- Idade: 25-45 anos
+- Perfil: Profissionais urbanos, turistas
+- Necessidades: Flexibilidade, preços competitivos
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Proprietários
+- Idade: 30-55 anos
+- Perfil: Donos de veículos buscando renda extra
+- Necessidades: Processo simples, segurança, rentabilidade
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests.
+
+## 📞 Suporte
+
+Para dúvidas e suporte, entre em contato através:
+- Email: contato@carshare.com.br
+- Telefone: (11) 3000-0000
+
+---
+
+**Desenvolvido com ❤️ usando [Lovable](https://lovable.dev)**
