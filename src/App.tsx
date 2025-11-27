@@ -10,6 +10,9 @@ import CarDetails from "./pages/CarDetails";
 import BecomeOwner from "./pages/BecomeOwner";
 import HowItWorks from "./pages/HowItWorks";
 import Auth from "./pages/Auth";
+import Profile from "./pages/Profile";
+import MyBookings from "./pages/MyBookings";
+import MyVehicles from "./pages/MyVehicles";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +31,9 @@ const App = () => (
             <Route path="/become-owner" element={<BecomeOwner />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/my-bookings" element={<MyBookings />} />
+            <Route path="/my-vehicles" element={<MyVehicles />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
