@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Browse from "./pages/Browse";
 import CarDetails from "./pages/CarDetails";
 import BecomeOwner from "./pages/BecomeOwner";
+import AddVehicle from "./pages/AddVehicle";
 import HowItWorks from "./pages/HowItWorks";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/browse" element={<Browse />} />
             <Route path="/cars/:id" element={<CarDetails />} />
             <Route path="/become-owner" element={<BecomeOwner />} />
+            <Route path="/add-vehicle" element={<AddVehicle />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />

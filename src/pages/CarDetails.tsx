@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useVehicle } from "@/hooks/useVehicles";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   Star,
@@ -24,52 +27,46 @@ import { Separator } from "@/components/ui/separator";
 
 const CarDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [mainImage, setMainImage] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-  // Mock data - will be replaced with real data from backend
-  const car = {
-    id: id,
-    name: "Honda Civic 2023",
-    category: "Sedan",
-    price: 150,
-    rating: 4.9,
-    reviews: 127,
-    location: "Jardim Paulista, São Paulo - SP",
-    images: [
-      "https://images.unsplash.com/photo-1590362891991-f776e747a588",
-      "https://images.unsplash.com/photo-1583121274602-3e2820c69888",
-      "https://images.unsplash.com/photo-1552519507-da3b142c6e3d",
-      "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb",
-    ],
-    owner: {
-      name: "Carlos Silva",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
-      rating: 4.9,
-      trips: 45,
-    },
-    specs: {
-      year: 2023,
-      transmission: "Automático",
-      fuel: "Flex",
-      seats: 5,
-      doors: 4,
-      mileage: "15.000 km",
-    },
-    features: [
-      "Ar-condicionado",
-      "Direção hidráulica",
-      "Vidros elétricos",
-      "Travas elétricas",
-      "Alarme",
-      "Air bag",
-      "Freios ABS",
-      "Bluetooth",
-      "USB",
-      "Câmera de ré",
-    ],
-    description:
-      "Honda Civic 2023 em perfeito estado de conservação. Revisões em dia na concessionária, único dono. Carro ideal para viagens e uso diário. Sempre guardado em garagem coberta.",
-  };
+  const { data: vehicle, isLoading } = useVehicle(id || "");
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!vehicle) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-muted-foreground mb-4">Veículo não encontrado</p>
+            <Button asChild>
+              <Link to="/browse">Voltar para busca</Link>
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const images = vehicle.vehicle_images?.sort((a, b) => a.display_order - b.display_order).map(img => img.image_url) || [];
+  const owner = vehicle.profiles as any;
+  const address = vehicle.addresses as any;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -96,8 +93,8 @@ const CarDetails = () => {
               <div className="space-y-4">
                 <div className="relative h-[400px] sm:h-[500px] rounded-2xl overflow-hidden">
                   <img
-                    src={car.images[mainImage]}
-                    alt={car.name}
+                    src={images[mainImage] || "https://images.unsplash.com/photo-1590362891991-f776e747a588"}
+                    alt={`${vehicle.brand} ${vehicle.model}`}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-4 right-4 flex gap-2">
@@ -119,7 +116,7 @@ const CarDetails = () => {
                 </div>
 
                 <div className="grid grid-cols-4 gap-3">
-                  {car.images.map((image, index) => (
+                  {images.slice(0, 4).map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setMainImage(index)}
@@ -131,7 +128,7 @@ const CarDetails = () => {
                     >
                       <img
                         src={image}
-                        alt={`${car.name} ${index + 1}`}
+                        alt={`${vehicle.brand} ${vehicle.model} ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
                     </button>
@@ -143,21 +140,19 @@ const CarDetails = () => {
               <div>
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <Badge className="mb-3">{car.category}</Badge>
+                    <Badge className="mb-3 capitalize">{vehicle.vehicle_type}</Badge>
                     <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">
-                      {car.name}
+                      {vehicle.brand} {vehicle.model} {vehicle.year}
                     </h1>
                     <div className="flex items-center gap-4 text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Star className="w-5 h-5 fill-accent text-accent" />
-                        <span className="font-semibold text-foreground">
-                          {car.rating}
-                        </span>
-                        <span>({car.reviews} avaliações)</span>
+                        <span className="font-semibold text-foreground">4.9</span>
+                        <span>(0 avaliações)</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
-                        <span>{car.location}</span>
+                        <span>{address ? `${address.neighborhood}, ${address.city} - ${address.state}` : "Localização não informada"}</span>
                       </div>
                     </div>
                   </div>
@@ -169,40 +164,32 @@ const CarDetails = () => {
                 <div>
                   <h2 className="font-bold text-xl mb-4">Especificações</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
                       <Calendar className="w-5 h-5 text-primary" />
                       <div>
                         <div className="text-sm text-muted-foreground">Ano</div>
-                        <div className="font-semibold">{car.specs.year}</div>
+                        <div className="font-semibold">{vehicle.year}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
                       <Settings className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="text-sm text-muted-foreground">
-                          Câmbio
-                        </div>
-                        <div className="font-semibold">
-                          {car.specs.transmission}
-                        </div>
+                        <div className="text-sm text-muted-foreground">Câmbio</div>
+                        <div className="font-semibold capitalize">{vehicle.transmission_type}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
                       <Fuel className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="text-sm text-muted-foreground">
-                          Combustível
-                        </div>
-                        <div className="font-semibold">{car.specs.fuel}</div>
+                        <div className="text-sm text-muted-foreground">Combustível</div>
+                        <div className="font-semibold capitalize">{vehicle.fuel_type}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
                       <Users className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="text-sm text-muted-foreground">
-                          Passageiros
-                        </div>
-                        <div className="font-semibold">{car.specs.seats}</div>
+                        <div className="text-sm text-muted-foreground">Passageiros</div>
+                        <div className="font-semibold">{vehicle.seats}</div>
                       </div>
                     </div>
                   </div>
@@ -214,7 +201,7 @@ const CarDetails = () => {
                 <div>
                   <h2 className="font-bold text-xl mb-4">Descrição</h2>
                   <p className="text-muted-foreground leading-relaxed">
-                    {car.description}
+                    {vehicle.description || "Nenhuma descrição disponível."}
                   </p>
                 </div>
 
@@ -222,19 +209,22 @@ const CarDetails = () => {
 
                 {/* Features */}
                 <div>
-                  <h2 className="font-bold text-xl mb-4">
-                    Recursos e Acessórios
-                  </h2>
+                  <h2 className="font-bold text-xl mb-4">Recursos e Acessórios</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {car.features.map((feature, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-2 text-sm"
-                      >
+                    {vehicle.has_air_conditioning && (
+                      <div className="flex items-center gap-2 text-sm">
                         <CheckCircle2 className="w-4 h-4 text-secondary" />
-                        <span>{feature}</span>
+                        <span>Ar-condicionado</span>
                       </div>
-                    ))}
+                    )}
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <span>{vehicle.doors} portas</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-secondary" />
+                      <span>Cor: {vehicle.color}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -247,22 +237,22 @@ const CarDetails = () => {
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4 mb-4">
                         <Avatar className="w-16 h-16">
-                          <AvatarImage src={car.owner.avatar} />
+                          <AvatarImage src={owner?.profile_image || undefined} />
                           <AvatarFallback>
-                            {car.owner.name.charAt(0)}
+                            {owner?.first_name?.charAt(0) || "?"}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <h3 className="font-bold text-lg">
-                            {car.owner.name}
+                            {owner?.first_name} {owner?.last_name}
                           </h3>
                           <div className="flex items-center gap-3 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Star className="w-4 h-4 fill-accent text-accent" />
-                              <span>{car.owner.rating}</span>
+                              <span>4.9</span>
                             </div>
                             <span>•</span>
-                            <span>{car.owner.trips} viagens</span>
+                            <span>0 viagens</span>
                           </div>
                         </div>
                         <Button variant="outline">
@@ -283,7 +273,7 @@ const CarDetails = () => {
                   <div className="mb-6">
                     <div className="flex items-baseline gap-2 mb-2">
                       <span className="text-4xl font-display font-bold text-primary">
-                        R$ {car.price}
+                        R$ {vehicle.daily_price}
                       </span>
                       <span className="text-muted-foreground">/dia</span>
                     </div>
@@ -297,45 +287,82 @@ const CarDetails = () => {
                       <label className="text-sm font-medium mb-2 block">
                         Data de Retirada
                       </label>
-                      <Input type="date" className="h-12" />
+                      <Input 
+                        type="date" 
+                        className="h-12"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
                     </div>
                     <div>
                       <label className="text-sm font-medium mb-2 block">
                         Data de Devolução
                       </label>
-                      <Input type="date" className="h-12" />
+                      <Input 
+                        type="date" 
+                        className="h-12"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        min={startDate || new Date().toISOString().split('T')[0]}
+                      />
                     </div>
                   </div>
 
-                  <div className="space-y-3 mb-6 p-4 bg-muted/50 rounded-xl">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        R$ {car.price} x 3 dias
-                      </span>
-                      <span className="font-semibold">R$ {car.price * 3}</span>
+                  {startDate && endDate && (
+                    <div className="space-y-3 mb-6 p-4 bg-muted/50 rounded-xl">
+                      {(() => {
+                        const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+                        const subtotal = vehicle.daily_price * days;
+                        const serviceFee = subtotal * 0.15;
+                        const insurance = days * 20;
+                        const total = subtotal + serviceFee + insurance;
+
+                        return (
+                          <>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                R$ {vehicle.daily_price} x {days} {days === 1 ? 'dia' : 'dias'}
+                              </span>
+                              <span className="font-semibold">R$ {subtotal.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Taxa de serviço (15%)</span>
+                              <span className="font-semibold">R$ {serviceFee.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Seguro</span>
+                              <span className="font-semibold">R$ {insurance.toFixed(2)}</span>
+                            </div>
+                            <Separator />
+                            <div className="flex justify-between font-bold">
+                              <span>Total</span>
+                              <span className="text-primary text-lg">R$ {total.toFixed(2)}</span>
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Taxa de serviço</span>
-                      <span className="font-semibold">R$ 45</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Seguro</span>
-                      <span className="font-semibold">R$ 60</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between font-bold">
-                      <span>Total</span>
-                      <span className="text-primary text-lg">
-                        R$ {car.price * 3 + 45 + 60}
-                      </span>
-                    </div>
-                  </div>
+                  )}
 
                   <Button
                     size="lg"
                     className="w-full bg-gradient-accent hover:opacity-90 transition-smooth mb-4"
+                    onClick={() => {
+                      if (!user) {
+                        navigate("/auth");
+                        return;
+                      }
+                      if (!startDate || !endDate) {
+                        toast.error("Selecione as datas de retirada e devolução");
+                        return;
+                      }
+                      // TODO: Implement booking creation
+                      toast.success("Funcionalidade de reserva em desenvolvimento");
+                    }}
+                    disabled={!startDate || !endDate}
                   >
-                    Reservar Agora
+                    {!user ? "Faça login para reservar" : "Reservar Agora"}
                   </Button>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center">

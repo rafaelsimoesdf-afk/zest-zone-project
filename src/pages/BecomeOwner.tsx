@@ -309,9 +309,11 @@ const BecomeOwner = () => {
           <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
             Cadastre-se gratuitamente e comece a lucrar com seu carro hoje mesmo
           </p>
-          <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-            Cadastrar Meu Carro
-            <ArrowRight className="w-5 h-5 ml-2" />
+          <Button size="lg" className="bg-white text-primary hover:bg-white/90" asChild>
+            <Link to="/add-vehicle">
+              Cadastrar Meu Carro
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
           </Button>
         </div>
       </section>
