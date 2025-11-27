@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Search, SlidersHorizontal, MapPin, Star } from "lucide-react";
+import { Search, SlidersHorizontal, Star } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Link } from "react-router-dom";
+import { CityAutocomplete } from "@/components/CityAutocomplete";
 
 const Browse = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -51,14 +51,18 @@ const Browse = () => {
           {/* Search and Filters */}
           <div className="bg-card border rounded-2xl p-6 mb-8 shadow-md">
             <div className="grid lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-2 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
+              <div className="lg:col-span-2">
+                <CityAutocomplete
+                  value={filters.city}
+                  onChange={(city) => setFilters({ ...filters, city })}
                   placeholder="Cidade ou endereço..."
                   className="pl-10 h-12"
                 />
               </div>
-              <Select>
+              <Select
+                value={filters.vehicleType}
+                onValueChange={(value) => setFilters({ ...filters, vehicleType: value })}
+              >
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Tipo de Veículo" />
                 </SelectTrigger>
@@ -70,7 +74,10 @@ const Browse = () => {
                   <SelectItem value="pickup">Pickup</SelectItem>
                 </SelectContent>
               </Select>
-              <Select>
+              <Select
+                value={filters.transmission}
+                onValueChange={(value) => setFilters({ ...filters, transmission: value })}
+              >
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Transmissão" />
                 </SelectTrigger>
@@ -102,7 +109,10 @@ const Browse = () => {
 
             {showFilters && (
               <div className="mt-6 pt-6 border-t grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Select>
+                <Select
+                  value={filters.maxPrice?.toString() || ""}
+                  onValueChange={(value) => setFilters({ ...filters, maxPrice: value ? parseFloat(value) : undefined })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Preço Máximo" />
                   </SelectTrigger>
@@ -113,7 +123,10 @@ const Browse = () => {
                     <SelectItem value="300">Até R$ 300/dia</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select>
+                <Select
+                  value={filters.fuel}
+                  onValueChange={(value) => setFilters({ ...filters, fuel: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Combustível" />
                   </SelectTrigger>
