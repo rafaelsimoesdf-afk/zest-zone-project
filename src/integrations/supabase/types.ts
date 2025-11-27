@@ -532,6 +532,33 @@ export type Database = {
           },
         ]
       }
+      vehicle_brands: {
+        Row: {
+          country: string
+          created_at: string
+          id: string
+          is_popular: boolean
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          id?: string
+          is_popular?: boolean
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          id?: string
+          is_popular?: boolean
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       vehicle_images: {
         Row: {
           created_at: string
@@ -567,10 +594,46 @@ export type Database = {
           },
         ]
       }
+      vehicle_models: {
+        Row: {
+          brand_id: string
+          category: string | null
+          created_at: string
+          id: string
+          is_popular: boolean
+          name: string
+        }
+        Insert: {
+          brand_id: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_popular?: boolean
+          name: string
+        }
+        Update: {
+          brand_id?: string
+          category?: string | null
+          created_at?: string
+          id?: string
+          is_popular?: boolean
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_models_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           address_id: string | null
           brand: string
+          brand_id: string | null
           color: string
           created_at: string
           daily_price: number
@@ -582,6 +645,7 @@ export type Database = {
           license_plate: string
           mileage: number
           model: string
+          model_id: string | null
           owner_id: string
           seats: number
           status: Database["public"]["Enums"]["vehicle_status"]
@@ -593,6 +657,7 @@ export type Database = {
         Insert: {
           address_id?: string | null
           brand: string
+          brand_id?: string | null
           color: string
           created_at?: string
           daily_price: number
@@ -604,6 +669,7 @@ export type Database = {
           license_plate: string
           mileage: number
           model: string
+          model_id?: string | null
           owner_id: string
           seats: number
           status?: Database["public"]["Enums"]["vehicle_status"]
@@ -615,6 +681,7 @@ export type Database = {
         Update: {
           address_id?: string | null
           brand?: string
+          brand_id?: string | null
           color?: string
           created_at?: string
           daily_price?: number
@@ -626,6 +693,7 @@ export type Database = {
           license_plate?: string
           mileage?: number
           model?: string
+          model_id?: string | null
           owner_id?: string
           seats?: number
           status?: Database["public"]["Enums"]["vehicle_status"]
@@ -640,6 +708,20 @@ export type Database = {
             columns: ["address_id"]
             isOneToOne: false
             referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_model_id_fkey"
+            columns: ["model_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_models"
             referencedColumns: ["id"]
           },
           {

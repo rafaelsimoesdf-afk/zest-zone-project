@@ -42,6 +42,8 @@ export const useVehicles = (filters?: {
   fuel?: string;
   maxPrice?: number;
   city?: string;
+  brandId?: string;
+  modelId?: string;
 }) => {
   return useQuery({
     queryKey: ["vehicles", filters],
@@ -81,6 +83,14 @@ export const useVehicles = (filters?: {
 
       if (filters?.maxPrice) {
         query = query.lte("daily_price", filters.maxPrice);
+      }
+
+      if (filters?.brandId && filters.brandId !== "all") {
+        query = query.eq("brand_id", filters.brandId);
+      }
+
+      if (filters?.modelId && filters.modelId !== "all") {
+        query = query.eq("model_id", filters.modelId);
       }
 
       const { data, error } = await query;

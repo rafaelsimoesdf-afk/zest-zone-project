@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateAddress } from "@/hooks/useAddresses";
+import { useBrands, useModels } from "@/hooks/useBrands";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -26,9 +27,13 @@ const AddVehicle = () => {
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   
+  const { data: brands } = useBrands();
+  const [selectedBrandId, setSelectedBrandId] = useState<string>("");
+  const { data: models } = useModels(selectedBrandId);
+
   const [formData, setFormData] = useState({
-    brand: "",
-    model: "",
+    brand_id: "",
+    model_id: "",
     year: new Date().getFullYear(),
     vehicle_type: "sedan",
     transmission_type: "manual",
@@ -106,12 +111,18 @@ const AddVehicle = () => {
         is_default: false,
       });
 
+      // Get brand and model names for the text fields
+      const selectedBrand = brands?.find(b => b.id === formData.brand_id);
+      const selectedModel = models?.find(m => m.id === formData.model_id);
+
       // Insert vehicle
       const { data: vehicle, error: vehicleError } = await supabase
         .from("vehicles")
         .insert([{
-          brand: formData.brand,
-          model: formData.model,
+          brand_id: formData.brand_id,
+          model_id: formData.model_id,
+          brand: selectedBrand?.name || "",
+          model: selectedModel?.name || "",
           year: formData.year,
           vehicle_type: formData.vehicle_type as any,
           transmission_type: formData.transmission_type as any,
@@ -255,23 +266,45 @@ const AddVehicle = () => {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="brand">Marca *</Label>
-                    <Input
-                      id="brand"
+                    <Select
+                      value={formData.brand_id}
+                      onValueChange={(value) => {
+                        setFormData({ ...formData, brand_id: value, model_id: "" });
+                        setSelectedBrandId(value);
+                      }}
                       required
-                      value={formData.brand}
-                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                      placeholder="Ex: Honda, Toyota, Volkswagen"
-                    />
+                    >
+                      <SelectTrigger id="brand">
+                        <SelectValue placeholder="Selecione a marca" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {brands?.map((brand) => (
+                          <SelectItem key={brand.id} value={brand.id}>
+                            {brand.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="model">Modelo *</Label>
-                    <Input
-                      id="model"
+                    <Select
+                      value={formData.model_id}
+                      onValueChange={(value) => setFormData({ ...formData, model_id: value })}
+                      disabled={!selectedBrandId}
                       required
-                      value={formData.model}
-                      onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                      placeholder="Ex: Civic, Corolla, Gol"
-                    />
+                    >
+                      <SelectTrigger id="model">
+                        <SelectValue placeholder={selectedBrandId ? "Selecione o modelo" : "Selecione a marca primeiro"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {models?.map((model) => (
+                          <SelectItem key={model.id} value={model.id}>
+                            {model.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
