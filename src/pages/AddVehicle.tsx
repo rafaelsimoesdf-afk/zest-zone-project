@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCreateAddress } from "@/hooks/useAddresses";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -14,10 +15,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
+import type { AddressData } from "@/components/AddressAutocomplete";
 
 const AddVehicle = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const createAddress = useCreateAddress();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -37,6 +41,16 @@ const AddVehicle = () => {
     daily_price: 0,
     description: "",
     has_air_conditioning: false,
+  });
+
+  const [addressData, setAddressData] = useState<AddressData>({
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    zip_code: "",
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,9 +87,25 @@ const AddVehicle = () => {
       return;
     }
 
+    // Validate address is filled
+    if (!addressData.street || !addressData.number || !addressData.neighborhood || 
+        !addressData.city || !addressData.state || !addressData.zip_code) {
+      toast.error("Por favor, preencha o endereço completo do veículo");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      // Create address for vehicle
+      const addressResult = await createAddress.mutateAsync({
+        ...addressData,
+        complement: addressData.complement || null,
+        latitude: addressData.latitude || null,
+        longitude: addressData.longitude || null,
+        is_default: false,
+      });
+
       // Insert vehicle
       const { data: vehicle, error: vehicleError } = await supabase
         .from("vehicles")
@@ -95,6 +125,7 @@ const AddVehicle = () => {
           description: formData.description || null,
           has_air_conditioning: formData.has_air_conditioning,
           owner_id: user.id,
+          address_id: addressResult.id,
         }])
         .select()
         .single();
@@ -426,6 +457,20 @@ const AddVehicle = () => {
                     rows={5}
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Location */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Localização do Veículo</CardTitle>
+                <CardDescription>Onde o veículo está disponível para retirada</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AddressAutocomplete
+                  value={addressData}
+                  onChange={setAddressData}
+                />
               </CardContent>
             </Card>
 
