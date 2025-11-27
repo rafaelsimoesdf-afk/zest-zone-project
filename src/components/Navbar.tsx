@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Car, Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,6 +55,7 @@ const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -146,6 +148,9 @@ const Navbar = () => {
               Anuncie seu Carro
             </Link>
             <div className="pt-3 space-y-2 border-t border-border">
+              <div className="flex justify-center pb-2">
+                <ThemeToggle />
+              </div>
               {user ? (
                 <>
                   <Button variant="outline" className="w-full" size="sm" asChild>
