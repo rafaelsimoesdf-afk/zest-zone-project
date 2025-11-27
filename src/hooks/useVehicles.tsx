@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface Vehicle {
   id: string;
@@ -163,6 +164,54 @@ export const useMyVehicles = () => {
 
       if (error) throw error;
       return data as Vehicle[];
+    },
+  });
+};
+
+export const useDeleteVehicle = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (vehicleId: string) => {
+      // First delete all vehicle images from storage
+      const { data: images } = await supabase
+        .from("vehicle_images")
+        .select("image_url")
+        .eq("vehicle_id", vehicleId);
+
+      if (images) {
+        for (const image of images) {
+          // Extract file path from public URL
+          const urlParts = image.image_url.split('/vehicle-images/');
+          if (urlParts[1]) {
+            await supabase.storage
+              .from('vehicle-images')
+              .remove([urlParts[1]]);
+          }
+        }
+      }
+
+      // Delete vehicle images from database
+      await supabase
+        .from("vehicle_images")
+        .delete()
+        .eq("vehicle_id", vehicleId);
+
+      // Delete vehicle
+      const { error } = await supabase
+        .from("vehicles")
+        .delete()
+        .eq("id", vehicleId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["myVehicles"] });
+      toast.success("Veículo excluído com sucesso!");
+    },
+    onError: (error: Error) => {
+      toast.error(`Erro ao excluir veículo: ${error.message}`);
     },
   });
 };

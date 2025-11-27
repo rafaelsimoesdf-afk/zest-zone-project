@@ -9,9 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useAdminStats, usePendingVehicles, useAllVehicles, useAllUsers, useAllBookings, useUpdateVehicleStatus, useUpdateUserStatus } from "@/hooks/useAdmin";
+import { useDeleteVehicle } from "@/hooks/useVehicles";
 import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
-import { CheckCircle, XCircle, Users, Car, Calendar, Clock } from "lucide-react";
+import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -27,6 +29,7 @@ const Admin = () => {
   
   const updateVehicleStatus = useUpdateVehicleStatus();
   const updateUserStatus = useUpdateUserStatus();
+  const deleteVehicle = useDeleteVehicle();
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -57,6 +60,10 @@ const Admin = () => {
 
   const handleRejectVehicle = (vehicleId: string) => {
     updateVehicleStatus.mutate({ vehicleId, status: "rejected" });
+  };
+
+  const handleDeleteVehicle = (vehicleId: string) => {
+    deleteVehicle.mutate(vehicleId);
   };
 
   const getStatusBadge = (status: string) => {
@@ -254,6 +261,7 @@ const Admin = () => {
                       <TableHead>Status</TableHead>
                       <TableHead>Preço/Dia</TableHead>
                       <TableHead>Data</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -269,6 +277,38 @@ const Admin = () => {
                         <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
                         <TableCell>R$ {vehicle.daily_price}</TableCell>
                         <TableCell>{format(new Date(vehicle.created_at), "dd/MM/yyyy")}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex gap-2 justify-end">
+                            <Button variant="outline" size="sm" disabled>
+                              <Edit className="h-4 w-4 mr-1" />
+                              Editar
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm" disabled={deleteVehicle.isPending}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir este veículo? Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeleteVehicle(vehicle.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Excluir
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
