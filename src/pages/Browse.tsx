@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, SlidersHorizontal, MapPin, Star } from "lucide-react";
+import { useVehicles } from "@/hooks/useVehicles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -17,81 +18,19 @@ import { Link } from "react-router-dom";
 
 const Browse = () => {
   const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    vehicleType: "all",
+    transmission: "all",
+    fuel: "all",
+    maxPrice: undefined as number | undefined,
+    city: "",
+  });
 
-  const cars = [
-    {
-      id: 1,
-      name: "Honda Civic 2023",
-      category: "Sedan",
-      price: 150,
-      rating: 4.9,
-      reviews: 127,
-      image: "https://images.unsplash.com/photo-1590362891991-f776e747a588",
-      location: "São Paulo, SP",
-      transmission: "Automático",
-      fuel: "Flex",
-    },
-    {
-      id: 2,
-      name: "Jeep Compass 2022",
-      category: "SUV",
-      price: 220,
-      rating: 4.8,
-      reviews: 94,
-      image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf",
-      location: "Rio de Janeiro, RJ",
-      transmission: "Automático",
-      fuel: "Flex",
-    },
-    {
-      id: 3,
-      name: "Toyota Corolla 2024",
-      category: "Sedan",
-      price: 170,
-      rating: 5.0,
-      reviews: 203,
-      image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb",
-      location: "Brasília, DF",
-      transmission: "Automático",
-      fuel: "Híbrido",
-    },
-    {
-      id: 4,
-      name: "Volkswagen T-Cross 2023",
-      category: "SUV",
-      price: 180,
-      rating: 4.7,
-      reviews: 156,
-      image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d",
-      location: "São Paulo, SP",
-      transmission: "Automático",
-      fuel: "Flex",
-    },
-    {
-      id: 5,
-      name: "Hyundai HB20 2023",
-      category: "Hatchback",
-      price: 120,
-      rating: 4.6,
-      reviews: 89,
-      image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888",
-      location: "Curitiba, PR",
-      transmission: "Manual",
-      fuel: "Flex",
-    },
-    {
-      id: 6,
-      name: "Fiat Argo 2022",
-      category: "Hatchback",
-      price: 110,
-      rating: 4.5,
-      reviews: 71,
-      image: "https://images.unsplash.com/photo-1609521263047-f8f205293f24",
-      location: "Belo Horizonte, MG",
-      transmission: "Manual",
-      fuel: "Flex",
-    },
-  ];
+  const { data: vehicles, isLoading } = useVehicles(filters);
+
+  const handleSearch = () => {
+    // Filters are already applied via the query
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -216,59 +155,76 @@ const Browse = () => {
           {/* Results */}
           <div className="mb-4">
             <p className="text-muted-foreground">
-              Mostrando <span className="font-semibold text-foreground">{cars.length}</span> resultados
+              {isLoading ? "Carregando..." : (
+                <>Mostrando <span className="font-semibold text-foreground">{vehicles?.length || 0}</span> resultados</>
+              )}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cars.map((car) => (
-              <Link key={car.id} to={`/cars/${car.id}`}>
-                <Card className="overflow-hidden group hover:shadow-xl transition-smooth border-2 hover:border-primary h-full">
-                  <div className="relative h-56 overflow-hidden">
-                    <img
-                      src={car.image}
-                      alt={car.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-smooth"
-                    />
-                    <Badge className="absolute top-4 right-4 bg-background/90 backdrop-blur">
-                      {car.category}
-                    </Badge>
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-bold text-xl">{car.name}</h3>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-accent text-accent" />
-                        <span className="font-semibold">{car.rating}</span>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Carregando veículos...</p>
+            </div>
+          ) : !vehicles || vehicles.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Nenhum veículo encontrado com os filtros selecionados.</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {vehicles.map((vehicle) => {
+                const primaryImage = vehicle.vehicle_images?.find(img => img.is_primary) || vehicle.vehicle_images?.[0];
+                const location = vehicle.addresses ? `${vehicle.addresses.city}, ${vehicle.addresses.state}` : "Localização não informada";
+                
+                return (
+                  <Link key={vehicle.id} to={`/cars/${vehicle.id}`}>
+                    <Card className="overflow-hidden group hover:shadow-xl transition-smooth border-2 hover:border-primary h-full">
+                      <div className="relative h-56 overflow-hidden">
+                        <img
+                          src={primaryImage?.image_url || "https://images.unsplash.com/photo-1590362891991-f776e747a588"}
+                          alt={`${vehicle.brand} ${vehicle.model}`}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-smooth"
+                        />
+                        <Badge className="absolute top-4 right-4 bg-background/90 backdrop-blur capitalize">
+                          {vehicle.vehicle_type}
+                        </Badge>
                       </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      📍 {car.location}
-                    </p>
-                    <div className="flex gap-2 mb-4">
-                      <Badge variant="secondary" className="text-xs">
-                        {car.transmission}
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
-                        {car.fuel}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-2xl font-bold text-primary">
-                          R$ {car.price}
-                        </span>
-                        <span className="text-muted-foreground text-sm">/dia</span>
-                      </div>
-                      <Button size="sm" className="bg-gradient-accent">
-                        Ver Detalhes
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="font-bold text-xl">{vehicle.brand} {vehicle.model} {vehicle.year}</h3>
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-accent text-accent" />
+                            <span className="font-semibold">4.9</span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          📍 {location}
+                        </p>
+                        <div className="flex gap-2 mb-4">
+                          <Badge variant="secondary" className="text-xs capitalize">
+                            {vehicle.transmission_type}
+                          </Badge>
+                          <Badge variant="secondary" className="text-xs capitalize">
+                            {vehicle.fuel_type}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-2xl font-bold text-primary">
+                              R$ {vehicle.daily_price}
+                            </span>
+                            <span className="text-muted-foreground text-sm">/dia</span>
+                          </div>
+                          <Button size="sm" className="bg-gradient-accent">
+                            Ver Detalhes
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
 

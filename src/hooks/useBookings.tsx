@@ -1,0 +1,100 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export interface Booking {
+  id: string;
+  vehicle_id: string;
+  customer_id: string;
+  owner_id: string;
+  start_date: string;
+  end_date: string;
+  total_days: number;
+  daily_rate: number;
+  total_price: number;
+  status: string;
+  pickup_location: string | null;
+  return_location: string | null;
+  notes: string | null;
+  created_at: string;
+  vehicles?: {
+    brand: string;
+    model: string;
+    year: number;
+    vehicle_images?: Array<{
+      image_url: string;
+      is_primary: boolean;
+    }>;
+  };
+  profiles?: {
+    first_name: string;
+    last_name: string;
+  };
+}
+
+export const useMyBookings = () => {
+  return useQuery({
+    queryKey: ["myBookings"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(`
+          *,
+          vehicles (
+            brand,
+            model,
+            year,
+            vehicle_images (
+              image_url,
+              is_primary
+            )
+          ),
+          profiles!bookings_owner_id_fkey (
+            first_name,
+            last_name
+          )
+        `)
+        .eq("customer_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as Booking[];
+    },
+  });
+};
+
+export const useOwnerBookings = () => {
+  return useQuery({
+    queryKey: ["ownerBookings"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(`
+          *,
+          vehicles (
+            brand,
+            model,
+            year,
+            vehicle_images (
+              image_url,
+              is_primary
+            )
+          ),
+          profiles!bookings_customer_id_fkey (
+            first_name,
+            last_name
+          )
+        `)
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data as Booking[];
+    },
+  });
+};
