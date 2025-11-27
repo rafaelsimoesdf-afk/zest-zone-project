@@ -65,15 +65,21 @@ const Navbar = () => {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    Perfil
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      Perfil
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Minhas Reservas
+                  <DropdownMenuItem asChild>
+                    <Link to="/my-bookings" className="cursor-pointer">
+                      Minhas Reservas
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Meus Veículos
+                  <DropdownMenuItem asChild>
+                    <Link to="/my-vehicles" className="cursor-pointer">
+                      Meus Veículos
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
@@ -142,9 +148,21 @@ const Navbar = () => {
             <div className="pt-3 space-y-2 border-t border-border">
               {user ? (
                 <>
-                  <Button variant="outline" className="w-full" size="sm">
-                    <User className="w-4 h-4 mr-2" />
-                    Meu Perfil
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
+                      <User className="w-4 h-4 mr-2" />
+                      Meu Perfil
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)}>
+                      Minhas Reservas
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/my-vehicles" onClick={() => setIsMenuOpen(false)}>
+                      Meus Veículos
+                    </Link>
                   </Button>
                   <Button 
                     variant="outline" 
