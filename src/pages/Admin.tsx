@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAdminStats, usePendingVehicles, useAllVehicles, useAllUsers, useAllBookings, useUpdateVehicleStatus, useUpdateUserStatus } from "@/hooks/useAdmin";
+import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
 import { CheckCircle, XCircle, Users, Car, Calendar, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -159,11 +160,12 @@ const Admin = () => {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="pending">Veículos Pendentes</TabsTrigger>
             <TabsTrigger value="vehicles">Todos os Veículos</TabsTrigger>
             <TabsTrigger value="users">Usuários</TabsTrigger>
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
+            <TabsTrigger value="collaborators">Colaboradores</TabsTrigger>
           </TabsList>
 
           {/* Pending Vehicles */}
@@ -351,6 +353,11 @@ const Admin = () => {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Collaborators */}
+          <TabsContent value="collaborators">
+            <CollaboratorsTab />
           </TabsContent>
         </Tabs>
       </main>
