@@ -159,9 +159,12 @@ const BecomeOwner = () => {
                 <Button
                   size="lg"
                   className="w-full mt-6 bg-accent hover:opacity-90 transition-smooth"
+                  asChild
                 >
-                  Começar Agora
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <Link to="/add-vehicle">
+                    Começar Agora
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
