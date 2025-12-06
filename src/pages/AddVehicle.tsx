@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCreateAddress } from "@/hooks/useAddresses";
@@ -14,10 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { ArrowLeft, Upload, X, Shield, Sofa, Cpu, Car, Package } from "lucide-react";
 import { Link } from "react-router-dom";
-import { AddressAutocomplete } from "@/components/AddressAutocomplete";
-import type { AddressData } from "@/components/AddressAutocomplete";
+import { CityAutocomplete } from "@/components/CityAutocomplete";
 
 const AddVehicle = () => {
   const navigate = useNavigate();
@@ -31,31 +30,85 @@ const AddVehicle = () => {
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const { data: models } = useModels(selectedBrandId);
 
+  // Form data state
   const [formData, setFormData] = useState({
+    // Basic info
     brand_id: "",
     model_id: "",
-    year: new Date().getFullYear(),
-    vehicle_type: "sedan",
-    transmission_type: "manual",
-    fuel_type: "flex",
+    versao: "",
+    ano_fabricacao: new Date().getFullYear(),
+    ano_modelo: new Date().getFullYear(),
     color: "",
-    seats: 5,
+    vehicle_type: "sedan",
+    motor: "",
+    fuel_type: "flex",
+    transmission_type: "manual",
     doors: 4,
+    direcao: "hidraulica",
     mileage: 0,
     license_plate: "",
-    daily_price: 0,
-    description: "",
-    has_air_conditioning: false,
-  });
-
-  const [addressData, setAddressData] = useState<AddressData>({
-    street: "",
-    number: "",
-    complement: "",
-    neighborhood: "",
+    seats: 5,
+    
+    // Location
     city: "",
     state: "",
-    zip_code: "",
+    
+    // Financial
+    daily_price: 0,
+    caucao: 0,
+    
+    // Documentation
+    chassi_mascarado: "",
+    situacao_veiculo: "regular",
+    
+    // Description and rules
+    description: "",
+    regras: "",
+    
+    // Security accessories
+    airbag_frontal: false,
+    airbag_lateral: false,
+    freios_abs: false,
+    controle_tracao: false,
+    controle_estabilidade: false,
+    camera_re: false,
+    sensor_estacionamento: false,
+    alarme: false,
+    
+    // Comfort accessories
+    has_air_conditioning: false,
+    ar_digital: false,
+    direcao_hidraulica: false,
+    direcao_eletrica: false,
+    vidros_eletricos: false,
+    retrovisores_eletricos: false,
+    banco_couro: false,
+    banco_eletrico: false,
+    
+    // Technology accessories
+    multimidia: false,
+    bluetooth: false,
+    android_auto: false,
+    apple_carplay: false,
+    gps: false,
+    wifi: false,
+    entrada_usb: false,
+    carregador_inducao: false,
+    piloto_automatico: false,
+    start_stop: false,
+    
+    // Exterior accessories
+    rodas_liga_leve: false,
+    farol_led: false,
+    farol_milha: false,
+    rack_teto: false,
+    engate: false,
+    
+    // Other accessories
+    chave_reserva: false,
+    manual_veiculo: false,
+    sensor_chuva: false,
+    sensor_crepuscular: false,
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +131,10 @@ const AddVehicle = () => {
     setImagePreviews(newPreviews);
   };
 
+  const handleCheckboxChange = (field: string, checked: boolean) => {
+    setFormData({ ...formData, [field]: checked });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -92,22 +149,25 @@ const AddVehicle = () => {
       return;
     }
 
-    // Validate address is filled
-    if (!addressData.street || !addressData.number || !addressData.neighborhood || 
-        !addressData.city || !addressData.state || !addressData.zip_code) {
-      toast.error("Por favor, preencha o endereço completo do veículo");
+    if (!formData.city || !formData.state) {
+      toast.error("Por favor, selecione a cidade e estado do veículo");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Create address for vehicle
+      // Create address for vehicle location
       const addressResult = await createAddress.mutateAsync({
-        ...addressData,
-        complement: addressData.complement || null,
-        latitude: addressData.latitude || null,
-        longitude: addressData.longitude || null,
+        street: "Localização do veículo",
+        number: "S/N",
+        complement: null,
+        neighborhood: formData.city,
+        city: formData.city,
+        state: formData.state,
+        zip_code: "00000-000",
+        latitude: null,
+        longitude: null,
         is_default: false,
       });
 
@@ -115,26 +175,88 @@ const AddVehicle = () => {
       const selectedBrand = brands?.find(b => b.id === formData.brand_id);
       const selectedModel = models?.find(m => m.id === formData.model_id);
 
-      // Insert vehicle
+      // Insert vehicle with all fields
       const { data: vehicle, error: vehicleError } = await supabase
         .from("vehicles")
         .insert([{
+          // Basic info
           brand_id: formData.brand_id,
           model_id: formData.model_id,
           brand: selectedBrand?.name || "",
           model: selectedModel?.name || "",
-          year: formData.year,
-          vehicle_type: formData.vehicle_type as any,
-          transmission_type: formData.transmission_type as any,
-          fuel_type: formData.fuel_type as any,
+          versao: formData.versao || null,
+          year: formData.ano_fabricacao, // Keep year for compatibility
+          ano_fabricacao: formData.ano_fabricacao,
+          ano_modelo: formData.ano_modelo,
           color: formData.color,
-          seats: formData.seats,
+          vehicle_type: formData.vehicle_type as any,
+          motor: formData.motor || null,
+          fuel_type: formData.fuel_type as any,
+          transmission_type: formData.transmission_type as any,
           doors: formData.doors,
+          direcao: formData.direcao || null,
           mileage: formData.mileage,
           license_plate: formData.license_plate,
+          seats: formData.seats,
+          
+          // Financial
           daily_price: formData.daily_price,
+          caucao: formData.caucao,
+          
+          // Documentation
+          chassi_mascarado: formData.chassi_mascarado || null,
+          situacao_veiculo: formData.situacao_veiculo || null,
+          
+          // Description and rules
           description: formData.description || null,
+          regras: formData.regras || null,
+          
+          // Security accessories
+          airbag_frontal: formData.airbag_frontal,
+          airbag_lateral: formData.airbag_lateral,
+          freios_abs: formData.freios_abs,
+          controle_tracao: formData.controle_tracao,
+          controle_estabilidade: formData.controle_estabilidade,
+          camera_re: formData.camera_re,
+          sensor_estacionamento: formData.sensor_estacionamento,
+          alarme: formData.alarme,
+          
+          // Comfort accessories
           has_air_conditioning: formData.has_air_conditioning,
+          ar_digital: formData.ar_digital,
+          direcao_hidraulica: formData.direcao_hidraulica,
+          direcao_eletrica: formData.direcao_eletrica,
+          vidros_eletricos: formData.vidros_eletricos,
+          retrovisores_eletricos: formData.retrovisores_eletricos,
+          banco_couro: formData.banco_couro,
+          banco_eletrico: formData.banco_eletrico,
+          
+          // Technology accessories
+          multimidia: formData.multimidia,
+          bluetooth: formData.bluetooth,
+          android_auto: formData.android_auto,
+          apple_carplay: formData.apple_carplay,
+          gps: formData.gps,
+          wifi: formData.wifi,
+          entrada_usb: formData.entrada_usb,
+          carregador_inducao: formData.carregador_inducao,
+          piloto_automatico: formData.piloto_automatico,
+          start_stop: formData.start_stop,
+          
+          // Exterior accessories
+          rodas_liga_leve: formData.rodas_liga_leve,
+          farol_led: formData.farol_led,
+          farol_milha: formData.farol_milha,
+          rack_teto: formData.rack_teto,
+          engate: formData.engate,
+          
+          // Other accessories
+          chave_reserva: formData.chave_reserva,
+          manual_veiculo: formData.manual_veiculo,
+          sensor_chuva: formData.sensor_chuva,
+          sensor_crepuscular: formData.sensor_crepuscular,
+          
+          // Owner and address
           owner_id: user.id,
           address_id: addressResult.id,
         }])
@@ -148,7 +270,7 @@ const AddVehicle = () => {
         const fileExt = image.name.split('.').pop();
         const fileName = `${user.id}/${vehicle.id}/${Date.now()}-${index}.${fileExt}`;
         
-        const { error: uploadError, data: uploadData } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('vehicle-images')
           .upload(fileName, image);
 
@@ -320,19 +442,57 @@ const AddVehicle = () => {
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-3 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="year">Ano *</Label>
+                    <Label htmlFor="versao">Versão</Label>
                     <Input
-                      id="year"
+                      id="versao"
+                      value={formData.versao}
+                      onChange={(e) => setFormData({ ...formData, versao: e.target.value })}
+                      placeholder="Ex: LTZ, Premier, Limited"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="license_plate">Placa *</Label>
+                    <Input
+                      id="license_plate"
+                      required
+                      value={formData.license_plate}
+                      onChange={(e) => setFormData({ ...formData, license_plate: e.target.value.toUpperCase() })}
+                      placeholder="ABC1D23"
+                      maxLength={7}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ano_fabricacao">Ano de Fabricação *</Label>
+                    <Input
+                      id="ano_fabricacao"
                       type="number"
                       required
                       min="1900"
                       max={new Date().getFullYear() + 1}
-                      value={formData.year}
-                      onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                      value={formData.ano_fabricacao}
+                      onChange={(e) => setFormData({ ...formData, ano_fabricacao: parseInt(e.target.value) })}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ano_modelo">Ano do Modelo *</Label>
+                    <Input
+                      id="ano_modelo"
+                      type="number"
+                      required
+                      min="1900"
+                      max={new Date().getFullYear() + 2}
+                      value={formData.ano_modelo}
+                      onChange={(e) => setFormData({ ...formData, ano_modelo: parseInt(e.target.value) })}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="color">Cor *</Label>
                     <Input
@@ -344,21 +504,7 @@ const AddVehicle = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="license_plate">Placa *</Label>
-                    <Input
-                      id="license_plate"
-                      required
-                      value={formData.license_plate}
-                      onChange={(e) => setFormData({ ...formData, license_plate: e.target.value.toUpperCase() })}
-                      placeholder="ABC1234"
-                      maxLength={7}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid sm:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="vehicle_type">Tipo *</Label>
+                    <Label htmlFor="vehicle_type">Categoria *</Label>
                     <Select
                       value={formData.vehicle_type}
                       onValueChange={(value) => setFormData({ ...formData, vehicle_type: value })}
@@ -379,21 +525,17 @@ const AddVehicle = () => {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="transmission_type">Câmbio *</Label>
-                    <Select
-                      value={formData.transmission_type}
-                      onValueChange={(value) => setFormData({ ...formData, transmission_type: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="manual">Manual</SelectItem>
-                        <SelectItem value="automatic">Automático</SelectItem>
-                        <SelectItem value="cvt">CVT</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="motor">Motor</Label>
+                    <Input
+                      id="motor"
+                      value={formData.motor}
+                      onChange={(e) => setFormData({ ...formData, motor: e.target.value })}
+                      placeholder="Ex: 1.0, 1.6, 2.0 Turbo"
+                    />
                   </div>
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="fuel_type">Combustível *</Label>
                     <Select
@@ -413,21 +555,42 @@ const AddVehicle = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="transmission_type">Câmbio *</Label>
+                    <Select
+                      value={formData.transmission_type}
+                      onValueChange={(value) => setFormData({ ...formData, transmission_type: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="manual">Manual</SelectItem>
+                        <SelectItem value="automatic">Automático</SelectItem>
+                        <SelectItem value="cvt">CVT</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="direcao">Direção *</Label>
+                    <Select
+                      value={formData.direcao}
+                      onValueChange={(value) => setFormData({ ...formData, direcao: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="mecanica">Mecânica</SelectItem>
+                        <SelectItem value="hidraulica">Hidráulica</SelectItem>
+                        <SelectItem value="eletrica">Elétrica</SelectItem>
+                        <SelectItem value="eletrohidraulica">Eletrohidráulica</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="grid sm:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="seats">Assentos *</Label>
-                    <Input
-                      id="seats"
-                      type="number"
-                      required
-                      min="2"
-                      max="9"
-                      value={formData.seats}
-                      onChange={(e) => setFormData({ ...formData, seats: parseInt(e.target.value) })}
-                    />
-                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="doors">Portas *</Label>
                     <Input
@@ -438,6 +601,18 @@ const AddVehicle = () => {
                       max="5"
                       value={formData.doors}
                       onChange={(e) => setFormData({ ...formData, doors: parseInt(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="seats">Assentos *</Label>
+                    <Input
+                      id="seats"
+                      type="number"
+                      required
+                      min="2"
+                      max="9"
+                      value={formData.seats}
+                      onChange={(e) => setFormData({ ...formData, seats: parseInt(e.target.value) })}
                     />
                   </div>
                   <div className="space-y-2">
@@ -453,55 +628,6 @@ const AddVehicle = () => {
                     />
                   </div>
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="has_air_conditioning"
-                    checked={formData.has_air_conditioning}
-                    onCheckedChange={(checked) => 
-                      setFormData({ ...formData, has_air_conditioning: checked as boolean })
-                    }
-                  />
-                  <Label htmlFor="has_air_conditioning" className="cursor-pointer">
-                    Possui ar-condicionado
-                  </Label>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Pricing & Description */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Preço e Descrição</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="daily_price">Preço por Dia (R$) *</Label>
-                  <Input
-                    id="daily_price"
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={formData.daily_price}
-                    onChange={(e) => setFormData({ ...formData, daily_price: parseFloat(e.target.value) })}
-                    placeholder="150.00"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Sugerimos uma diária entre R$ 100 e R$ 300 para maior competitividade
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Descrição</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Descreva seu veículo, seu estado de conservação, manutenções recentes, etc."
-                    rows={5}
-                  />
-                </div>
               </CardContent>
             </Card>
 
@@ -511,11 +637,345 @@ const AddVehicle = () => {
                 <CardTitle>Localização do Veículo</CardTitle>
                 <CardDescription>Onde o veículo está disponível para retirada</CardDescription>
               </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="city">Cidade *</Label>
+                    <CityAutocomplete
+                      value={formData.city}
+                      onChange={(city) => setFormData({ ...formData, city })}
+                      placeholder="Digite a cidade"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="state">Estado *</Label>
+                    <Select
+                      value={formData.state}
+                      onValueChange={(value) => setFormData({ ...formData, state: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AC">Acre</SelectItem>
+                        <SelectItem value="AL">Alagoas</SelectItem>
+                        <SelectItem value="AP">Amapá</SelectItem>
+                        <SelectItem value="AM">Amazonas</SelectItem>
+                        <SelectItem value="BA">Bahia</SelectItem>
+                        <SelectItem value="CE">Ceará</SelectItem>
+                        <SelectItem value="DF">Distrito Federal</SelectItem>
+                        <SelectItem value="ES">Espírito Santo</SelectItem>
+                        <SelectItem value="GO">Goiás</SelectItem>
+                        <SelectItem value="MA">Maranhão</SelectItem>
+                        <SelectItem value="MT">Mato Grosso</SelectItem>
+                        <SelectItem value="MS">Mato Grosso do Sul</SelectItem>
+                        <SelectItem value="MG">Minas Gerais</SelectItem>
+                        <SelectItem value="PA">Pará</SelectItem>
+                        <SelectItem value="PB">Paraíba</SelectItem>
+                        <SelectItem value="PR">Paraná</SelectItem>
+                        <SelectItem value="PE">Pernambuco</SelectItem>
+                        <SelectItem value="PI">Piauí</SelectItem>
+                        <SelectItem value="RJ">Rio de Janeiro</SelectItem>
+                        <SelectItem value="RN">Rio Grande do Norte</SelectItem>
+                        <SelectItem value="RS">Rio Grande do Sul</SelectItem>
+                        <SelectItem value="RO">Rondônia</SelectItem>
+                        <SelectItem value="RR">Roraima</SelectItem>
+                        <SelectItem value="SC">Santa Catarina</SelectItem>
+                        <SelectItem value="SP">São Paulo</SelectItem>
+                        <SelectItem value="SE">Sergipe</SelectItem>
+                        <SelectItem value="TO">Tocantins</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Financial */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Finanças</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="daily_price">Preço por Dia (R$) *</Label>
+                    <Input
+                      id="daily_price"
+                      type="number"
+                      required
+                      min="0"
+                      step="0.01"
+                      value={formData.daily_price}
+                      onChange={(e) => setFormData({ ...formData, daily_price: parseFloat(e.target.value) })}
+                      placeholder="150.00"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Sugerimos uma diária entre R$ 100 e R$ 300 para maior competitividade
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="caucao">Caução (R$)</Label>
+                    <Input
+                      id="caucao"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.caucao}
+                      onChange={(e) => setFormData({ ...formData, caucao: parseFloat(e.target.value) || 0 })}
+                      placeholder="500.00"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Valor do depósito de segurança (opcional)
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Documentation/Status */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Documentação / Status</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="chassi_mascarado">Chassi (Mascarado)</Label>
+                    <Input
+                      id="chassi_mascarado"
+                      value={formData.chassi_mascarado}
+                      onChange={(e) => setFormData({ ...formData, chassi_mascarado: e.target.value.toUpperCase() })}
+                      placeholder="Ex: 9BW***********1234"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="situacao_veiculo">Situação do Veículo</Label>
+                    <Select
+                      value={formData.situacao_veiculo}
+                      onValueChange={(value) => setFormData({ ...formData, situacao_veiculo: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="regular">Regular</SelectItem>
+                        <SelectItem value="financiado">Financiado</SelectItem>
+                        <SelectItem value="alienado">Alienado</SelectItem>
+                        <SelectItem value="quitado">Quitado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Accessories - Security */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  Segurança
+                </CardTitle>
+              </CardHeader>
               <CardContent>
-                <AddressAutocomplete
-                  value={addressData}
-                  onChange={setAddressData}
-                />
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { id: "airbag_frontal", label: "Airbag Frontal" },
+                    { id: "airbag_lateral", label: "Airbag Lateral" },
+                    { id: "freios_abs", label: "Freios ABS" },
+                    { id: "controle_tracao", label: "Controle de Tração" },
+                    { id: "controle_estabilidade", label: "Controle de Estabilidade" },
+                    { id: "camera_re", label: "Câmera de Ré" },
+                    { id: "sensor_estacionamento", label: "Sensor de Estacionamento" },
+                    { id: "alarme", label: "Alarme" },
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={item.id}
+                        checked={formData[item.id as keyof typeof formData] as boolean}
+                        onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                      />
+                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Accessories - Comfort */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sofa className="w-5 h-5" />
+                  Conforto
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { id: "has_air_conditioning", label: "Ar Condicionado" },
+                    { id: "ar_digital", label: "Ar Digital" },
+                    { id: "direcao_hidraulica", label: "Direção Hidráulica" },
+                    { id: "direcao_eletrica", label: "Direção Elétrica" },
+                    { id: "vidros_eletricos", label: "Vidros Elétricos" },
+                    { id: "retrovisores_eletricos", label: "Retrovisores Elétricos" },
+                    { id: "banco_couro", label: "Banco de Couro" },
+                    { id: "banco_eletrico", label: "Banco Elétrico" },
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={item.id}
+                        checked={formData[item.id as keyof typeof formData] as boolean}
+                        onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                      />
+                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Accessories - Technology */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Cpu className="w-5 h-5" />
+                  Tecnologia
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { id: "multimidia", label: "Multimídia" },
+                    { id: "bluetooth", label: "Bluetooth" },
+                    { id: "android_auto", label: "Android Auto" },
+                    { id: "apple_carplay", label: "Apple CarPlay" },
+                    { id: "gps", label: "GPS" },
+                    { id: "wifi", label: "Wi-Fi" },
+                    { id: "entrada_usb", label: "Entrada USB" },
+                    { id: "carregador_inducao", label: "Carregador por Indução" },
+                    { id: "piloto_automatico", label: "Piloto Automático" },
+                    { id: "start_stop", label: "Start/Stop" },
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={item.id}
+                        checked={formData[item.id as keyof typeof formData] as boolean}
+                        onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                      />
+                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Accessories - Exterior */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Car className="w-5 h-5" />
+                  Exterior
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { id: "rodas_liga_leve", label: "Rodas de Liga Leve" },
+                    { id: "farol_led", label: "Farol LED" },
+                    { id: "farol_milha", label: "Farol de Milha" },
+                    { id: "rack_teto", label: "Rack de Teto" },
+                    { id: "engate", label: "Engate" },
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={item.id}
+                        checked={formData[item.id as keyof typeof formData] as boolean}
+                        onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                      />
+                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Accessories - Other */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5" />
+                  Outros
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { id: "chave_reserva", label: "Chave Reserva" },
+                    { id: "manual_veiculo", label: "Manual do Veículo" },
+                    { id: "sensor_chuva", label: "Sensor de Chuva" },
+                    { id: "sensor_crepuscular", label: "Sensor Crepuscular" },
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={item.id}
+                        checked={formData[item.id as keyof typeof formData] as boolean}
+                        onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                      />
+                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                        {item.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Description */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Descrição</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Descrição do Veículo</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Descreva seu veículo, seu estado de conservação, manutenções recentes, diferenciais, etc."
+                    rows={5}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Owner Rules */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Regras do Proprietário</CardTitle>
+                <CardDescription>Defina as regras e condições para aluguel do seu veículo</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="regras">Regras</Label>
+                  <Textarea
+                    id="regras"
+                    value={formData.regras}
+                    onChange={(e) => setFormData({ ...formData, regras: e.target.value })}
+                    placeholder="Ex: Proibido fumar no veículo, devolução com tanque cheio, limite de quilometragem diária, idade mínima do condutor, etc."
+                    rows={5}
+                  />
+                </div>
               </CardContent>
             </Card>
 

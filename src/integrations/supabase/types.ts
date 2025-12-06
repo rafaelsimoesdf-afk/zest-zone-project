@@ -632,74 +632,203 @@ export type Database = {
       vehicles: {
         Row: {
           address_id: string | null
+          airbag_frontal: boolean | null
+          airbag_lateral: boolean | null
+          alarme: boolean | null
+          android_auto: boolean | null
+          ano_fabricacao: number | null
+          ano_modelo: number | null
+          apple_carplay: boolean | null
+          ar_digital: boolean | null
+          banco_couro: boolean | null
+          banco_eletrico: boolean | null
+          bluetooth: boolean | null
           brand: string
           brand_id: string | null
+          camera_re: boolean | null
+          carregador_inducao: boolean | null
+          caucao: number | null
+          chassi_mascarado: string | null
+          chave_reserva: boolean | null
           color: string
+          controle_estabilidade: boolean | null
+          controle_tracao: boolean | null
           created_at: string
           daily_price: number
           description: string | null
+          direcao: string | null
+          direcao_eletrica: boolean | null
+          direcao_hidraulica: boolean | null
           doors: number
+          engate: boolean | null
+          entrada_usb: boolean | null
+          farol_led: boolean | null
+          farol_milha: boolean | null
+          freios_abs: boolean | null
           fuel_type: Database["public"]["Enums"]["fuel_type"]
+          gps: boolean | null
           has_air_conditioning: boolean
           id: string
           license_plate: string
+          manual_veiculo: boolean | null
           mileage: number
           model: string
           model_id: string | null
+          motor: string | null
+          multimidia: boolean | null
           owner_id: string
+          piloto_automatico: boolean | null
+          rack_teto: boolean | null
+          regras: string | null
+          retrovisores_eletricos: boolean | null
+          rodas_liga_leve: boolean | null
           seats: number
+          sensor_chuva: boolean | null
+          sensor_crepuscular: boolean | null
+          sensor_estacionamento: boolean | null
+          situacao_veiculo: string | null
+          start_stop: boolean | null
           status: Database["public"]["Enums"]["vehicle_status"]
           transmission_type: Database["public"]["Enums"]["transmission_type"]
           updated_at: string
           vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          versao: string | null
+          vidros_eletricos: boolean | null
+          wifi: boolean | null
           year: number
         }
         Insert: {
           address_id?: string | null
+          airbag_frontal?: boolean | null
+          airbag_lateral?: boolean | null
+          alarme?: boolean | null
+          android_auto?: boolean | null
+          ano_fabricacao?: number | null
+          ano_modelo?: number | null
+          apple_carplay?: boolean | null
+          ar_digital?: boolean | null
+          banco_couro?: boolean | null
+          banco_eletrico?: boolean | null
+          bluetooth?: boolean | null
           brand: string
           brand_id?: string | null
+          camera_re?: boolean | null
+          carregador_inducao?: boolean | null
+          caucao?: number | null
+          chassi_mascarado?: string | null
+          chave_reserva?: boolean | null
           color: string
+          controle_estabilidade?: boolean | null
+          controle_tracao?: boolean | null
           created_at?: string
           daily_price: number
           description?: string | null
+          direcao?: string | null
+          direcao_eletrica?: boolean | null
+          direcao_hidraulica?: boolean | null
           doors: number
+          engate?: boolean | null
+          entrada_usb?: boolean | null
+          farol_led?: boolean | null
+          farol_milha?: boolean | null
+          freios_abs?: boolean | null
           fuel_type: Database["public"]["Enums"]["fuel_type"]
+          gps?: boolean | null
           has_air_conditioning?: boolean
           id?: string
           license_plate: string
+          manual_veiculo?: boolean | null
           mileage: number
           model: string
           model_id?: string | null
+          motor?: string | null
+          multimidia?: boolean | null
           owner_id: string
+          piloto_automatico?: boolean | null
+          rack_teto?: boolean | null
+          regras?: string | null
+          retrovisores_eletricos?: boolean | null
+          rodas_liga_leve?: boolean | null
           seats: number
+          sensor_chuva?: boolean | null
+          sensor_crepuscular?: boolean | null
+          sensor_estacionamento?: boolean | null
+          situacao_veiculo?: string | null
+          start_stop?: boolean | null
           status?: Database["public"]["Enums"]["vehicle_status"]
           transmission_type: Database["public"]["Enums"]["transmission_type"]
           updated_at?: string
           vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          versao?: string | null
+          vidros_eletricos?: boolean | null
+          wifi?: boolean | null
           year: number
         }
         Update: {
           address_id?: string | null
+          airbag_frontal?: boolean | null
+          airbag_lateral?: boolean | null
+          alarme?: boolean | null
+          android_auto?: boolean | null
+          ano_fabricacao?: number | null
+          ano_modelo?: number | null
+          apple_carplay?: boolean | null
+          ar_digital?: boolean | null
+          banco_couro?: boolean | null
+          banco_eletrico?: boolean | null
+          bluetooth?: boolean | null
           brand?: string
           brand_id?: string | null
+          camera_re?: boolean | null
+          carregador_inducao?: boolean | null
+          caucao?: number | null
+          chassi_mascarado?: string | null
+          chave_reserva?: boolean | null
           color?: string
+          controle_estabilidade?: boolean | null
+          controle_tracao?: boolean | null
           created_at?: string
           daily_price?: number
           description?: string | null
+          direcao?: string | null
+          direcao_eletrica?: boolean | null
+          direcao_hidraulica?: boolean | null
           doors?: number
+          engate?: boolean | null
+          entrada_usb?: boolean | null
+          farol_led?: boolean | null
+          farol_milha?: boolean | null
+          freios_abs?: boolean | null
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
+          gps?: boolean | null
           has_air_conditioning?: boolean
           id?: string
           license_plate?: string
+          manual_veiculo?: boolean | null
           mileage?: number
           model?: string
           model_id?: string | null
+          motor?: string | null
+          multimidia?: boolean | null
           owner_id?: string
+          piloto_automatico?: boolean | null
+          rack_teto?: boolean | null
+          regras?: string | null
+          retrovisores_eletricos?: boolean | null
+          rodas_liga_leve?: boolean | null
           seats?: number
+          sensor_chuva?: boolean | null
+          sensor_crepuscular?: boolean | null
+          sensor_estacionamento?: boolean | null
+          situacao_veiculo?: string | null
+          start_stop?: boolean | null
           status?: Database["public"]["Enums"]["vehicle_status"]
           transmission_type?: Database["public"]["Enums"]["transmission_type"]
           updated_at?: string
           vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+          versao?: string | null
+          vidros_eletricos?: boolean | null
+          wifi?: boolean | null
           year?: number
         }
         Relationships: [
