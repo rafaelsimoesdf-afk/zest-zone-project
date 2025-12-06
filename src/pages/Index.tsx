@@ -164,7 +164,7 @@ const Index = () => {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" asChild>
+              <Button size="lg" className="bg-gradient-primary text-white" asChild>
                 <Link to="/browse">
                   Ver Todos os Carros
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -173,7 +173,7 @@ const Index = () => {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2"
+                className="border-2 border-white bg-white/10 text-white hover:bg-white hover:text-primary"
                 asChild
               >
                 <Link to="/become-owner">Anuncie seu Carro</Link>
