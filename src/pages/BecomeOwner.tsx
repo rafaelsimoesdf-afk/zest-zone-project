@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   DollarSign,
@@ -19,6 +20,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 const BecomeOwner = () => {
+  const [dailyPrice, setDailyPrice] = useState(150);
+  const [availableDays, setAvailableDays] = useState(20);
+  
+  const estimatedEarnings = useMemo(() => {
+    const gross = dailyPrice * availableDays;
+    const netEarnings = gross * 0.8; // 20% platform fee
+    return netEarnings;
+  }, [dailyPrice, availableDays]);
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
   const benefits = [
     {
       icon: DollarSign,
@@ -130,7 +149,9 @@ const BecomeOwner = () => {
                       type="number"
                       placeholder="R$ 150"
                       className="h-12"
-                      defaultValue="150"
+                      value={dailyPrice}
+                      onChange={(e) => setDailyPrice(Number(e.target.value) || 0)}
+                      min={0}
                     />
                   </div>
                   <div>
@@ -141,15 +162,18 @@ const BecomeOwner = () => {
                       type="number"
                       placeholder="20"
                       className="h-12"
-                      defaultValue="20"
+                      value={availableDays}
+                      onChange={(e) => setAvailableDays(Math.min(Number(e.target.value) || 0, 31))}
+                      min={0}
+                      max={31}
                     />
                   </div>
-                  <div className="p-6 bg-gradient-primary rounded-xl text-white">
+                  <div className="p-6 gradient-primary rounded-xl text-white">
                     <div className="text-sm mb-1 opacity-90">
                       Ganhos estimados por mês
                     </div>
                     <div className="text-4xl font-display font-bold">
-                      R$ 2.400
+                      {formatCurrency(estimatedEarnings)}
                     </div>
                     <div className="text-sm mt-2 opacity-90">
                       * Após taxa de 20% da plataforma
