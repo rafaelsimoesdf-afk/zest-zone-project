@@ -317,14 +317,14 @@ const Index = () => {
             {howItWorks.map((item, index) => (
               <div key={index} className="relative">
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center mx-auto mb-4 text-2xl font-display font-bold text-white shadow-glow">
+                  <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-4 text-2xl font-display font-bold text-white shadow-lg">
                     {item.step}
                   </div>
                   <h3 className="font-bold text-xl mb-2">{item.title}</h3>
                   <p className="text-muted-foreground">{item.description}</p>
                 </div>
                 {index < howItWorks.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-primary opacity-30" />
+                  <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-primary opacity-30" />
                 )}
               </div>
             ))}
