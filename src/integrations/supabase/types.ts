@@ -208,6 +208,7 @@ export type Database = {
           category: Database["public"]["Enums"]["cnh_category"]
           cnh_number: string
           created_at: string
+          digital_image_url: string | null
           expiry_date: string
           front_image_url: string
           id: string
@@ -223,6 +224,7 @@ export type Database = {
           category: Database["public"]["Enums"]["cnh_category"]
           cnh_number: string
           created_at?: string
+          digital_image_url?: string | null
           expiry_date: string
           front_image_url: string
           id?: string
@@ -238,6 +240,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["cnh_category"]
           cnh_number?: string
           created_at?: string
+          digital_image_url?: string | null
           expiry_date?: string
           front_image_url?: string
           id?: string

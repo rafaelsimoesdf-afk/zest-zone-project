@@ -11,6 +11,7 @@ export interface CNHDetails {
   expiry_date: string;
   front_image_url: string;
   back_image_url: string;
+  digital_image_url: string | null;
   is_valid: boolean;
   verified: boolean;
 }
@@ -82,6 +83,7 @@ export const useSaveCNHDetails = () => {
         expiry_date: details.expiry_date,
         front_image_url: details.front_image_url,
         back_image_url: details.back_image_url,
+        digital_image_url: details.digital_image_url || null,
         is_valid: true,
       };
 
