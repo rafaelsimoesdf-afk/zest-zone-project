@@ -2,3 +2,6 @@ project_id = "ptimwsvsizqpecakzkcn"
 
 [functions.google-places-autocomplete]
 verify_jwt = false
+
+[functions.create-payment]
+verify_jwt = true

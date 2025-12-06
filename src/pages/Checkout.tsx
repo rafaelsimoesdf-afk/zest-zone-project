@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { useVehicle } from "@/hooks/useVehicles";
-import { useCreateBooking } from "@/hooks/useBookings";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile, useIsUserApproved } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -46,7 +46,7 @@ const Checkout = () => {
   const endDate = searchParams.get("endDate");
 
   const { data: vehicle, isLoading } = useVehicle(vehicleId || "");
-  const createBooking = useCreateBooking();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState("pix");
   const [firstName, setFirstName] = useState(profile?.first_name || "");
@@ -152,24 +152,44 @@ const Checkout = () => {
       return;
     }
 
+    setIsProcessing(true);
+
     try {
-      await createBooking.mutateAsync({
-        vehicle_id: vehicle.id,
-        owner_id: vehicle.owner_id,
-        start_date: new Date(startDate).toISOString(),
-        end_date: new Date(endDate).toISOString(),
-        total_days: days,
-        daily_rate: vehicle.daily_price,
-        total_price: totalPrice,
-        pickup_location: address
-          ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city} - ${address.state}`
-          : null,
-        notes: message || null,
+      const pickupLocationStr = address
+        ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city} - ${address.state}`
+        : '';
+
+      const { data, error } = await supabase.functions.invoke('create-payment', {
+        body: {
+          vehicleId: vehicle.id,
+          vehicleName: `${vehicle.brand} ${vehicle.model} ${vehicle.year}`,
+          startDate,
+          endDate,
+          days,
+          dailyRate: vehicle.daily_price,
+          subtotal,
+          serviceFee,
+          insurance,
+          totalPrice,
+          ownerId: vehicle.owner_id,
+          pickupLocation: pickupLocationStr,
+          notes: message || '',
+        },
       });
 
-      navigate("/my-bookings");
-    } catch (error) {
-      // Error handled in hook
+      if (error) {
+        throw new Error(error.message || 'Erro ao processar pagamento');
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('URL de pagamento não recebida');
+      }
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast.error(error.message || 'Erro ao processar pagamento');
+      setIsProcessing(false);
     }
   };
 
@@ -397,9 +417,9 @@ const Checkout = () => {
                   size="lg"
                   className="w-full sm:w-auto gradient-accent text-accent-foreground hover:opacity-90 transition-smooth px-8"
                   onClick={handleConfirmBooking}
-                  disabled={createBooking.isPending}
+                  disabled={isProcessing}
                 >
-                  {createBooking.isPending ? "Processando..." : "Confirmar e pagar"}
+                  {isProcessing ? "Redirecionando para pagamento..." : "Confirmar e pagar"}
                 </Button>
               </section>
             </div>
