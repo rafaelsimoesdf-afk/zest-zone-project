@@ -202,6 +202,90 @@ export type Database = {
           },
         ]
       }
+      cnh_details: {
+        Row: {
+          back_image_url: string
+          category: Database["public"]["Enums"]["cnh_category"]
+          cnh_number: string
+          created_at: string
+          expiry_date: string
+          front_image_url: string
+          id: string
+          is_valid: boolean | null
+          issue_date: string
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+        }
+        Insert: {
+          back_image_url: string
+          category: Database["public"]["Enums"]["cnh_category"]
+          cnh_number: string
+          created_at?: string
+          expiry_date: string
+          front_image_url: string
+          id?: string
+          is_valid?: boolean | null
+          issue_date: string
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Update: {
+          back_image_url?: string
+          category?: Database["public"]["Enums"]["cnh_category"]
+          cnh_number?: string
+          created_at?: string
+          expiry_date?: string
+          front_image_url?: string
+          id?: string
+          is_valid?: boolean | null
+          issue_date?: string
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
+      identity_documents: {
+        Row: {
+          back_image_url: string
+          created_at: string
+          document_type: string
+          front_image_url: string
+          id: string
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+        }
+        Insert: {
+          back_image_url: string
+          created_at?: string
+          document_type: string
+          front_image_url: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Update: {
+          back_image_url?: string
+          created_at?: string
+          document_type?: string
+          front_image_url?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -308,6 +392,7 @@ export type Database = {
           birth_date: string | null
           cpf: string | null
           created_at: string
+          data_accuracy_declared: boolean | null
           email: string
           email_verified_at: string | null
           first_name: string
@@ -316,16 +401,24 @@ export type Database = {
           is_phone_verified: boolean
           last_login_at: string | null
           last_name: string
+          lgpd_accepted: boolean | null
           phone_number: string | null
           phone_verified_at: string | null
           profile_image: string | null
           status: Database["public"]["Enums"]["user_status"]
+          terms_accepted: boolean | null
           updated_at: string
+          verification_status:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verification_submitted_at: string | null
+          verification_validated_at: string | null
         }
         Insert: {
           birth_date?: string | null
           cpf?: string | null
           created_at?: string
+          data_accuracy_declared?: boolean | null
           email: string
           email_verified_at?: string | null
           first_name: string
@@ -334,16 +427,24 @@ export type Database = {
           is_phone_verified?: boolean
           last_login_at?: string | null
           last_name: string
+          lgpd_accepted?: boolean | null
           phone_number?: string | null
           phone_verified_at?: string | null
           profile_image?: string | null
           status?: Database["public"]["Enums"]["user_status"]
+          terms_accepted?: boolean | null
           updated_at?: string
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verification_submitted_at?: string | null
+          verification_validated_at?: string | null
         }
         Update: {
           birth_date?: string | null
           cpf?: string | null
           created_at?: string
+          data_accuracy_declared?: boolean | null
           email?: string
           email_verified_at?: string | null
           first_name?: string
@@ -352,11 +453,54 @@ export type Database = {
           is_phone_verified?: boolean
           last_login_at?: string | null
           last_name?: string
+          lgpd_accepted?: boolean | null
           phone_number?: string | null
           phone_verified_at?: string | null
           profile_image?: string | null
           status?: Database["public"]["Enums"]["user_status"]
+          terms_accepted?: boolean | null
           updated_at?: string
+          verification_status?:
+            | Database["public"]["Enums"]["verification_status"]
+            | null
+          verification_submitted_at?: string | null
+          verification_validated_at?: string | null
+        }
+        Relationships: []
+      }
+      proof_of_residence: {
+        Row: {
+          created_at: string
+          document_type: Database["public"]["Enums"]["proof_of_residence_type"]
+          document_url: string
+          id: string
+          issue_date: string | null
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_type: Database["public"]["Enums"]["proof_of_residence_type"]
+          document_url: string
+          id?: string
+          issue_date?: string | null
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_type?: Database["public"]["Enums"]["proof_of_residence_type"]
+          document_url?: string
+          id?: string
+          issue_date?: string | null
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -414,6 +558,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      selfie_verifications: {
+        Row: {
+          created_at: string
+          id: string
+          selfie_url: string
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          selfie_url: string
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          selfie_url?: string
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Relationships: []
       }
       support_tickets: {
         Row: {
@@ -885,6 +1059,7 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "disputed"
+      cnh_category: "A" | "B" | "C" | "D" | "E" | "AB" | "AC" | "AD" | "AE"
       fuel_type:
         | "gasoline"
         | "ethanol"
@@ -907,6 +1082,15 @@ export type Database = {
         | "failed"
         | "refunded"
         | "partially_refunded"
+      proof_of_residence_type:
+        | "conta_luz"
+        | "conta_agua"
+        | "conta_gas"
+        | "conta_internet"
+        | "conta_telefone"
+        | "fatura_cartao"
+        | "extrato_bancario"
+        | "outro"
       transmission_type: "manual" | "automatic" | "cvt"
       user_status: "pending" | "verified" | "suspended" | "banned"
       vehicle_status:
@@ -924,6 +1108,7 @@ export type Database = {
         | "convertible"
         | "coupe"
         | "wagon"
+      verification_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1060,6 +1245,7 @@ export const Constants = {
         "cancelled",
         "disputed",
       ],
+      cnh_category: ["A", "B", "C", "D", "E", "AB", "AC", "AD", "AE"],
       fuel_type: [
         "gasoline",
         "ethanol",
@@ -1085,6 +1271,16 @@ export const Constants = {
         "refunded",
         "partially_refunded",
       ],
+      proof_of_residence_type: [
+        "conta_luz",
+        "conta_agua",
+        "conta_gas",
+        "conta_internet",
+        "conta_telefone",
+        "fatura_cartao",
+        "extrato_bancario",
+        "outro",
+      ],
       transmission_type: ["manual", "automatic", "cvt"],
       user_status: ["pending", "verified", "suspended", "banned"],
       vehicle_status: [
@@ -1104,6 +1300,7 @@ export const Constants = {
         "coupe",
         "wagon",
       ],
+      verification_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
