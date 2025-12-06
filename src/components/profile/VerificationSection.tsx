@@ -174,7 +174,7 @@ export const VerificationSection = ({ profile }: VerificationSectionProps) => {
           ))}
         </div>
 
-        {(!profile.verification_status || profile.verification_status === 'rejected') && (
+        {profile.verification_status !== 'approved' && (
           <Button 
             onClick={() => setShowRegistration(true)}
             className="w-full"
@@ -182,7 +182,9 @@ export const VerificationSection = ({ profile }: VerificationSectionProps) => {
           >
             {profile.verification_status === 'rejected' 
               ? "Atualizar Documentos" 
-              : "Iniciar Verificação"
+              : profile.verification_status === 'pending'
+                ? "Continuar Verificação"
+                : "Iniciar Verificação"
             }
           </Button>
         )}
