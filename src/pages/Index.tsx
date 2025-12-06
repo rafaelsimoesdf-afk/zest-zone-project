@@ -376,7 +376,7 @@ const Index = () => {
                     <span>Suporte dedicado 24/7</span>
                   </li>
                 </ul>
-                <Button size="lg" className="bg-gradient-accent text-white" asChild>
+                <Button size="lg" className="bg-primary text-white hover:bg-primary/90" asChild>
                   <Link to="/become-owner">
                     Começar Agora
                     <ArrowRight className="w-5 h-5 ml-2" />
