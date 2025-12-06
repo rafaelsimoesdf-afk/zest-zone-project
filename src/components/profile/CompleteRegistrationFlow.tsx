@@ -89,8 +89,10 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
     expiry_date: "",
     front_image: null as File | null,
     back_image: null as File | null,
+    digital_image: null as File | null,
     front_preview: "",
     back_preview: "",
+    digital_preview: "",
   });
 
   const [selfieData, setSelfieData] = useState({
@@ -260,6 +262,9 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
       // 4. Upload and save CNH
       const cnhFrontUrl = await uploadDocument(cnhData.front_image!, "cnh");
       const cnhBackUrl = await uploadDocument(cnhData.back_image!, "cnh");
+      const cnhDigitalUrl = cnhData.digital_image 
+        ? await uploadDocument(cnhData.digital_image, "cnh")
+        : null;
       await saveCNH.mutateAsync({
         cnh_number: cnhData.cnh_number,
         category: cnhData.category,
@@ -267,6 +272,7 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         expiry_date: cnhData.expiry_date,
         front_image_url: cnhFrontUrl,
         back_image_url: cnhBackUrl,
+        digital_image_url: cnhDigitalUrl,
       });
 
       // 5. Upload and save selfie
