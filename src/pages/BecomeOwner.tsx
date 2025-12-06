@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 
 const BecomeOwner = () => {
   const [dailyPrice, setDailyPrice] = useState(150);
+  const [dailyPriceInput, setDailyPriceInput] = useState("R$ 150");
   const [availableDays, setAvailableDays] = useState(20);
   
   const estimatedEarnings = useMemo(() => {
@@ -36,6 +37,27 @@ const BecomeOwner = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    const numericValue = parseInt(rawValue) || 0;
+    setDailyPrice(numericValue);
+    setDailyPriceInput(numericValue > 0 ? formatCurrency(numericValue) : '');
+  };
+
+  const handlePriceFocus = () => {
+    if (dailyPrice > 0) {
+      setDailyPriceInput(dailyPrice.toString());
+    }
+  };
+
+  const handlePriceBlur = () => {
+    if (dailyPrice > 0) {
+      setDailyPriceInput(formatCurrency(dailyPrice));
+    } else {
+      setDailyPriceInput('');
+    }
   };
 
   const benefits = [
@@ -146,12 +168,13 @@ const BecomeOwner = () => {
                       Preço da diária
                     </label>
                     <Input
-                      type="number"
-                      placeholder="R$ 150"
+                      type="text"
+                      placeholder="R$ 0"
                       className="h-12"
-                      value={dailyPrice}
-                      onChange={(e) => setDailyPrice(Number(e.target.value) || 0)}
-                      min={0}
+                      value={dailyPriceInput}
+                      onChange={handlePriceChange}
+                      onFocus={handlePriceFocus}
+                      onBlur={handlePriceBlur}
                     />
                   </div>
                   <div>
