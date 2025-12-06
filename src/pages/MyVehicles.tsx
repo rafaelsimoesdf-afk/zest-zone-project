@@ -24,7 +24,7 @@ const MyVehicles = () => {
       <main className="flex-1 container mx-auto px-4 py-24">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-4xl font-display font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-4xl font-display font-bold text-primary">
               Meus Veículos
             </h1>
             <Button asChild>
