@@ -15,6 +15,10 @@ export interface Profile {
   is_email_verified: boolean;
   is_phone_verified: boolean;
   created_at: string;
+  verification_status: 'pending' | 'approved' | 'rejected' | null;
+  terms_accepted: boolean | null;
+  lgpd_accepted: boolean | null;
+  data_accuracy_declared: boolean | null;
 }
 
 export const useProfile = () => {
@@ -62,4 +66,17 @@ export const useUpdateProfile = () => {
       toast.error(error.message || "Erro ao atualizar perfil");
     },
   });
+};
+
+// Hook para verificar se usuário está aprovado
+export const useIsUserApproved = () => {
+  const { data: profile, isLoading } = useProfile();
+  
+  return {
+    isApproved: profile?.verification_status === 'approved',
+    isPending: profile?.verification_status === 'pending',
+    isRejected: profile?.verification_status === 'rejected',
+    verificationStatus: profile?.verification_status,
+    isLoading,
+  };
 };
