@@ -16,8 +16,10 @@ interface CNHData {
   expiry_date: string;
   front_image: File | null;
   back_image: File | null;
+  digital_image: File | null;
   front_preview: string;
   back_preview: string;
+  digital_preview: string;
 }
 
 interface StepCNHProps {
@@ -29,10 +31,11 @@ interface StepCNHProps {
 export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
   const frontInputRef = useRef<HTMLInputElement>(null);
   const backInputRef = useRef<HTMLInputElement>(null);
+  const digitalInputRef = useRef<HTMLInputElement>(null);
 
   const isExpired = data.expiry_date && isCNHExpired(new Date(data.expiry_date));
 
-  const handleFileChange = (type: 'front' | 'back', file: File | null) => {
+  const handleFileChange = (type: 'front' | 'back' | 'digital', file: File | null) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -42,11 +45,17 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
             front_image: file,
             front_preview: reader.result as string,
           });
-        } else {
+        } else if (type === 'back') {
           onChange({
             ...data,
             back_image: file,
             back_preview: reader.result as string,
+          });
+        } else {
+          onChange({
+            ...data,
+            digital_image: file,
+            digital_preview: reader.result as string,
           });
         }
       };
@@ -151,7 +160,7 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Front */}
         <Card className={`${errors.front_image ? 'border-destructive' : ''}`}>
           <CardContent className="p-4">
@@ -251,6 +260,58 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
               <p className="text-sm text-destructive flex items-center gap-1 mt-2">
                 <AlertCircle className="h-4 w-4" />
                 {errors.back_image}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Digital */}
+        <Card className={`${errors.digital_image ? 'border-destructive' : ''}`}>
+          <CardContent className="p-4">
+            <Label className="mb-2 block">CNH Digital (opcional)</Label>
+            <input
+              ref={digitalInputRef}
+              type="file"
+              accept="image/*,.pdf"
+              className="hidden"
+              onChange={(e) => handleFileChange('digital', e.target.files?.[0] || null)}
+            />
+            
+            {data.digital_preview ? (
+              <div className="relative">
+                <img 
+                  src={data.digital_preview} 
+                  alt="CNH Digital" 
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="absolute top-2 right-2"
+                  onClick={() => digitalInputRef.current?.click()}
+                >
+                  Alterar
+                </Button>
+                <div className="absolute bottom-2 right-2 bg-green-500 text-white p-1 rounded-full">
+                  <Check className="h-4 w-4" />
+                </div>
+              </div>
+            ) : (
+              <div 
+                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                onClick={() => digitalInputRef.current?.click()}
+              >
+                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  Clique para enviar a CNH Digital
+                </p>
+              </div>
+            )}
+            {errors.digital_image && (
+              <p className="text-sm text-destructive flex items-center gap-1 mt-2">
+                <AlertCircle className="h-4 w-4" />
+                {errors.digital_image}
               </p>
             )}
           </CardContent>
