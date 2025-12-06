@@ -4,7 +4,6 @@ import { Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import logo from "@/assets/logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +22,10 @@ const Navbar = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <img src={logo} alt="InfiniteDrive" className="h-10 group-hover:scale-105 transition-smooth" />
+          <Link to="/" className="flex items-center group">
+            <span className="text-2xl sm:text-3xl font-display font-bold text-primary group-hover:scale-105 transition-smooth">
+              InfiniteDrive
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
