@@ -178,7 +178,7 @@ const BecomeOwner = () => {
           <div className="text-center mb-16">
             <Badge className="mb-4">Vantagens</Badge>
             <h2 className="font-display text-4xl sm:text-5xl font-bold mb-4">
-              Por que Anunciar no CarShare?
+              Por que Anunciar no InfiniteDrive?
             </h2>
           </div>
 

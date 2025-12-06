@@ -112,7 +112,7 @@ const Index = () => {
         <div className="absolute inset-0 z-0">
           <img
             src={heroImage}
-            alt="CarShare Hero"
+            alt="InfiniteDrive Hero"
             className="w-full h-full object-cover brightness-50"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent" />
@@ -179,7 +179,7 @@ const Index = () => {
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <Badge className="mb-4">Por que escolher o CarShare?</Badge>
+            <Badge className="mb-4">Por que escolher o InfiniteDrive?</Badge>
             <h2 className="font-display text-4xl sm:text-5xl font-bold mb-4">
               Vantagens para Você
             </h2>
@@ -356,7 +356,7 @@ const Index = () => {
                 </h2>
                 <p className="text-muted-foreground mb-6">
                   Transforme seu carro parado em fonte de renda. Milhares de
-                  proprietários já estão ganhando dinheiro com o CarShare.
+                  proprietários já estão ganhando dinheiro com o InfiniteDrive.
                 </p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center gap-2">

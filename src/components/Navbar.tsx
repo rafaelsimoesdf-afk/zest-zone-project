@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Car, Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import logo from "@/assets/logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,12 +24,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow group-hover:scale-110 transition-smooth">
-              <Car className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-display font-bold bg-gradient-primary bg-clip-text text-transparent">
-              CarShare
-            </span>
+            <img src={logo} alt="InfiniteDrive" className="h-10 group-hover:scale-105 transition-smooth" />
           </Link>
 
           {/* Desktop Navigation */}

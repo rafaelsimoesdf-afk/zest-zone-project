@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Car, Facebook, Instagram, Twitter, Mail, Phone } from "lucide-react";
+import { Facebook, Instagram, Twitter, Mail, Phone } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -9,12 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
-                <Car className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-2xl font-display font-bold bg-gradient-primary bg-clip-text text-transparent">
-                CarShare
-              </span>
+              <img src={logo} alt="InfiniteDrive" className="h-10" />
             </div>
             <p className="text-sm text-muted-foreground">
               A plataforma que conecta proprietários e locatários de veículos de forma segura e prática.
@@ -125,7 +121,7 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4 text-primary" />
-                contato@carshare.com.br
+                contato@infinitedrive.com.br
               </li>
               <li className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4 text-primary" />
@@ -162,7 +158,7 @@ const Footer = () => {
         </div>
 
         <div className="pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} CarShare. Todos os direitos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} InfiniteDrive. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>
