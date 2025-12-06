@@ -178,8 +178,12 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         } else if (isCNHExpired(new Date(cnhData.expiry_date))) {
           newErrors.expiry_date = "CNH está vencida";
         }
-        if (!cnhData.front_image) newErrors.front_image = "Frente da CNH é obrigatória";
-        if (!cnhData.back_image) newErrors.back_image = "Verso da CNH é obrigatório";
+        // Validate: Either (front + back) OR digital
+        const hasFrontAndBack = cnhData.front_image && cnhData.back_image;
+        const hasDigital = cnhData.digital_image;
+        if (!hasFrontAndBack && !hasDigital) {
+          newErrors.cnh_documents = "Envie a CNH Frente + Verso OU a CNH Digital";
+        }
         break;
 
       case 5:
@@ -259,12 +263,23 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         back_image_url: identityBackUrl,
       });
 
-      // 4. Upload and save CNH
-      const cnhFrontUrl = await uploadDocument(cnhData.front_image!, "cnh");
-      const cnhBackUrl = await uploadDocument(cnhData.back_image!, "cnh");
-      const cnhDigitalUrl = cnhData.digital_image 
-        ? await uploadDocument(cnhData.digital_image, "cnh")
-        : null;
+      // 4. Upload and save CNH (either front+back OR digital)
+      let cnhFrontUrl = "";
+      let cnhBackUrl = "";
+      let cnhDigitalUrl: string | null = null;
+
+      if (cnhData.front_image && cnhData.back_image) {
+        cnhFrontUrl = await uploadDocument(cnhData.front_image, "cnh");
+        cnhBackUrl = await uploadDocument(cnhData.back_image, "cnh");
+      }
+      
+      if (cnhData.digital_image) {
+        cnhDigitalUrl = await uploadDocument(cnhData.digital_image, "cnh");
+        // If only digital, use digital URL for front/back as placeholder
+        if (!cnhFrontUrl) cnhFrontUrl = cnhDigitalUrl;
+        if (!cnhBackUrl) cnhBackUrl = cnhDigitalUrl;
+      }
+
       await saveCNH.mutateAsync({
         cnh_number: cnhData.cnh_number,
         category: cnhData.category,
