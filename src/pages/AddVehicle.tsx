@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsUserApproved } from "@/hooks/useProfile";
 import { useCreateAddress } from "@/hooks/useAddresses";
 import { useBrands, useModels } from "@/hooks/useBrands";
 import Navbar from "@/components/Navbar";
@@ -17,10 +18,12 @@ import { toast } from "sonner";
 import { ArrowLeft, Upload, X, Shield, Sofa, Cpu, Car, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import { brazilianStates, getCitiesForState } from "@/hooks/useBrazilLocations";
+import { VerificationRequired } from "@/components/VerificationRequired";
 
 const AddVehicle = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isApproved, verificationStatus, isLoading: isLoadingVerification } = useIsUserApproved();
   const createAddress = useCreateAddress();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<File[]>([]);
@@ -318,6 +321,33 @@ const AddVehicle = () => {
               </Button>
             </CardContent>
           </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isLoadingVerification) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navbar />
+        <main className="flex-1 container mx-auto px-4 py-24 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!isApproved) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navbar />
+        <main className="flex-1 container mx-auto px-4 py-24 flex items-center justify-center">
+          <VerificationRequired 
+            action="cadastrar veículos" 
+            verificationStatus={verificationStatus} 
+          />
         </main>
         <Footer />
       </div>

@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { useVehicle } from "@/hooks/useVehicles";
 import { useCreateBooking } from "@/hooks/useBookings";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile, useIsUserApproved } from "@/hooks/useProfile";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -32,12 +32,14 @@ import {
 } from "@/components/ui/collapsible";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { VerificationRequired } from "@/components/VerificationRequired";
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: profile } = useProfile();
+  const { isApproved, verificationStatus, isLoading: isLoadingVerification } = useIsUserApproved();
 
   const vehicleId = searchParams.get("vehicleId");
   const startDate = searchParams.get("startDate");
@@ -69,6 +71,33 @@ const Checkout = () => {
   if (!user) {
     navigate("/auth");
     return null;
+  }
+
+  if (isLoadingVerification) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
+          <p className="text-muted-foreground">Carregando...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!isApproved) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
+          <VerificationRequired 
+            action="fazer reservas" 
+            verificationStatus={verificationStatus} 
+          />
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   if (!vehicleId || !startDate || !endDate) {
