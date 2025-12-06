@@ -524,7 +524,7 @@ const AddVehicle = () => {
                 type="submit"
                 size="lg"
                 disabled={isSubmitting}
-                className="flex-1 bg-gradient-accent"
+                className="flex-1 gradient-accent text-accent-foreground"
               >
                 {isSubmitting ? "Cadastrando..." : "Cadastrar Veículo"}
               </Button>

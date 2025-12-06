@@ -155,7 +155,7 @@ const BecomeOwner = () => {
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-5" />
+        <div className="absolute inset-0 gradient-hero opacity-5" />
         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <Badge className="mb-6 bg-accent text-accent-foreground">
@@ -367,7 +367,7 @@ const BecomeOwner = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-gradient-hero text-white">
+      <section className="py-20 gradient-hero text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-display text-4xl sm:text-5xl font-bold mb-6">
             Pronto para Começar a Ganhar?
