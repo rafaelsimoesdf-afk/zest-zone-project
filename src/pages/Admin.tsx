@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useAdminStats, usePendingVehicles, useAllVehicles, useAllUsers, useAllBookings, useUpdateVehicleStatus, useUpdateUserStatus, useUpdateUserVerificationStatus } from "@/hooks/useAdmin";
+import { useAdminStats, usePendingVehicles, useAllVehicles, useAllUsers, useAllBookings, useUpdateVehicleStatus, useUpdateUserStatus, useUpdateUserVerificationStatus, useDeleteUser } from "@/hooks/useAdmin";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDeleteVehicle } from "@/hooks/useVehicles";
 import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
 import UserVerificationTab from "@/components/admin/UserVerificationTab";
@@ -32,6 +33,7 @@ const Admin = () => {
   const updateUserStatus = useUpdateUserStatus();
   const updateUserVerificationStatus = useUpdateUserVerificationStatus();
   const deleteVehicle = useDeleteVehicle();
+  const deleteUser = useDeleteUser();
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -385,7 +387,7 @@ const Admin = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Usuários</CardTitle>
-                <CardDescription>Gerencie todos os usuários da plataforma</CardDescription>
+                <CardDescription>Gerencie todos os usuários da plataforma - altere status, verificação ou exclua cadastros</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -398,20 +400,105 @@ const Admin = () => {
                       <TableHead>CPF</TableHead>
                       <TableHead>Telefone</TableHead>
                       <TableHead>Data de Cadastro</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {allUsers?.map((user) => (
-                      <TableRow key={user.id}>
+                    {allUsers?.map((userItem) => (
+                      <TableRow key={userItem.id}>
                         <TableCell className="font-medium">
-                          {user.first_name} {user.last_name}
+                          {userItem.first_name} {userItem.last_name}
                         </TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>{getStatusBadge(user.status)}</TableCell>
-                        <TableCell>{getVerificationStatusBadge(user.verification_status)}</TableCell>
-                        <TableCell>{user.cpf || "N/A"}</TableCell>
-                        <TableCell>{user.phone_number || "N/A"}</TableCell>
-                        <TableCell>{format(new Date(user.created_at), "dd/MM/yyyy")}</TableCell>
+                        <TableCell>{userItem.email}</TableCell>
+                        <TableCell>
+                          <Select
+                            value={userItem.status}
+                            onValueChange={(value) => 
+                              updateUserStatus.mutate({ userId: userItem.id, status: value })
+                            }
+                          >
+                            <SelectTrigger className="w-[130px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">
+                                <Badge className="bg-yellow-500">Pendente</Badge>
+                              </SelectItem>
+                              <SelectItem value="verified">
+                                <Badge className="bg-blue-500">Verificado</Badge>
+                              </SelectItem>
+                              <SelectItem value="suspended">
+                                <Badge className="bg-orange-500">Suspenso</Badge>
+                              </SelectItem>
+                              <SelectItem value="banned">
+                                <Badge className="bg-red-500">Banido</Badge>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Select
+                            value={userItem.verification_status || "pending"}
+                            onValueChange={(value) => 
+                              updateUserVerificationStatus.mutate({ 
+                                userId: userItem.id, 
+                                verificationStatus: value as 'approved' | 'rejected' | 'pending' 
+                              })
+                            }
+                          >
+                            <SelectTrigger className="w-[130px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">
+                                <Badge className="bg-yellow-500">Pendente</Badge>
+                              </SelectItem>
+                              <SelectItem value="approved">
+                                <Badge className="bg-green-500">Aprovado</Badge>
+                              </SelectItem>
+                              <SelectItem value="rejected">
+                                <Badge className="bg-red-500">Rejeitado</Badge>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>{userItem.cpf || "N/A"}</TableCell>
+                        <TableCell>{userItem.phone_number || "N/A"}</TableCell>
+                        <TableCell>{format(new Date(userItem.created_at), "dd/MM/yyyy")}</TableCell>
+                        <TableCell className="text-right">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-destructive hover:text-destructive"
+                                disabled={deleteUser.isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão de usuário</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir o usuário <strong>{userItem.first_name} {userItem.last_name}</strong>? 
+                                  <br /><br />
+                                  Esta ação irá remover todos os dados do usuário, incluindo documentos, endereços e verificações. 
+                                  O usuário poderá se cadastrar novamente.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => deleteUser.mutate(userItem.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Excluir Usuário
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
