@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useAdminStats, usePendingVehicles, useAllVehicles, useAllUsers, useAllBookings, useUpdateVehicleStatus, useUpdateUserStatus } from "@/hooks/useAdmin";
+import { useAdminStats, usePendingVehicles, useAllVehicles, useAllUsers, useAllBookings, useUpdateVehicleStatus, useUpdateUserStatus, useUpdateUserVerificationStatus } from "@/hooks/useAdmin";
 import { useDeleteVehicle } from "@/hooks/useVehicles";
 import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
-import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit } from "lucide-react";
+import UserVerificationTab from "@/components/admin/UserVerificationTab";
+import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -29,6 +30,7 @@ const Admin = () => {
   
   const updateVehicleStatus = useUpdateVehicleStatus();
   const updateUserStatus = useUpdateUserStatus();
+  const updateUserVerificationStatus = useUpdateUserVerificationStatus();
   const deleteVehicle = useDeleteVehicle();
 
   useEffect(() => {
@@ -98,6 +100,30 @@ const Admin = () => {
     );
   };
 
+  const getVerificationStatusBadge = (status: string | null) => {
+    const statusColors: Record<string, string> = {
+      pending: "bg-yellow-500",
+      approved: "bg-green-500",
+      rejected: "bg-red-500",
+    };
+
+    const statusLabels: Record<string, string> = {
+      pending: "Pendente",
+      approved: "Aprovado",
+      rejected: "Rejeitado",
+    };
+
+    if (!status) {
+      return <Badge variant="outline">Não enviado</Badge>;
+    }
+
+    return (
+      <Badge className={statusColors[status] || "bg-gray-500"}>
+        {statusLabels[status] || status}
+      </Badge>
+    );
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
   }
@@ -108,12 +134,15 @@ const Admin = () => {
       
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Painel Administrativo</h1>
-          <p className="text-muted-foreground">Gerencie veículos, usuários e reservas da plataforma</p>
+          <div className="flex items-center gap-3 mb-2">
+            <Shield className="h-8 w-8 text-primary" />
+            <h1 className="text-4xl font-bold">Painel Administrativo</h1>
+          </div>
+          <p className="text-muted-foreground">Gerencie veículos, usuários, verificações e reservas da plataforma</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Veículos</CardTitle>
@@ -127,10 +156,10 @@ const Admin = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Veículos Pendentes</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className="h-4 w-4 text-yellow-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.pendingVehicles || 0}</div>
+              <div className="text-2xl font-bold text-yellow-600">{stats?.pendingVehicles || 0}</div>
             </CardContent>
           </Card>
 
@@ -141,6 +170,16 @@ const Admin = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-yellow-500/50 bg-yellow-500/5">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Verificações Pendentes</CardTitle>
+              <UserCheck className="h-4 w-4 text-yellow-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">{stats?.pendingVerifications || 0}</div>
             </CardContent>
           </Card>
 
@@ -157,23 +196,47 @@ const Admin = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Reservas Ativas</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Calendar className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.activeBookings || 0}</div>
+              <div className="text-2xl font-bold text-green-600">{stats?.activeBookings || 0}</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Tabs for different sections */}
-        <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="pending">Veículos Pendentes</TabsTrigger>
-            <TabsTrigger value="vehicles">Todos os Veículos</TabsTrigger>
-            <TabsTrigger value="users">Usuários</TabsTrigger>
-            <TabsTrigger value="bookings">Reservas</TabsTrigger>
-            <TabsTrigger value="collaborators">Colaboradores</TabsTrigger>
+        <Tabs defaultValue="verifications" className="w-full">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="verifications" className="flex items-center gap-1">
+              <FileCheck className="h-4 w-4" />
+              Verificações
+            </TabsTrigger>
+            <TabsTrigger value="pending" className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              Veículos Pendentes
+            </TabsTrigger>
+            <TabsTrigger value="vehicles" className="flex items-center gap-1">
+              <Car className="h-4 w-4" />
+              Veículos
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-1">
+              <Users className="h-4 w-4" />
+              Usuários
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              Reservas
+            </TabsTrigger>
+            <TabsTrigger value="collaborators" className="flex items-center gap-1">
+              <Shield className="h-4 w-4" />
+              Colaboradores
+            </TabsTrigger>
           </TabsList>
+
+          {/* User Verifications */}
+          <TabsContent value="verifications">
+            <UserVerificationTab />
+          </TabsContent>
 
           {/* Pending Vehicles */}
           <TabsContent value="pending">
@@ -331,7 +394,9 @@ const Admin = () => {
                       <TableHead>Nome</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Verificação</TableHead>
                       <TableHead>CPF</TableHead>
+                      <TableHead>Telefone</TableHead>
                       <TableHead>Data de Cadastro</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -343,7 +408,9 @@ const Admin = () => {
                         </TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{getStatusBadge(user.status)}</TableCell>
+                        <TableCell>{getVerificationStatusBadge(user.verification_status)}</TableCell>
                         <TableCell>{user.cpf || "N/A"}</TableCell>
+                        <TableCell>{user.phone_number || "N/A"}</TableCell>
                         <TableCell>{format(new Date(user.created_at), "dd/MM/yyyy")}</TableCell>
                       </TableRow>
                     ))}

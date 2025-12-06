@@ -10,12 +10,14 @@ export const useAdminStats = () => {
         { count: totalVehicles },
         { count: pendingVehicles },
         { count: totalUsers },
+        { count: pendingVerifications },
         { count: totalBookings },
         { count: activeBookings },
       ] = await Promise.all([
         supabase.from("vehicles").select("*", { count: "exact", head: true }),
         supabase.from("vehicles").select("*", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("profiles").select("*", { count: "exact", head: true }).eq("verification_status", "pending"),
         supabase.from("bookings").select("*", { count: "exact", head: true }),
         supabase.from("bookings").select("*", { count: "exact", head: true }).in("status", ["pending", "confirmed", "in_progress"]),
       ]);
@@ -24,6 +26,7 @@ export const useAdminStats = () => {
         totalVehicles: totalVehicles || 0,
         pendingVehicles: pendingVehicles || 0,
         totalUsers: totalUsers || 0,
+        pendingVerifications: pendingVerifications || 0,
         totalBookings: totalBookings || 0,
         activeBookings: activeBookings || 0,
       };
@@ -96,6 +99,57 @@ export const useAllUsers = () => {
       if (error) throw error;
       return data;
     },
+  });
+};
+
+export const usePendingUserVerifications = () => {
+  return useQuery({
+    queryKey: ["pendingUserVerifications"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("verification_status", "pending")
+        .order("verification_submitted_at", { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useUserVerificationDetails = (userId: string | null) => {
+  return useQuery({
+    queryKey: ["userVerificationDetails", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+
+      const [
+        { data: profile },
+        { data: address },
+        { data: cnh },
+        { data: identityDoc },
+        { data: selfie },
+        { data: proofOfResidence },
+      ] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", userId).single(),
+        supabase.from("addresses").select("*").eq("user_id", userId).eq("is_default", true).maybeSingle(),
+        supabase.from("cnh_details").select("*").eq("user_id", userId).maybeSingle(),
+        supabase.from("identity_documents").select("*").eq("user_id", userId).maybeSingle(),
+        supabase.from("selfie_verifications").select("*").eq("user_id", userId).maybeSingle(),
+        supabase.from("proof_of_residence").select("*").eq("user_id", userId).maybeSingle(),
+      ]);
+
+      return {
+        profile,
+        address,
+        cnh,
+        identityDoc,
+        selfie,
+        proofOfResidence,
+      };
+    },
+    enabled: !!userId,
   });
 };
 
@@ -176,6 +230,45 @@ export const useUpdateUserStatus = () => {
     },
     onError: (error: any) => {
       toast.error(error.message || "Erro ao atualizar status do usuário");
+    },
+  });
+};
+
+export const useUpdateUserVerificationStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, verificationStatus }: { userId: string; verificationStatus: 'approved' | 'rejected' | 'pending' }) => {
+      const updateData: any = {
+        verification_status: verificationStatus,
+      };
+
+      if (verificationStatus === 'approved') {
+        updateData.verification_validated_at = new Date().toISOString();
+        updateData.status = 'verified';
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .update(updateData)
+        .eq("id", userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["pendingUserVerifications"] });
+      queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+      queryClient.invalidateQueries({ queryKey: ["userVerificationDetails"] });
+      
+      const statusText = variables.verificationStatus === "approved" ? "aprovado" : "rejeitado";
+      toast.success(`Cadastro ${statusText} com sucesso!`);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar status de verificação");
     },
   });
 };
