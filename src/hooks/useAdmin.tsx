@@ -272,3 +272,40 @@ export const useUpdateUserVerificationStatus = () => {
     },
   });
 };
+
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      // Delete related data first to avoid foreign key constraints
+      await Promise.all([
+        supabase.from("addresses").delete().eq("user_id", userId),
+        supabase.from("cnh_details").delete().eq("user_id", userId),
+        supabase.from("identity_documents").delete().eq("user_id", userId),
+        supabase.from("selfie_verifications").delete().eq("user_id", userId),
+        supabase.from("proof_of_residence").delete().eq("user_id", userId),
+        supabase.from("user_roles").delete().eq("user_id", userId),
+        supabase.from("bank_accounts").delete().eq("user_id", userId),
+        supabase.from("notifications").delete().eq("user_id", userId),
+      ]);
+
+      // Delete profile
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+      queryClient.invalidateQueries({ queryKey: ["pendingUserVerifications"] });
+      toast.success("Usuário excluído com sucesso!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao excluir usuário");
+    },
+  });
+};
