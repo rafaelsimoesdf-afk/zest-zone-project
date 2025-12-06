@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, Upload, Check, AlertTriangle } from "lucide-react";
+import { AlertCircle, Upload, Check, AlertTriangle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isCNHExpired } from "@/lib/validators";
 
@@ -35,6 +35,12 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
 
   const isExpired = data.expiry_date && isCNHExpired(new Date(data.expiry_date));
 
+  // Check which option is being used
+  const hasFrontAndBack = data.front_image && data.back_image;
+  const hasDigital = data.digital_image;
+  const isPhysicalOptionDisabled = hasDigital && !hasFrontAndBack;
+  const isDigitalOptionDisabled = hasFrontAndBack && !hasDigital;
+
   const handleFileChange = (type: 'front' | 'back' | 'digital', file: File | null) => {
     if (file) {
       const reader = new FileReader();
@@ -61,6 +67,24 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const clearPhysicalDocuments = () => {
+    onChange({
+      ...data,
+      front_image: null,
+      back_image: null,
+      front_preview: "",
+      back_preview: "",
+    });
+  };
+
+  const clearDigitalDocument = () => {
+    onChange({
+      ...data,
+      digital_image: null,
+      digital_preview: "",
+    });
   };
 
   return (
@@ -160,120 +184,161 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Front */}
-        <Card className={`${errors.front_image ? 'border-destructive' : ''}`}>
-          <CardContent className="p-4">
-            <Label className="mb-2 block">Frente da CNH *</Label>
-            <input
-              ref={frontInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleFileChange('front', e.target.files?.[0] || null)}
-            />
-            
-            {data.front_preview ? (
-              <div className="relative">
-                <img 
-                  src={data.front_preview} 
-                  alt="Frente da CNH" 
-                  className="w-full h-40 object-cover rounded-lg"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={() => frontInputRef.current?.click()}
-                >
-                  Alterar
-                </Button>
-                <div className="absolute bottom-2 right-2 bg-green-500 text-white p-1 rounded-full">
-                  <Check className="h-4 w-4" />
-                </div>
-              </div>
-            ) : (
-              <div 
-                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                onClick={() => frontInputRef.current?.click()}
-              >
-                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  Clique para enviar a frente
-                </p>
-              </div>
-            )}
-            {errors.front_image && (
-              <p className="text-sm text-destructive flex items-center gap-1 mt-2">
-                <AlertCircle className="h-4 w-4" />
-                {errors.front_image}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+      {/* Info about document options */}
+      <div className="bg-primary/10 border border-primary/30 p-4 rounded-lg flex items-start gap-3">
+        <Info className="h-5 w-5 text-primary mt-0.5" />
+        <div>
+          <p className="font-medium text-primary">Escolha uma das opções abaixo:</p>
+          <p className="text-sm text-primary/80">
+            Envie a <strong>CNH Frente + Verso</strong> OU a <strong>CNH Digital</strong>. Não é necessário enviar ambas.
+          </p>
+        </div>
+      </div>
 
-        {/* Back */}
-        <Card className={`${errors.back_image ? 'border-destructive' : ''}`}>
-          <CardContent className="p-4">
-            <Label className="mb-2 block">Verso da CNH *</Label>
-            <input
-              ref={backInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleFileChange('back', e.target.files?.[0] || null)}
-            />
-            
-            {data.back_preview ? (
-              <div className="relative">
-                <img 
-                  src={data.back_preview} 
-                  alt="Verso da CNH" 
-                  className="w-full h-40 object-cover rounded-lg"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={() => backInputRef.current?.click()}
-                >
-                  Alterar
-                </Button>
-                <div className="absolute bottom-2 right-2 bg-green-500 text-white p-1 rounded-full">
-                  <Check className="h-4 w-4" />
-                </div>
-              </div>
-            ) : (
-              <div 
-                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                onClick={() => backInputRef.current?.click()}
-              >
-                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  Clique para enviar o verso
-                </p>
-              </div>
-            )}
-            {errors.back_image && (
-              <p className="text-sm text-destructive flex items-center gap-1 mt-2">
-                <AlertCircle className="h-4 w-4" />
-                {errors.back_image}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+      {errors.cnh_documents && (
+        <div className="bg-destructive/10 border border-destructive/30 p-4 rounded-lg flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+          <p className="text-sm text-destructive">{errors.cnh_documents}</p>
+        </div>
+      )}
 
-        {/* Digital */}
+      {/* Option 1: Front + Back */}
+      <div className={`space-y-4 ${isPhysicalOptionDisabled ? 'opacity-50' : ''}`}>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-foreground">Opção 1: CNH Física (Frente + Verso)</h3>
+          {hasFrontAndBack && (
+            <Button variant="ghost" size="sm" onClick={clearPhysicalDocuments}>
+              Limpar
+            </Button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Front */}
+          <Card className={`${errors.front_image ? 'border-destructive' : ''}`}>
+            <CardContent className="p-4">
+              <Label className="mb-2 block">Frente da CNH</Label>
+              <input
+                ref={frontInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={isPhysicalOptionDisabled}
+                onChange={(e) => handleFileChange('front', e.target.files?.[0] || null)}
+              />
+              
+              {data.front_preview ? (
+                <div className="relative">
+                  <img 
+                    src={data.front_preview} 
+                    alt="Frente da CNH" 
+                    className="w-full h-40 object-cover rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => frontInputRef.current?.click()}
+                  >
+                    Alterar
+                  </Button>
+                  <div className="absolute bottom-2 right-2 bg-green-500 text-white p-1 rounded-full">
+                    <Check className="h-4 w-4" />
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  className={`border-2 border-dashed border-border rounded-lg p-8 text-center transition-colors ${
+                    isPhysicalOptionDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:border-primary/50'
+                  }`}
+                  onClick={() => !isPhysicalOptionDisabled && frontInputRef.current?.click()}
+                >
+                  <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Clique para enviar a frente
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Back */}
+          <Card className={`${errors.back_image ? 'border-destructive' : ''}`}>
+            <CardContent className="p-4">
+              <Label className="mb-2 block">Verso da CNH</Label>
+              <input
+                ref={backInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={isPhysicalOptionDisabled}
+                onChange={(e) => handleFileChange('back', e.target.files?.[0] || null)}
+              />
+              
+              {data.back_preview ? (
+                <div className="relative">
+                  <img 
+                    src={data.back_preview} 
+                    alt="Verso da CNH" 
+                    className="w-full h-40 object-cover rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => backInputRef.current?.click()}
+                  >
+                    Alterar
+                  </Button>
+                  <div className="absolute bottom-2 right-2 bg-green-500 text-white p-1 rounded-full">
+                    <Check className="h-4 w-4" />
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  className={`border-2 border-dashed border-border rounded-lg p-8 text-center transition-colors ${
+                    isPhysicalOptionDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:border-primary/50'
+                  }`}
+                  onClick={() => !isPhysicalOptionDisabled && backInputRef.current?.click()}
+                >
+                  <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Clique para enviar o verso
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-px bg-border" />
+        <span className="text-muted-foreground font-medium">OU</span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+
+      {/* Option 2: Digital */}
+      <div className={`space-y-4 ${isDigitalOptionDisabled ? 'opacity-50' : ''}`}>
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-foreground">Opção 2: CNH Digital</h3>
+          {hasDigital && (
+            <Button variant="ghost" size="sm" onClick={clearDigitalDocument}>
+              Limpar
+            </Button>
+          )}
+        </div>
         <Card className={`${errors.digital_image ? 'border-destructive' : ''}`}>
           <CardContent className="p-4">
-            <Label className="mb-2 block">CNH Digital (opcional)</Label>
+            <Label className="mb-2 block">CNH Digital (captura de tela ou PDF)</Label>
             <input
               ref={digitalInputRef}
               type="file"
               accept="image/*,.pdf"
               className="hidden"
+              disabled={isDigitalOptionDisabled}
               onChange={(e) => handleFileChange('digital', e.target.files?.[0] || null)}
             />
             
@@ -282,7 +347,7 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
                 <img 
                   src={data.digital_preview} 
                   alt="CNH Digital" 
-                  className="w-full h-40 object-cover rounded-lg"
+                  className="w-full h-48 object-cover rounded-lg"
                 />
                 <Button
                   type="button"
@@ -299,20 +364,16 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
               </div>
             ) : (
               <div 
-                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                onClick={() => digitalInputRef.current?.click()}
+                className={`border-2 border-dashed border-border rounded-lg p-8 text-center transition-colors ${
+                  isDigitalOptionDisabled ? 'cursor-not-allowed' : 'cursor-pointer hover:border-primary/50'
+                }`}
+                onClick={() => !isDigitalOptionDisabled && digitalInputRef.current?.click()}
               >
                 <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                 <p className="text-sm text-muted-foreground">
                   Clique para enviar a CNH Digital
                 </p>
               </div>
-            )}
-            {errors.digital_image && (
-              <p className="text-sm text-destructive flex items-center gap-1 mt-2">
-                <AlertCircle className="h-4 w-4" />
-                {errors.digital_image}
-              </p>
             )}
           </CardContent>
         </Card>
