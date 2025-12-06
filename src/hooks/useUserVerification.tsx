@@ -62,11 +62,21 @@ export const useCNHDetails = () => {
 };
 
 // Save CNH details
+interface SaveCNHDetailsInput {
+  cnh_number: string;
+  category: string;
+  issue_date: string;
+  expiry_date: string;
+  front_image_url: string;
+  back_image_url: string;
+  digital_image_url?: string | null;
+}
+
 export const useSaveCNHDetails = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (details: Omit<CNHDetails, 'id' | 'user_id' | 'verified' | 'is_valid'>) => {
+    mutationFn: async (details: SaveCNHDetailsInput) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
@@ -85,7 +95,7 @@ export const useSaveCNHDetails = () => {
         back_image_url: details.back_image_url,
         digital_image_url: details.digital_image_url || null,
         is_valid: true,
-      };
+      } as any;
 
       if (existing) {
         const { data, error } = await supabase
