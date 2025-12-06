@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Car } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import logo from '@/assets/logo.png';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -60,11 +61,9 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center">
-              <Car className="w-8 h-8 text-white" />
-            </div>
+            <img src={logo} alt="InfiniteDrive" className="h-16" />
           </div>
-          <CardTitle className="text-3xl font-display">Bem-vindo ao CarShare</CardTitle>
+          <CardTitle className="text-3xl font-display">Bem-vindo ao InfiniteDrive</CardTitle>
           <CardDescription>Entre ou crie sua conta para continuar</CardDescription>
         </CardHeader>
         <CardContent>

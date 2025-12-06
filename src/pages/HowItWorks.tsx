@@ -153,7 +153,7 @@ const HowItWorks = () => {
           <h1 className="font-display text-5xl sm:text-6xl font-bold mb-6">
             Como Funciona o{" "}
             <span className="bg-gradient-primary bg-clip-text text-transparent">
-              CarShare
+              InfiniteDrive
             </span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
