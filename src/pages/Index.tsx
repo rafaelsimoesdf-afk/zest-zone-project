@@ -155,7 +155,7 @@ const Index = () => {
                 <Button
                   size="lg"
                   onClick={handleSearch}
-                  className="bg-gradient-primary text-white hover:opacity-90 transition-smooth shadow-glow"
+                  className="bg-primary text-white hover:bg-primary/90"
                 >
                   <Search className="w-5 h-5 mr-2" />
                   Buscar Carros
@@ -164,7 +164,7 @@ const Index = () => {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="bg-gradient-primary text-white" asChild>
+              <Button size="lg" className="bg-primary text-white hover:bg-primary/90" asChild>
                 <Link to="/browse">
                   Ver Todos os Carros
                   <ArrowRight className="w-5 h-5 ml-2" />
