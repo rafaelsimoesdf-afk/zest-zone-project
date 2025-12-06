@@ -23,6 +23,7 @@ const BecomeOwner = () => {
   const [dailyPrice, setDailyPrice] = useState(150);
   const [dailyPriceInput, setDailyPriceInput] = useState("R$ 150");
   const [availableDays, setAvailableDays] = useState(20);
+  const [availableDaysInput, setAvailableDaysInput] = useState("20");
   
   const estimatedEarnings = useMemo(() => {
     const gross = dailyPrice * availableDays;
@@ -57,6 +58,21 @@ const BecomeOwner = () => {
       setDailyPriceInput(formatCurrency(dailyPrice));
     } else {
       setDailyPriceInput('');
+    }
+  };
+
+  const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    const numericValue = Math.min(parseInt(rawValue) || 0, 31);
+    setAvailableDays(numericValue);
+    setAvailableDaysInput(rawValue === '' ? '' : numericValue.toString());
+  };
+
+  const handleDaysBlur = () => {
+    if (availableDays > 0) {
+      setAvailableDaysInput(availableDays.toString());
+    } else {
+      setAvailableDaysInput('');
     }
   };
 
@@ -182,13 +198,13 @@ const BecomeOwner = () => {
                       Dias disponíveis por mês
                     </label>
                     <Input
-                      type="number"
-                      placeholder="20"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
                       className="h-12"
-                      value={availableDays}
-                      onChange={(e) => setAvailableDays(Math.min(Number(e.target.value) || 0, 31))}
-                      min={0}
-                      max={31}
+                      value={availableDaysInput}
+                      onChange={handleDaysChange}
+                      onBlur={handleDaysBlur}
                     />
                   </div>
                   <div className="p-6 gradient-primary rounded-xl text-white">
