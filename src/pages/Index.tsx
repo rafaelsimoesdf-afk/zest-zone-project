@@ -203,7 +203,7 @@ const Index = () => {
                 className="border-2 hover:border-primary transition-smooth hover:shadow-lg"
               >
                 <CardContent className="pt-6 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
+                  <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <benefit.icon className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="font-bold text-xl mb-2">{benefit.title}</h3>
