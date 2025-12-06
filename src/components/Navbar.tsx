@@ -100,7 +100,7 @@ const Navbar = () => {
                 </Button>
                 <Button
                   size="sm"
-                  className="bg-gradient-accent text-white hover:opacity-90 transition-fast shadow-md"
+                  className="bg-gray-800 text-white hover:bg-gray-700"
                   asChild>
                   <Link to="/auth">Cadastrar</Link>
                 </Button>
@@ -191,7 +191,7 @@ const Navbar = () => {
                     </Link>
                   </Button>
                   <Button
-                    className="w-full bg-gradient-accent text-white hover:opacity-90 transition-fast"
+                    className="w-full bg-gray-800 text-white hover:bg-gray-700"
                     size="sm"
                     asChild
                   >
