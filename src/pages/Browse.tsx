@@ -124,7 +124,7 @@ const Browse = () => {
                 </Button>
                 <Button
                   size="lg"
-                  className="flex-1 bg-gradient-primary hover:opacity-90 transition-smooth"
+                  className="flex-1 bg-primary text-white hover:bg-primary/90 transition-smooth"
                 >
                   <Search className="w-5 h-5 mr-2" />
                   Buscar
@@ -265,7 +265,7 @@ const Browse = () => {
                             </span>
                             <span className="text-muted-foreground text-sm">/dia</span>
                           </div>
-                          <Button size="sm" className="bg-gradient-accent">
+                          <Button size="sm" className="bg-primary text-white hover:bg-primary/90">
                             Ver Detalhes
                           </Button>
                         </div>
