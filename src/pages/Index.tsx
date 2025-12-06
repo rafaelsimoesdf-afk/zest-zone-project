@@ -17,11 +17,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { CityAutocomplete } from "@/components/CityAutocomplete";
+import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
+import { Skeleton } from "@/components/ui/skeleton";
 import heroImage from "@/assets/hero-car.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
   const [searchCity, setSearchCity] = useState("");
+  const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(3);
 
   const handleSearch = () => {
     if (searchCity) {
@@ -31,38 +34,28 @@ const Index = () => {
     }
   };
 
-  const featuredCars = [
-    {
-      id: 1,
-      name: "Honda Civic 2023",
-      category: "Sedan",
-      price: 150,
-      rating: 4.9,
-      reviews: 127,
-      image: "https://images.unsplash.com/photo-1590362891991-f776e747a588",
-      location: "São Paulo, SP",
-    },
-    {
-      id: 2,
-      name: "Jeep Compass 2022",
-      category: "SUV",
-      price: 220,
-      rating: 4.8,
-      reviews: 94,
-      image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf",
-      location: "Rio de Janeiro, RJ",
-    },
-    {
-      id: 3,
-      name: "Toyota Corolla 2024",
-      category: "Sedan",
-      price: 170,
-      rating: 5.0,
-      reviews: 203,
-      image: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb",
-      location: "Brasília, DF",
-    },
-  ];
+  const getVehicleImage = (vehicle: any) => {
+    const primaryImage = vehicle.vehicle_images?.find((img: any) => img.is_primary);
+    return primaryImage?.image_url || vehicle.vehicle_images?.[0]?.image_url || "https://images.unsplash.com/photo-1494976388531-d1058494cdd8";
+  };
+
+  const getVehicleLocation = (vehicle: any) => {
+    if (vehicle.addresses) {
+      return `${vehicle.addresses.city}, ${vehicle.addresses.state}`;
+    }
+    return "Localização não informada";
+  };
+
+  const vehicleTypeLabels: Record<string, string> = {
+    sedan: "Sedan",
+    hatchback: "Hatchback",
+    suv: "SUV",
+    pickup: "Pickup",
+    van: "Van",
+    convertible: "Conversível",
+    coupe: "Coupé",
+    wagon: "Wagon",
+  };
 
   const benefits = [
     {
@@ -234,48 +227,66 @@ const Index = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredCars.map((car) => (
-              <Link key={car.id} to={`/cars/${car.id}`}>
-                <Card className="overflow-hidden group hover:shadow-xl transition-smooth border-2 hover:border-primary">
-                  <div className="relative h-64 overflow-hidden">
-                    <img
-                      src={car.image}
-                      alt={car.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-smooth"
-                    />
-                    <Badge className="absolute top-4 right-4 bg-background/90 backdrop-blur">
-                      {car.category}
-                    </Badge>
-                  </div>
+            {isLoadingVehicles ? (
+              // Loading skeletons
+              Array.from({ length: 3 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden border-2">
+                  <Skeleton className="h-64 w-full" />
                   <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-bold text-xl">{car.name}</h3>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-accent text-accent" />
-                        <span className="font-semibold">{car.rating}</span>
-                        <span className="text-sm text-muted-foreground">
-                          ({car.reviews})
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      📍 {car.location}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-2xl font-bold text-primary">
-                          R$ {car.price}
-                        </span>
-                        <span className="text-muted-foreground">/dia</span>
-                      </div>
-                      <Button size="sm" className="bg-gradient-accent text-white">
-                        Reservar
-                      </Button>
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-1/2 mb-4" />
+                    <div className="flex justify-between">
+                      <Skeleton className="h-8 w-24" />
+                      <Skeleton className="h-9 w-20" />
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              ))
+            ) : featuredVehicles && featuredVehicles.length > 0 ? (
+              featuredVehicles.map((vehicle) => (
+                <Link key={vehicle.id} to={`/cars/${vehicle.id}`}>
+                  <Card className="overflow-hidden group hover:shadow-xl transition-smooth border-2 hover:border-primary">
+                    <div className="relative h-64 overflow-hidden">
+                      <img
+                        src={getVehicleImage(vehicle)}
+                        alt={`${vehicle.brand} ${vehicle.model}`}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-smooth"
+                      />
+                      <Badge className="absolute top-4 right-4 bg-background/90 backdrop-blur">
+                        {vehicleTypeLabels[vehicle.vehicle_type] || vehicle.vehicle_type}
+                      </Badge>
+                    </div>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-bold text-xl">{vehicle.brand} {vehicle.model} {vehicle.year}</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        📍 {getVehicleLocation(vehicle)}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-2xl font-bold text-primary">
+                            R$ {vehicle.daily_price}
+                          </span>
+                          <span className="text-muted-foreground">/dia</span>
+                        </div>
+                        <Button size="sm" className="bg-primary text-white hover:bg-primary/90">
+                          Reservar
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <Car className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">Nenhum veículo disponível no momento.</p>
+                <Button className="mt-4 bg-primary text-white" asChild>
+                  <Link to="/become-owner">Seja o primeiro a anunciar!</Link>
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="text-center mt-12 sm:hidden">
