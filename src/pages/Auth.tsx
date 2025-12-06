@@ -10,7 +10,6 @@ import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import logo from '@/assets/logo.png';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -61,9 +60,10 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={logo} alt="InfiniteDrive" className="h-16" />
+            <span className="text-3xl sm:text-4xl font-display font-bold text-primary">
+              InfiniteDrive
+            </span>
           </div>
-          <CardTitle className="text-3xl font-display">Bem-vindo ao InfiniteDrive</CardTitle>
           <CardDescription>Entre ou crie sua conta para continuar</CardDescription>
         </CardHeader>
         <CardContent>

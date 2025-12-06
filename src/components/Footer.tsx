@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone } from "lucide-react";
-import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -9,8 +8,10 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <img src={logo} alt="InfiniteDrive" className="h-10" />
+            <div className="flex items-center">
+              <span className="text-2xl sm:text-3xl font-display font-bold text-primary">
+                InfiniteDrive
+              </span>
             </div>
             <p className="text-sm text-muted-foreground">
               A plataforma que conecta proprietários e locatários de veículos de forma segura e prática.
