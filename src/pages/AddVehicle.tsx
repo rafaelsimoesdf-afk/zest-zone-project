@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ArrowLeft, Upload, X, Shield, Sofa, Cpu, Car, Package } from "lucide-react";
 import { Link } from "react-router-dom";
-import { CityAutocomplete } from "@/components/CityAutocomplete";
+import { brazilianStates, getCitiesForState } from "@/hooks/useBrazilLocations";
 
 const AddVehicle = () => {
   const navigate = useNavigate();
@@ -640,50 +640,39 @@ const AddVehicle = () => {
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="city">Cidade *</Label>
-                    <CityAutocomplete
-                      value={formData.city}
-                      onChange={(city) => setFormData({ ...formData, city })}
-                      placeholder="Digite a cidade"
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="state">Estado *</Label>
                     <Select
                       value={formData.state}
-                      onValueChange={(value) => setFormData({ ...formData, state: value })}
+                      onValueChange={(value) => setFormData({ ...formData, state: value, city: "" })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o estado" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="AC">Acre</SelectItem>
-                        <SelectItem value="AL">Alagoas</SelectItem>
-                        <SelectItem value="AP">Amapá</SelectItem>
-                        <SelectItem value="AM">Amazonas</SelectItem>
-                        <SelectItem value="BA">Bahia</SelectItem>
-                        <SelectItem value="CE">Ceará</SelectItem>
-                        <SelectItem value="DF">Distrito Federal</SelectItem>
-                        <SelectItem value="ES">Espírito Santo</SelectItem>
-                        <SelectItem value="GO">Goiás</SelectItem>
-                        <SelectItem value="MA">Maranhão</SelectItem>
-                        <SelectItem value="MT">Mato Grosso</SelectItem>
-                        <SelectItem value="MS">Mato Grosso do Sul</SelectItem>
-                        <SelectItem value="MG">Minas Gerais</SelectItem>
-                        <SelectItem value="PA">Pará</SelectItem>
-                        <SelectItem value="PB">Paraíba</SelectItem>
-                        <SelectItem value="PR">Paraná</SelectItem>
-                        <SelectItem value="PE">Pernambuco</SelectItem>
-                        <SelectItem value="PI">Piauí</SelectItem>
-                        <SelectItem value="RJ">Rio de Janeiro</SelectItem>
-                        <SelectItem value="RN">Rio Grande do Norte</SelectItem>
-                        <SelectItem value="RS">Rio Grande do Sul</SelectItem>
-                        <SelectItem value="RO">Rondônia</SelectItem>
-                        <SelectItem value="RR">Roraima</SelectItem>
-                        <SelectItem value="SC">Santa Catarina</SelectItem>
-                        <SelectItem value="SP">São Paulo</SelectItem>
-                        <SelectItem value="SE">Sergipe</SelectItem>
-                        <SelectItem value="TO">Tocantins</SelectItem>
+                        {brazilianStates.map((state) => (
+                          <SelectItem key={state.code} value={state.code}>
+                            {state.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="city">Cidade *</Label>
+                    <Select
+                      value={formData.city}
+                      onValueChange={(value) => setFormData({ ...formData, city: value })}
+                      disabled={!formData.state}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={formData.state ? "Selecione a cidade" : "Selecione o estado primeiro"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {getCitiesForState(formData.state).map((city) => (
+                          <SelectItem key={city} value={city}>
+                            {city}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
