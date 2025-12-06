@@ -163,7 +163,7 @@ const BecomeOwner = () => {
             </Badge>
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
               Transforme seu Carro em{" "}
-              <span className="bg-gradient-primary bg-clip-text text-transparent">
+              <span className="text-primary">
                 Fonte de Renda
               </span>
             </h1>

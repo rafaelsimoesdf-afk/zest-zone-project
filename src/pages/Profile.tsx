@@ -117,7 +117,7 @@ const Profile = () => {
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-24">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl font-display font-bold mb-8 bg-gradient-primary bg-clip-text text-transparent">
+          <h1 className="text-4xl font-display font-bold mb-8 text-primary">
             Meu Perfil
           </h1>
 

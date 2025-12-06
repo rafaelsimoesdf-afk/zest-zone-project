@@ -152,7 +152,7 @@ const HowItWorks = () => {
           <Badge className="mb-6">Processo Simples e Seguro</Badge>
           <h1 className="font-display text-5xl sm:text-6xl font-bold mb-6">
             Como Funciona o{" "}
-            <span className="bg-gradient-primary bg-clip-text text-transparent">
+            <span className="text-primary">
               InfiniteDrive
             </span>
           </h1>

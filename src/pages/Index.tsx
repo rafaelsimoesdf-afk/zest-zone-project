@@ -125,7 +125,7 @@ const Index = () => {
             </Badge>
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl mb-6 leading-tight">
               Alugue Carros{" "}
-              <span className="bg-gradient-primary bg-clip-text text-transparent">
+              <span className="text-primary">
                 Entre Pessoas
               </span>
             </h1>
