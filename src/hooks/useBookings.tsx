@@ -148,3 +148,60 @@ export const useCreateBooking = () => {
     },
   });
 };
+
+export interface BookingDetails extends Booking {
+  vehicles?: {
+    brand: string;
+    model: string;
+    year: number;
+    color: string;
+    license_plate: string;
+    vehicle_images?: Array<{
+      image_url: string;
+      is_primary: boolean;
+    }>;
+  };
+  profiles?: {
+    first_name: string;
+    last_name: string;
+    phone_number: string | null;
+  };
+}
+
+export const useBooking = (bookingId: string) => {
+  return useQuery({
+    queryKey: ["booking", bookingId],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(`
+          *,
+          vehicles (
+            brand,
+            model,
+            year,
+            color,
+            license_plate,
+            vehicle_images (
+              image_url,
+              is_primary
+            )
+          ),
+          profiles!bookings_owner_id_fkey (
+            first_name,
+            last_name,
+            phone_number
+          )
+        `)
+        .eq("id", bookingId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as BookingDetails | null;
+    },
+    enabled: !!bookingId,
+  });
+};
