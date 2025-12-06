@@ -90,7 +90,9 @@ const MyBookings = () => {
                         </div>
                       )}
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">Ver Detalhes</Button>
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={`/booking/${booking.id}`}>Ver Detalhes</a>
+                        </Button>
                         {booking.status === 'pending' && (
                           <Button variant="ghost" size="sm">Cancelar</Button>
                         )}
