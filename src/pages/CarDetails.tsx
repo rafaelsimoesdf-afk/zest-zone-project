@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -388,8 +389,5 @@ const CarDetails = () => {
     </div>
   );
 };
-
-// Missing Input component import
-import { Input } from "@/components/ui/input";
 
 export default CarDetails;
