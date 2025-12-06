@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export interface Booking {
   id: string;
@@ -95,6 +96,55 @@ export const useOwnerBookings = () => {
 
       if (error) throw error;
       return data as Booking[];
+    },
+  });
+};
+
+export interface CreateBookingData {
+  vehicle_id: string;
+  owner_id: string;
+  start_date: string;
+  end_date: string;
+  total_days: number;
+  daily_rate: number;
+  total_price: number;
+  pickup_location?: string;
+  return_location?: string;
+  notes?: string;
+}
+
+export const useCreateBooking = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (bookingData: CreateBookingData) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Check if user is trying to book their own vehicle
+      if (user.id === bookingData.owner_id) {
+        throw new Error("Você não pode reservar seu próprio veículo");
+      }
+
+      const { data, error } = await supabase
+        .from("bookings")
+        .insert({
+          ...bookingData,
+          customer_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["ownerBookings"] });
+      toast.success("Reserva criada com sucesso!");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Erro ao criar reserva");
     },
   });
 };

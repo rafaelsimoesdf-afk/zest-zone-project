@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useVehicle } from "@/hooks/useVehicles";
+import { useCreateBooking } from "@/hooks/useBookings";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -34,6 +35,7 @@ const CarDetails = () => {
   const [endDate, setEndDate] = useState("");
 
   const { data: vehicle, isLoading } = useVehicle(id || "");
+  const createBooking = useCreateBooking();
 
   if (isLoading) {
     return (
@@ -348,7 +350,7 @@ const CarDetails = () => {
                   <Button
                     size="lg"
                     className="w-full gradient-accent text-accent-foreground hover:opacity-90 transition-smooth mb-4"
-                    onClick={() => {
+                    onClick={async () => {
                       if (!user) {
                         navigate("/auth");
                         return;
@@ -357,12 +359,34 @@ const CarDetails = () => {
                         toast.error("Selecione as datas de retirada e devolução");
                         return;
                       }
-                      // TODO: Implement booking creation
-                      toast.success("Funcionalidade de reserva em desenvolvimento");
+
+                      const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+                      if (days <= 0) {
+                        toast.error("A data de devolução deve ser posterior à data de retirada");
+                        return;
+                      }
+
+                      const subtotal = vehicle.daily_price * days;
+                      const serviceFee = subtotal * 0.15;
+                      const insurance = days * 20;
+                      const totalPrice = subtotal + serviceFee + insurance;
+
+                      await createBooking.mutateAsync({
+                        vehicle_id: vehicle.id,
+                        owner_id: vehicle.owner_id,
+                        start_date: new Date(startDate).toISOString(),
+                        end_date: new Date(endDate).toISOString(),
+                        total_days: days,
+                        daily_rate: vehicle.daily_price,
+                        total_price: totalPrice,
+                        pickup_location: address ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city} - ${address.state}` : null,
+                      });
+
+                      navigate("/my-bookings");
                     }}
-                    disabled={!startDate || !endDate}
+                    disabled={!startDate || !endDate || createBooking.isPending}
                   >
-                    {!user ? "Faça login para reservar" : "Reservar Agora"}
+                    {!user ? "Faça login para reservar" : createBooking.isPending ? "Processando..." : "Reservar Agora"}
                   </Button>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center">
