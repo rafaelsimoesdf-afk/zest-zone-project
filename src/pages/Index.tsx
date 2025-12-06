@@ -172,8 +172,7 @@ const Index = () => {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
-                className="border-2 border-white bg-white/10 text-white hover:bg-white hover:text-primary"
+                className="bg-white text-primary font-semibold hover:bg-white/90"
                 asChild
               >
                 <Link to="/become-owner">Anuncie seu Carro</Link>
