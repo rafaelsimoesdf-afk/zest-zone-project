@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useVehicle } from "@/hooks/useVehicles";
-import { useCreateBooking } from "@/hooks/useBookings";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
@@ -35,7 +34,7 @@ const CarDetails = () => {
   const [endDate, setEndDate] = useState("");
 
   const { data: vehicle, isLoading } = useVehicle(id || "");
-  const createBooking = useCreateBooking();
+  
 
   if (isLoading) {
     return (
@@ -350,7 +349,7 @@ const CarDetails = () => {
                   <Button
                     size="lg"
                     className="w-full gradient-accent text-accent-foreground hover:opacity-90 transition-smooth mb-4"
-                    onClick={async () => {
+                    onClick={() => {
                       if (!user) {
                         navigate("/auth");
                         return;
@@ -366,27 +365,12 @@ const CarDetails = () => {
                         return;
                       }
 
-                      const subtotal = vehicle.daily_price * days;
-                      const serviceFee = subtotal * 0.15;
-                      const insurance = days * 20;
-                      const totalPrice = subtotal + serviceFee + insurance;
-
-                      await createBooking.mutateAsync({
-                        vehicle_id: vehicle.id,
-                        owner_id: vehicle.owner_id,
-                        start_date: new Date(startDate).toISOString(),
-                        end_date: new Date(endDate).toISOString(),
-                        total_days: days,
-                        daily_rate: vehicle.daily_price,
-                        total_price: totalPrice,
-                        pickup_location: address ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city} - ${address.state}` : null,
-                      });
-
-                      navigate("/my-bookings");
+                      // Navigate to checkout with booking data
+                      navigate(`/checkout?vehicleId=${vehicle.id}&startDate=${startDate}&endDate=${endDate}`);
                     }}
-                    disabled={!startDate || !endDate || createBooking.isPending}
+                    disabled={!startDate || !endDate}
                   >
-                    {!user ? "Faça login para reservar" : createBooking.isPending ? "Processando..." : "Reservar Agora"}
+                    {!user ? "Faça login para reservar" : "Reservar Agora"}
                   </Button>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center">
