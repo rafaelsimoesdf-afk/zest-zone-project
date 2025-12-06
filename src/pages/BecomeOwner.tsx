@@ -252,8 +252,8 @@ const BecomeOwner = () => {
                 className="border-2 hover:border-primary transition-smooth hover:shadow-lg"
               >
                 <CardContent className="pt-6 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
-                    <benefit.icon className="w-8 h-8 text-white" />
+                  <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
+                    <benefit.icon className="w-8 h-8 text-primary-foreground" />
                   </div>
                   <h3 className="font-bold text-xl mb-2">{benefit.title}</h3>
                   <p className="text-muted-foreground">{benefit.description}</p>
@@ -281,14 +281,14 @@ const BecomeOwner = () => {
             {steps.map((step, index) => (
               <div key={index} className="relative">
                 <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center mx-auto mb-4 text-2xl font-display font-bold text-white shadow-glow">
+                  <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-4 text-2xl font-display font-bold text-primary-foreground shadow-glow">
                     {step.number}
                   </div>
                   <h3 className="font-bold text-xl mb-2">{step.title}</h3>
                   <p className="text-muted-foreground">{step.description}</p>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-primary opacity-30" />
+                  <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] h-0.5 gradient-primary opacity-30" />
                 )}
               </div>
             ))}
