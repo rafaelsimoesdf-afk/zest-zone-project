@@ -347,7 +347,7 @@ const CarDetails = () => {
 
                   <Button
                     size="lg"
-                    className="w-full bg-gradient-accent hover:opacity-90 transition-smooth mb-4"
+                    className="w-full gradient-accent text-accent-foreground hover:opacity-90 transition-smooth mb-4"
                     onClick={() => {
                       if (!user) {
                         navigate("/auth");

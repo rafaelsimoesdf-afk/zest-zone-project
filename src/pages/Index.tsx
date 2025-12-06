@@ -343,7 +343,7 @@ const Index = () => {
 
       {/* CTA Section for Owners */}
       <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-hero opacity-10" />
+        <div className="absolute inset-0 gradient-hero opacity-10" />
         <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto bg-card border-2 border-primary rounded-3xl p-8 sm:p-12 shadow-xl">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
