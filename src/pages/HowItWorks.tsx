@@ -187,8 +187,8 @@ const HowItWorks = () => {
                     } gap-8 items-center`}
                   >
                     <div className="flex-1">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center mb-6 shadow-glow">
-                        <step.icon className="w-8 h-8 text-white" />
+                      <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mb-6 shadow-glow">
+                        <step.icon className="w-8 h-8 text-primary-foreground" />
                       </div>
                       <div className="text-5xl font-display font-bold text-muted mb-4">
                         0{index + 1}
@@ -211,7 +211,7 @@ const HowItWorks = () => {
                     <div className="flex-1">
                       <Card className="border-2 overflow-hidden">
                         <CardContent className="p-0">
-                          <div className="aspect-video bg-gradient-hero opacity-20" />
+                          <div className="aspect-video gradient-hero opacity-20" />
                         </CardContent>
                       </Card>
                     </div>
@@ -237,8 +237,8 @@ const HowItWorks = () => {
                     } gap-8 items-center`}
                   >
                     <div className="flex-1">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-accent flex items-center justify-center mb-6 shadow-glow">
-                        <step.icon className="w-8 h-8 text-white" />
+                      <div className="w-16 h-16 rounded-2xl gradient-accent flex items-center justify-center mb-6 shadow-glow">
+                        <step.icon className="w-8 h-8 text-accent-foreground" />
                       </div>
                       <div className="text-5xl font-display font-bold text-muted mb-4">
                         0{index + 1}
@@ -261,7 +261,7 @@ const HowItWorks = () => {
                     <div className="flex-1">
                       <Card className="border-2 overflow-hidden">
                         <CardContent className="p-0">
-                          <div className="aspect-video bg-gradient-accent opacity-20" />
+                          <div className="aspect-video gradient-accent opacity-20" />
                         </CardContent>
                       </Card>
                     </div>
@@ -297,8 +297,8 @@ const HowItWorks = () => {
             {safety.map((item, index) => (
               <Card key={index} className="border-2 text-center">
                 <CardContent className="pt-8 pb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
-                    <item.icon className="w-8 h-8 text-white" />
+                  <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-glow">
+                    <item.icon className="w-8 h-8 text-primary-foreground" />
                   </div>
                   <h3 className="font-bold text-xl mb-3">{item.title}</h3>
                   <p className="text-muted-foreground">{item.description}</p>
