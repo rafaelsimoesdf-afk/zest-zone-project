@@ -116,8 +116,18 @@ const Messages = () => {
           selectedBookingId && "hidden md:flex"
         )}>
           <div className="p-4 border-b border-border">
-            <h1 className="text-xl font-bold mb-4">Mensagens</h1>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-3 mb-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => window.history.back()}
+                className="shrink-0"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-xl font-bold">Mensagens</h1>
+            </div>
+            <div className="flex gap-4">
               <Button
                 variant={filter === "all" ? "default" : "outline"}
                 size="sm"
