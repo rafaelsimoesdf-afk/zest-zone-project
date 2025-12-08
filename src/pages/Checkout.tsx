@@ -12,8 +12,6 @@ import {
   Star,
   CreditCard,
   Smartphone,
-  ChevronDown,
-  ChevronUp,
   Shield,
   MessageSquare,
 } from "lucide-react";
@@ -25,11 +23,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { VerificationRequired } from "@/components/VerificationRequired";
@@ -53,7 +46,6 @@ const Checkout = () => {
   const [lastName, setLastName] = useState(profile?.last_name || "");
   const [cpf, setCpf] = useState(profile?.cpf || "");
   const [message, setMessage] = useState("");
-  const [showPriceDetails, setShowPriceDetails] = useState(false);
 
   // Calculate pricing - Locatário paga apenas subtotal + seguro
   const days = startDate && endDate
@@ -454,46 +446,28 @@ const Checkout = () => {
 
                   {/* Price Summary */}
                   <div>
-                    <h3 className="font-bold text-lg mb-4">Seu total</h3>
+                    <h3 className="font-bold text-lg mb-4">Resumo do Pagamento</h3>
 
-                    <Collapsible open={showPriceDetails} onOpenChange={setShowPriceDetails}>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            {days} {days === 1 ? "dia" : "dias"} x R$ {vehicle.daily_price.toFixed(2)}
-                          </span>
-                          <span className="font-medium">R$ {subtotal.toFixed(2)}</span>
-                        </div>
-
-                        <CollapsibleContent className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Seguro</span>
-                            <span className="font-medium">R$ {insurance.toFixed(2)}</span>
-                          </div>
-                        </CollapsibleContent>
-
-                        <Separator />
-
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold">Total (BRL)</span>
-                          <span className="font-bold text-lg">R$ {totalPrice.toFixed(2)}</span>
-                        </div>
-
-                        <CollapsibleTrigger asChild>
-                          <Button variant="link" className="p-0 h-auto text-foreground underline text-sm w-full text-right">
-                            {showPriceDetails ? (
-                              <span className="flex items-center gap-1 justify-end">
-                                Ocultar detalhes <ChevronUp className="w-4 h-4" />
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-1 justify-end">
-                                Detalhamento do preço <ChevronDown className="w-4 h-4" />
-                              </span>
-                            )}
-                          </Button>
-                        </CollapsibleTrigger>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Diária (R$ {vehicle.daily_price.toFixed(2)} × {days})
+                        </span>
+                        <span className="font-medium">R$ {subtotal.toFixed(2)}</span>
                       </div>
-                    </Collapsible>
+
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Seguro</span>
+                        <span className="font-medium">R$ {insurance.toFixed(2)}</span>
+                      </div>
+
+                      <Separator />
+
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold">Total</span>
+                        <span className="font-bold text-lg text-primary">R$ {totalPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
                   </div>
 
                   <Separator className="my-6" />
