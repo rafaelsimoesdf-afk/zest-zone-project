@@ -27,18 +27,25 @@ export const useVehicleBookings = (vehicleId: string) => {
 
 // Helper function to get all disabled dates from bookings
 export const getDisabledDates = (bookings: VehicleBooking[] | undefined): Date[] => {
-  if (!bookings) return [];
+  if (!bookings || bookings.length === 0) return [];
 
   const disabledDates: Date[] = [];
 
   bookings.forEach((booking) => {
-    const start = new Date(booking.start_date);
-    const end = new Date(booking.end_date);
+    // Parse dates properly - handle both ISO strings and date-only strings
+    const startStr = booking.start_date.split('T')[0];
+    const endStr = booking.end_date.split('T')[0];
+    
+    const [startYear, startMonth, startDay] = startStr.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endStr.split('-').map(Number);
+    
+    const start = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
 
     // Add all dates between start and end (inclusive)
     const current = new Date(start);
     while (current <= end) {
-      disabledDates.push(new Date(current));
+      disabledDates.push(new Date(current.getFullYear(), current.getMonth(), current.getDate()));
       current.setDate(current.getDate() + 1);
     }
   });
@@ -55,8 +62,15 @@ export const isDateRangeAvailable = (
   if (!bookings || bookings.length === 0) return true;
 
   return !bookings.some((booking) => {
-    const bookingStart = new Date(booking.start_date);
-    const bookingEnd = new Date(booking.end_date);
+    // Parse dates properly
+    const startStr = booking.start_date.split('T')[0];
+    const endStr = booking.end_date.split('T')[0];
+    
+    const [startYear, startMonth, startDay] = startStr.split('-').map(Number);
+    const [endYear, endMonth, endDay] = endStr.split('-').map(Number);
+    
+    const bookingStart = new Date(startYear, startMonth - 1, startDay);
+    const bookingEnd = new Date(endYear, endMonth - 1, endDay);
 
     // Check for overlap
     return startDate <= bookingEnd && endDate >= bookingStart;
