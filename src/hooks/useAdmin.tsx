@@ -309,3 +309,70 @@ export const useDeleteUser = () => {
     },
   });
 };
+
+export const useUpdateBookingStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ bookingId, status }: { bookingId: string; status: string }) => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .update({ status: status as any })
+        .eq("id", bookingId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["allBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["ownerBookings"] });
+      
+      const statusLabels: Record<string, string> = {
+        pending: "Pendente",
+        confirmed: "Confirmada",
+        in_progress: "Em Andamento",
+        completed: "Concluída",
+        cancelled: "Cancelada",
+        disputed: "Em Disputa",
+      };
+      
+      toast.success(`Reserva atualizada para: ${statusLabels[variables.status] || variables.status}`);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao atualizar status da reserva");
+    },
+  });
+};
+
+export const useDeleteBooking = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (bookingId: string) => {
+      // Delete related payments first
+      await supabase.from("payments").delete().eq("booking_id", bookingId);
+      await supabase.from("reviews").delete().eq("booking_id", bookingId);
+
+      const { error } = await supabase
+        .from("bookings")
+        .delete()
+        .eq("id", bookingId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["adminStats"] });
+      queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["ownerBookings"] });
+      toast.success("Reserva excluída com sucesso!");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Erro ao excluir reserva");
+    },
+  });
+};
