@@ -37,6 +37,8 @@ const Checkout = () => {
   const vehicleId = searchParams.get("vehicleId");
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
+  const startTime = searchParams.get("startTime") || "09:00";
+  const endTime = searchParams.get("endTime") || "09:00";
 
   const { data: vehicle, isLoading } = useVehicle(vehicleId || "");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -51,7 +53,24 @@ const Checkout = () => {
   const days = startDate && endDate
     ? Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
-  const subtotal = vehicle ? vehicle.daily_price * days : 0;
+  
+  // Calculate extra hours if return time > pickup time
+  const [startHour, startMinute] = startTime.split(':').map(Number);
+  const [endHour, endMinute] = endTime.split(':').map(Number);
+  const startMinutes = startHour * 60 + startMinute;
+  const endMinutes = endHour * 60 + endMinute;
+  
+  let extraHoursCharge = 0;
+  let extraHours = 0;
+  
+  if (endMinutes > startMinutes && vehicle) {
+    extraHours = (endMinutes - startMinutes) / 60;
+    const hourlyRate = vehicle.daily_price / 24;
+    extraHoursCharge = hourlyRate * extraHours;
+  }
+  
+  const dailySubtotal = vehicle ? vehicle.daily_price * days : 0;
+  const subtotal = dailySubtotal + extraHoursCharge;
   const insurance = days * 20;
   const totalPrice = subtotal + insurance;
 
@@ -156,8 +175,13 @@ const Checkout = () => {
           vehicleName: `${vehicle.brand} ${vehicle.model} ${vehicle.year}`,
           startDate,
           endDate,
+          startTime,
+          endTime,
           days,
           dailyRate: vehicle.daily_price,
+          dailySubtotal,
+          extraHours,
+          extraHoursCharge,
           subtotal,
           insurance,
           totalPrice,
@@ -453,8 +477,17 @@ const Checkout = () => {
                         <span className="text-muted-foreground">
                           Diária (R$ {vehicle.daily_price.toFixed(2)} × {days})
                         </span>
-                        <span className="font-medium">R$ {subtotal.toFixed(2)}</span>
+                        <span className="font-medium">R$ {dailySubtotal.toFixed(2)}</span>
                       </div>
+
+                      {extraHoursCharge > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Horas adicionais ({extraHours.toFixed(1)}h)
+                          </span>
+                          <span className="font-medium">R$ {extraHoursCharge.toFixed(2)}</span>
+                        </div>
+                      )}
 
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Seguro</span>
