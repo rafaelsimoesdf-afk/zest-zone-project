@@ -137,15 +137,15 @@ const OwnerDashboard = () => {
               ))
             ) : stats && (
               <>
-                <Card>
+                <Card className="border-green-500/20">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Receita Total
+                      Receita Líquida
                     </CardTitle>
-                    <DollarSign className="h-4 w-4 text-primary" />
+                    <DollarSign className="h-4 w-4 text-green-500" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{formatCurrency(stats.total_revenue)}</div>
+                    <div className="text-2xl font-bold text-green-600">{formatCurrency(stats.net_revenue)}</div>
                     <div className="flex items-center text-xs text-muted-foreground mt-1">
                       {stats.revenue_growth >= 0 ? (
                         <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
@@ -157,6 +157,21 @@ const OwnerDashboard = () => {
                       </span>
                       <span className="ml-1">vs mês anterior</span>
                     </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-red-500/20">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Taxa da Plataforma (15%)
+                    </CardTitle>
+                    <DollarSign className="h-4 w-4 text-red-500" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-red-600">{formatCurrency(stats.platform_fees)}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Descontado das suas reservas
+                    </p>
                   </CardContent>
                 </Card>
 
@@ -178,22 +193,7 @@ const OwnerDashboard = () => {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Veículos Ativos
-                    </CardTitle>
-                    <Car className="h-4 w-4 text-primary" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stats.total_vehicles}</div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Cadastrados na plataforma
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Média por Reserva
+                      Média Líquida por Reserva
                     </CardTitle>
                     <Calendar className="h-4 w-4 text-primary" />
                   </CardHeader>
@@ -207,6 +207,35 @@ const OwnerDashboard = () => {
               </>
             )}
           </div>
+
+          {/* Resumo Financeiro Detalhado */}
+          {stats && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="text-lg">Resumo Financeiro</CardTitle>
+                <CardDescription>Detalhamento das suas receitas e taxas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Receita Bruta</p>
+                    <p className="text-xl font-semibold">{formatCurrency(stats.gross_revenue)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Total pago pelos locatários</p>
+                  </div>
+                  <div className="p-4 bg-red-500/10 rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Taxa da Plataforma (15%)</p>
+                    <p className="text-xl font-semibold text-red-600">- {formatCurrency(stats.platform_fees)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Comissão sobre o valor da diária</p>
+                  </div>
+                  <div className="p-4 bg-green-500/10 rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">Você Recebe</p>
+                    <p className="text-xl font-semibold text-green-600">{formatCurrency(stats.net_revenue)}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Seu lucro líquido</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Tabs defaultValue="bookings" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
@@ -445,46 +474,64 @@ const OwnerDashboard = () => {
                         </div>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-3">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Receita Total</p>
-                              <p className="text-xl font-bold text-primary">
-                                {formatCurrency(vehicle.total_revenue)}
-                              </p>
+                        <div className="space-y-4">
+                          {/* Resumo Financeiro do Veículo */}
+                          <div className="grid grid-cols-3 gap-2 p-3 bg-muted rounded-lg">
+                            <div className="text-center">
+                              <p className="text-xs text-muted-foreground">Bruto</p>
+                              <p className="font-semibold text-sm">{formatCurrency(vehicle.gross_revenue)}</p>
                             </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Média Diária</p>
-                              <p className="font-semibold">
-                                {formatCurrency(vehicle.average_daily_rate)}
-                              </p>
+                            <div className="text-center">
+                              <p className="text-xs text-muted-foreground">Taxa (15%)</p>
+                              <p className="font-semibold text-sm text-red-600">-{formatCurrency(vehicle.platform_fee)}</p>
                             </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground">Total Dias Alugado</p>
-                              <p className="font-semibold">{vehicle.total_days_rented} dias</p>
+                            <div className="text-center">
+                              <p className="text-xs text-muted-foreground">Líquido</p>
+                              <p className="font-semibold text-sm text-green-600">{formatCurrency(vehicle.net_revenue)}</p>
                             </div>
                           </div>
-                          <div className="space-y-3">
-                            <div>
-                              <p className="text-sm text-muted-foreground">Total Reservas</p>
-                              <p className="font-semibold">{vehicle.total_bookings}</p>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-3">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Você Recebe</p>
+                                <p className="text-xl font-bold text-green-600">
+                                  {formatCurrency(vehicle.net_revenue)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Média Diária</p>
+                                <p className="font-semibold">
+                                  {formatCurrency(vehicle.average_daily_rate)}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Total Dias Alugado</p>
+                                <p className="font-semibold">{vehicle.total_days_rented} dias</p>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <span className="text-sm">{vehicle.pending_bookings}</span>
+                            <div className="space-y-3">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Total Reservas</p>
+                                <p className="font-semibold">{vehicle.total_bookings}</p>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                <span className="text-sm">{vehicle.confirmed_bookings}</span>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1">
+                                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                  <span className="text-sm">{vehicle.pending_bookings}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                  <span className="text-sm">{vehicle.confirmed_bookings}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                  <span className="text-sm">{vehicle.cancelled_bookings}</span>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                                <span className="text-sm">{vehicle.cancelled_bookings}</span>
+                              <div className="text-xs text-muted-foreground">
+                                Pendentes / Confirmadas / Canceladas
                               </div>
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Pendentes / Confirmadas / Canceladas
                             </div>
                           </div>
                         </div>
@@ -617,20 +664,36 @@ const OwnerDashboard = () => {
                 {/* Payment Summary */}
                 <div className="border-t pt-4">
                   <h4 className="font-semibold mb-3">Resumo Financeiro</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Diária</span>
-                      <span>{formatCurrency(selectedBooking.daily_rate)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Dias</span>
-                      <span>× {selectedBooking.total_days}</span>
-                    </div>
-                    <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                      <span>Total</span>
-                      <span className="text-primary">{formatCurrency(selectedBooking.total_price)}</span>
-                    </div>
-                  </div>
+                  {(() => {
+                    const subtotal = selectedBooking.daily_rate * selectedBooking.total_days;
+                    const platformFee = subtotal * 0.15;
+                    const ownerReceives = subtotal - platformFee;
+                    
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Diária</span>
+                          <span>{formatCurrency(selectedBooking.daily_rate)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Dias</span>
+                          <span>× {selectedBooking.total_days}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Subtotal</span>
+                          <span>{formatCurrency(subtotal)}</span>
+                        </div>
+                        <div className="flex justify-between text-red-600">
+                          <span>Taxa da Plataforma (15%)</span>
+                          <span>- {formatCurrency(platformFee)}</span>
+                        </div>
+                        <div className="flex justify-between font-semibold text-lg border-t pt-2 text-green-600">
+                          <span>Você Recebe</span>
+                          <span>{formatCurrency(ownerReceives)}</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </>
