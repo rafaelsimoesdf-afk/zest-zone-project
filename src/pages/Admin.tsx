@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useAdminStats, usePendingVehicles, useAllVehicles, useAllUsers, useAllBookings, useUpdateVehicleStatus, useUpdateUserStatus, useUpdateUserVerificationStatus, useDeleteUser } from "@/hooks/useAdmin";
+import { useAdminStats, usePendingVehicles, useAllVehicles, useAllUsers, useAllBookings, useUpdateVehicleStatus, useUpdateUserStatus, useUpdateUserVerificationStatus, useDeleteUser, useUpdateBookingStatus, useDeleteBooking } from "@/hooks/useAdmin";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDeleteVehicle } from "@/hooks/useVehicles";
 import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
@@ -34,6 +34,8 @@ const Admin = () => {
   const updateUserVerificationStatus = useUpdateUserVerificationStatus();
   const deleteVehicle = useDeleteVehicle();
   const deleteUser = useDeleteUser();
+  const updateBookingStatus = useUpdateBookingStatus();
+  const deleteBooking = useDeleteBooking();
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -512,7 +514,7 @@ const Admin = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Reservas</CardTitle>
-                <CardDescription>Visualize todas as reservas da plataforma</CardDescription>
+                <CardDescription>Gerencie todas as reservas da plataforma - altere status, aprove ou exclua</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -524,6 +526,7 @@ const Admin = () => {
                       <TableHead>Data Fim</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Valor Total</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -539,10 +542,73 @@ const Admin = () => {
                         </TableCell>
                         <TableCell>{format(new Date(booking.start_date), "dd/MM/yyyy")}</TableCell>
                         <TableCell>{format(new Date(booking.end_date), "dd/MM/yyyy")}</TableCell>
-                        <TableCell>{getStatusBadge(booking.status)}</TableCell>
+                        <TableCell>
+                          <Select
+                            value={booking.status}
+                            onValueChange={(value) => updateBookingStatus.mutate({ bookingId: booking.id, status: value })}
+                          >
+                            <SelectTrigger className="w-[140px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pendente</SelectItem>
+                              <SelectItem value="confirmed">Confirmada</SelectItem>
+                              <SelectItem value="in_progress">Em Andamento</SelectItem>
+                              <SelectItem value="completed">Concluída</SelectItem>
+                              <SelectItem value="cancelled">Cancelada</SelectItem>
+                              <SelectItem value="disputed">Em Disputa</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
                         <TableCell>R$ {booking.total_price}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex gap-2 justify-end">
+                            {booking.status === "pending" && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => updateBookingStatus.mutate({ bookingId: booking.id, status: "confirmed" })}
+                                disabled={updateBookingStatus.isPending}
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Aprovar
+                              </Button>
+                            )}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm" disabled={deleteBooking.isPending}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir esta reserva? Esta ação não pode ser desfeita e também excluirá pagamentos e avaliações relacionadas.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => deleteBooking.mutate(booking.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Excluir
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
+                    {!allBookings?.length && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
+                          Nenhuma reserva encontrada
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
