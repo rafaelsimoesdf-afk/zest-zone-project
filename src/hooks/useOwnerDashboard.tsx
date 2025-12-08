@@ -48,7 +48,9 @@ export interface VehicleStats {
   confirmed_bookings: number;
   pending_bookings: number;
   cancelled_bookings: number;
-  total_revenue: number;
+  gross_revenue: number; // Receita bruta (total pago pelo locatário)
+  platform_fee: number; // Taxa da plataforma (15% do subtotal)
+  net_revenue: number; // Receita líquida (o que o proprietário recebe)
   average_daily_rate: number;
   total_days_rented: number;
   image_url: string | null;
@@ -61,11 +63,13 @@ export interface DashboardStats {
   confirmed_bookings: number;
   completed_bookings: number;
   cancelled_bookings: number;
-  total_revenue: number;
+  gross_revenue: number; // Receita bruta total
+  platform_fees: number; // Total de taxas pagas à plataforma
+  net_revenue: number; // Receita líquida (o que o proprietário recebe)
   average_booking_value: number;
   average_days_per_booking: number;
-  this_month_revenue: number;
-  last_month_revenue: number;
+  this_month_net_revenue: number;
+  last_month_net_revenue: number;
   revenue_growth: number;
 }
 
@@ -103,23 +107,57 @@ export const useOwnerDashboardStats = () => {
       const revenueBookings = allBookings.filter(b => 
         b.status === "confirmed" || b.status === "completed"
       );
-      const totalRevenue = revenueBookings.reduce((sum, b) => sum + Number(b.total_price), 0);
+      
+      // Calcular receitas - Taxa de 15% do subtotal é paga pelo proprietário
+      // O locatário paga: subtotal + seguro
+      // O proprietário recebe: subtotal - 15% do subtotal = 85% do subtotal
+      const PLATFORM_FEE_RATE = 0.15;
+      const INSURANCE_PER_DAY = 20;
+      
+      let grossRevenue = 0;
+      let platformFees = 0;
+      let netRevenue = 0;
+      
+      revenueBookings.forEach(b => {
+        const subtotal = Number(b.daily_rate) * b.total_days;
+        const insurance = b.total_days * INSURANCE_PER_DAY;
+        const bookingGross = subtotal + insurance; // O que o locatário pagou
+        const platformFee = subtotal * PLATFORM_FEE_RATE;
+        const bookingNet = subtotal - platformFee; // O que o proprietário recebe (sem seguro pois vai para a plataforma)
+        
+        grossRevenue += bookingGross;
+        platformFees += platformFee;
+        netRevenue += bookingNet;
+      });
+      
       const totalDays = revenueBookings.reduce((sum, b) => sum + b.total_days, 0);
 
       const thisMonthBookings = revenueBookings.filter(b => 
         new Date(b.created_at) >= thisMonthStart
       );
-      const thisMonthRevenue = thisMonthBookings.reduce((sum, b) => sum + Number(b.total_price), 0);
+      
+      let thisMonthNetRevenue = 0;
+      thisMonthBookings.forEach(b => {
+        const subtotal = Number(b.daily_rate) * b.total_days;
+        const platformFee = subtotal * PLATFORM_FEE_RATE;
+        thisMonthNetRevenue += subtotal - platformFee;
+      });
 
       const lastMonthBookings = revenueBookings.filter(b => {
         const date = new Date(b.created_at);
         return date >= lastMonthStart && date <= lastMonthEnd;
       });
-      const lastMonthRevenue = lastMonthBookings.reduce((sum, b) => sum + Number(b.total_price), 0);
+      
+      let lastMonthNetRevenue = 0;
+      lastMonthBookings.forEach(b => {
+        const subtotal = Number(b.daily_rate) * b.total_days;
+        const platformFee = subtotal * PLATFORM_FEE_RATE;
+        lastMonthNetRevenue += subtotal - platformFee;
+      });
 
-      const revenueGrowth = lastMonthRevenue > 0 
-        ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
-        : thisMonthRevenue > 0 ? 100 : 0;
+      const revenueGrowth = lastMonthNetRevenue > 0 
+        ? ((thisMonthNetRevenue - lastMonthNetRevenue) / lastMonthNetRevenue) * 100 
+        : thisMonthNetRevenue > 0 ? 100 : 0;
 
       return {
         total_vehicles: vehiclesCount || 0,
@@ -128,11 +166,13 @@ export const useOwnerDashboardStats = () => {
         confirmed_bookings: confirmedBookings.length,
         completed_bookings: completedBookings.length,
         cancelled_bookings: cancelledBookings.length,
-        total_revenue: totalRevenue,
-        average_booking_value: revenueBookings.length > 0 ? totalRevenue / revenueBookings.length : 0,
+        gross_revenue: grossRevenue,
+        platform_fees: platformFees,
+        net_revenue: netRevenue,
+        average_booking_value: revenueBookings.length > 0 ? netRevenue / revenueBookings.length : 0,
         average_days_per_booking: revenueBookings.length > 0 ? totalDays / revenueBookings.length : 0,
-        this_month_revenue: thisMonthRevenue,
-        last_month_revenue: lastMonthRevenue,
+        this_month_net_revenue: thisMonthNetRevenue,
+        last_month_net_revenue: lastMonthNetRevenue,
         revenue_growth: revenueGrowth,
       };
     },
@@ -173,12 +213,30 @@ export const useOwnerVehicleStats = () => {
 
       const allBookings = bookings || [];
 
+      const PLATFORM_FEE_RATE = 0.15;
+      const INSURANCE_PER_DAY = 20;
+      
       return vehicles.map(vehicle => {
         const vehicleBookings = allBookings.filter(b => b.vehicle_id === vehicle.id);
         const revenueBookings = vehicleBookings.filter(b => 
           b.status === "confirmed" || b.status === "completed"
         );
         const primaryImage = vehicle.vehicle_images?.find(img => img.is_primary) || vehicle.vehicle_images?.[0];
+
+        let grossRevenue = 0;
+        let platformFee = 0;
+        let netRevenue = 0;
+        
+        revenueBookings.forEach(b => {
+          const subtotal = Number(b.daily_rate) * b.total_days;
+          const insurance = b.total_days * INSURANCE_PER_DAY;
+          const bookingGross = subtotal + insurance;
+          const fee = subtotal * PLATFORM_FEE_RATE;
+          
+          grossRevenue += bookingGross;
+          platformFee += fee;
+          netRevenue += subtotal - fee;
+        });
 
         return {
           vehicle_id: vehicle.id,
@@ -190,7 +248,9 @@ export const useOwnerVehicleStats = () => {
           confirmed_bookings: vehicleBookings.filter(b => b.status === "confirmed").length,
           pending_bookings: vehicleBookings.filter(b => b.status === "pending").length,
           cancelled_bookings: vehicleBookings.filter(b => b.status === "cancelled").length,
-          total_revenue: revenueBookings.reduce((sum, b) => sum + Number(b.total_price), 0),
+          gross_revenue: grossRevenue,
+          platform_fee: platformFee,
+          net_revenue: netRevenue,
           average_daily_rate: revenueBookings.length > 0 
             ? revenueBookings.reduce((sum, b) => sum + Number(b.daily_rate), 0) / revenueBookings.length 
             : 0,

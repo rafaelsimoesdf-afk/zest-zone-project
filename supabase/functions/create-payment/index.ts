@@ -51,7 +51,6 @@ serve(async (req) => {
       days, 
       dailyRate, 
       subtotal, 
-      serviceFee, 
       insurance, 
       totalPrice,
       ownerId,
@@ -59,11 +58,15 @@ serve(async (req) => {
       notes
     } = body;
 
-    logStep("Payment details received", { vehicleId, vehicleName, days, totalPrice });
+    logStep("Payment details received", { vehicleId, vehicleName, days, totalPrice, subtotal, insurance });
 
     if (!vehicleId || !totalPrice || !days) {
       throw new Error("Missing required payment information");
     }
+
+    // Calcular a taxa de serviço da plataforma (15% do subtotal - pago pelo proprietário)
+    const platformFee = Math.round(subtotal * 0.15 * 100); // em centavos
+    logStep("Platform fee calculated", { platformFee: platformFee / 100, subtotal });
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -80,45 +83,42 @@ serve(async (req) => {
       logStep("No existing Stripe customer found");
     }
 
-    // Create a one-time payment session with dynamic pricing
+    // Criar line items - Locatário paga apenas subtotal + seguro
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      {
+        price_data: {
+          currency: "brl",
+          product_data: {
+            name: `Aluguel: ${vehicleName}`,
+            description: `${days} ${days === 1 ? 'dia' : 'dias'} de aluguel`,
+          },
+          unit_amount: Math.round(subtotal * 100), // Convert to cents
+        },
+        quantity: 1,
+      },
+    ];
+
+    // Adicionar seguro se existir
+    if (insurance && insurance > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "brl",
+          product_data: {
+            name: "Seguro",
+            description: `Proteção básica (${days} ${days === 1 ? 'dia' : 'dias'})`,
+          },
+          unit_amount: Math.round(insurance * 100),
+        },
+        quantity: 1,
+      });
+    }
+
+    // Create a one-time payment session
+    // A taxa da plataforma será calculada internamente e deduzida do repasse ao proprietário
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
-      line_items: [
-        {
-          price_data: {
-            currency: "brl",
-            product_data: {
-              name: `Aluguel: ${vehicleName}`,
-              description: `${days} ${days === 1 ? 'dia' : 'dias'} de aluguel`,
-            },
-            unit_amount: Math.round(subtotal * 100), // Convert to cents
-          },
-          quantity: 1,
-        },
-        {
-          price_data: {
-            currency: "brl",
-            product_data: {
-              name: "Taxa de serviço",
-              description: "Taxa de serviço da plataforma (15%)",
-            },
-            unit_amount: Math.round(serviceFee * 100),
-          },
-          quantity: 1,
-        },
-        {
-          price_data: {
-            currency: "brl",
-            product_data: {
-              name: "Seguro",
-              description: `Proteção básica (${days} ${days === 1 ? 'dia' : 'dias'})`,
-            },
-            unit_amount: Math.round(insurance * 100),
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&days=${days}&dailyRate=${dailyRate}&totalPrice=${totalPrice}&ownerId=${ownerId}&pickupLocation=${encodeURIComponent(pickupLocation || '')}&notes=${encodeURIComponent(notes || '')}`,
       cancel_url: `${req.headers.get("origin")}/checkout?vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}`,
@@ -128,7 +128,10 @@ serve(async (req) => {
         endDate,
         days: String(days),
         dailyRate: String(dailyRate),
+        subtotal: String(subtotal),
+        insurance: String(insurance),
         totalPrice: String(totalPrice),
+        platformFee: String(platformFee / 100), // Armazenar em reais para referência
         ownerId,
         userId: user.id,
         pickupLocation: pickupLocation || '',

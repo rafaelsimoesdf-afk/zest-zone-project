@@ -55,14 +55,13 @@ const Checkout = () => {
   const [message, setMessage] = useState("");
   const [showPriceDetails, setShowPriceDetails] = useState(false);
 
-  // Calculate pricing
+  // Calculate pricing - Locatário paga apenas subtotal + seguro
   const days = startDate && endDate
     ? Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
   const subtotal = vehicle ? vehicle.daily_price * days : 0;
-  const serviceFee = subtotal * 0.15;
   const insurance = days * 20;
-  const totalPrice = subtotal + serviceFee + insurance;
+  const totalPrice = subtotal + insurance;
 
   const owner = vehicle?.profiles as any;
   const address = vehicle?.addresses as any;
@@ -168,7 +167,6 @@ const Checkout = () => {
           days,
           dailyRate: vehicle.daily_price,
           subtotal,
-          serviceFee,
           insurance,
           totalPrice,
           ownerId: vehicle.owner_id,
@@ -468,10 +466,6 @@ const Checkout = () => {
                         </div>
 
                         <CollapsibleContent className="space-y-3">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Taxa de serviço (15%)</span>
-                            <span className="font-medium">R$ {serviceFee.toFixed(2)}</span>
-                          </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Seguro</span>
                             <span className="font-medium">R$ {insurance.toFixed(2)}</span>
