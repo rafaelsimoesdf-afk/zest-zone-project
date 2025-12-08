@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard } from "lucide-react";
+import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard, MessageSquare } from "lucide-react";
 
 const statusLabels: Record<string, string> = {
   pending: "Pendente",
@@ -304,6 +304,15 @@ const BookingDetails = () => {
 
               {/* Actions */}
               <div className="space-y-2">
+                {/* Message Button - Available for confirmed, in_progress, and completed bookings */}
+                {['confirmed', 'in_progress', 'completed'].includes(booking.status) && (
+                  <Button className="w-full" asChild>
+                    <Link to={`/messages?booking=${booking.id}`}>
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Enviar Mensagem
+                    </Link>
+                  </Button>
+                )}
                 {booking.status === 'pending' && isCustomer && (
                   <Button variant="destructive" className="w-full">
                     Cancelar Reserva
