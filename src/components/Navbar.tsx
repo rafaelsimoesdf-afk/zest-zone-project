@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useHasVehicles } from "@/hooks/useOwnerDashboard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,7 @@ import {
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { data: hasVehicles } = useHasVehicles();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -80,6 +82,14 @@ const Navbar = () => {
                       Meus Veículos
                     </Link>
                   </DropdownMenuItem>
+                  {hasVehicles && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/owner-dashboard" className="cursor-pointer">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard Proprietário
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
                     <LogOut className="mr-2 h-4 w-4" />
@@ -166,6 +176,14 @@ const Navbar = () => {
                       Meus Veículos
                     </Link>
                   </Button>
+                  {hasVehicles && (
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/owner-dashboard" onClick={() => setIsMenuOpen(false)}>
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard Proprietário
+                      </Link>
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     className="w-full" 
