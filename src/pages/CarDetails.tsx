@@ -314,9 +314,8 @@ const CarDetails = () => {
                       {(() => {
                         const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
                         const subtotal = vehicle.daily_price * days;
-                        const serviceFee = subtotal * 0.15;
                         const insurance = days * 20;
-                        const total = subtotal + serviceFee + insurance;
+                        const total = subtotal + insurance;
 
                         return (
                           <>
@@ -325,10 +324,6 @@ const CarDetails = () => {
                                 R$ {vehicle.daily_price} x {days} {days === 1 ? 'dia' : 'dias'}
                               </span>
                               <span className="font-semibold">R$ {subtotal.toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Taxa de serviço (15%)</span>
-                              <span className="font-semibold">R$ {serviceFee.toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Seguro</span>
