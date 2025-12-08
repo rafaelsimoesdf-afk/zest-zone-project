@@ -132,12 +132,16 @@ export type Database = {
           customer_id: string
           daily_rate: number
           end_date: string
+          end_time: string | null
+          extra_hours: number | null
+          extra_hours_charge: number | null
           id: string
           notes: string | null
           owner_id: string
           pickup_location: string | null
           return_location: string | null
           start_date: string
+          start_time: string | null
           status: Database["public"]["Enums"]["booking_status"]
           total_days: number
           total_price: number
@@ -149,12 +153,16 @@ export type Database = {
           customer_id: string
           daily_rate: number
           end_date: string
+          end_time?: string | null
+          extra_hours?: number | null
+          extra_hours_charge?: number | null
           id?: string
           notes?: string | null
           owner_id: string
           pickup_location?: string | null
           return_location?: string | null
           start_date: string
+          start_time?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           total_days: number
           total_price: number
@@ -166,12 +174,16 @@ export type Database = {
           customer_id?: string
           daily_rate?: number
           end_date?: string
+          end_time?: string | null
+          extra_hours?: number | null
+          extra_hours_charge?: number | null
           id?: string
           notes?: string | null
           owner_id?: string
           pickup_location?: string | null
           return_location?: string | null
           start_date?: string
+          start_time?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           total_days?: number
           total_price?: number

@@ -20,8 +20,12 @@ const PaymentSuccess = () => {
   const vehicleId = searchParams.get("vehicleId");
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
+  const startTime = searchParams.get("startTime");
+  const endTime = searchParams.get("endTime");
   const days = searchParams.get("days");
   const dailyRate = searchParams.get("dailyRate");
+  const extraHours = searchParams.get("extraHours");
+  const extraHoursCharge = searchParams.get("extraHoursCharge");
   const totalPrice = searchParams.get("totalPrice");
   const ownerId = searchParams.get("ownerId");
   const pickupLocation = searchParams.get("pickupLocation");
@@ -47,6 +51,10 @@ const PaymentSuccess = () => {
           total_price: parseFloat(totalPrice),
           pickup_location: pickupLocation || null,
           notes: notes || null,
+          start_time: startTime || null,
+          end_time: endTime || null,
+          extra_hours: parseFloat(extraHours || '0'),
+          extra_hours_charge: parseFloat(extraHoursCharge || '0'),
         });
 
         setBookingCreated(true);
@@ -58,7 +66,7 @@ const PaymentSuccess = () => {
     };
 
     createBookingAfterPayment();
-  }, [user, vehicleId, startDate, endDate, days, dailyRate, totalPrice, ownerId, pickupLocation, notes, bookingCreated, isCreating]);
+  }, [user, vehicleId, startDate, endDate, startTime, endTime, days, dailyRate, extraHours, extraHoursCharge, totalPrice, ownerId, pickupLocation, notes, bookingCreated, isCreating]);
 
   if (!user) {
     navigate("/auth");

@@ -9,9 +9,13 @@ export interface Booking {
   owner_id: string;
   start_date: string;
   end_date: string;
+  start_time: string | null;
+  end_time: string | null;
   total_days: number;
   daily_rate: number;
   total_price: number;
+  extra_hours: number;
+  extra_hours_charge: number;
   status: string;
   pickup_location: string | null;
   return_location: string | null;
@@ -105,12 +109,16 @@ export interface CreateBookingData {
   owner_id: string;
   start_date: string;
   end_date: string;
+  start_time?: string | null;
+  end_time?: string | null;
   total_days: number;
   daily_rate: number;
   total_price: number;
-  pickup_location?: string;
-  return_location?: string;
-  notes?: string;
+  extra_hours?: number;
+  extra_hours_charge?: number;
+  pickup_location?: string | null;
+  return_location?: string | null;
+  notes?: string | null;
 }
 
 export const useCreateBooking = () => {
