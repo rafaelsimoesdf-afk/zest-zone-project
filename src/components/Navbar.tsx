@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -70,6 +70,12 @@ const Navbar = () => {
                     <Link to="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
                       Perfil
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/favorites" className="cursor-pointer">
+                      <Heart className="mr-2 h-4 w-4" />
+                      Favoritos
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -164,6 +170,12 @@ const Navbar = () => {
                     <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
                       <User className="w-4 h-4 mr-2" />
                       Meu Perfil
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/favorites" onClick={() => setIsMenuOpen(false)}>
+                      <Heart className="w-4 h-4 mr-2" />
+                      Favoritos
                     </Link>
                   </Button>
                   <Button variant="outline" className="w-full" size="sm" asChild>

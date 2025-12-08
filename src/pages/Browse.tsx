@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Link } from "react-router-dom";
 import { CityAutocomplete } from "@/components/CityAutocomplete";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 const Browse = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -235,9 +236,15 @@ const Browse = () => {
                           alt={`${vehicle.brand} ${vehicle.model}`}
                           className="w-full h-full object-cover group-hover:scale-110 transition-smooth"
                         />
-                        <Badge className="absolute top-4 right-4 bg-background/90 backdrop-blur capitalize">
+                        <Badge className="absolute top-4 left-4 bg-background/90 backdrop-blur capitalize">
                           {vehicle.vehicle_type}
                         </Badge>
+                        <FavoriteButton 
+                          vehicleId={vehicle.id} 
+                          size="sm" 
+                          variant="overlay"
+                          className="absolute top-4 right-4"
+                        />
                       </div>
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-2">

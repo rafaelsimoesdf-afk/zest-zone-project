@@ -14,7 +14,6 @@ import {
   Shield,
   MessageSquare,
   Share2,
-  Heart,
   CheckCircle2,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -25,6 +24,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -107,13 +107,11 @@ const CarDetails = () => {
                     >
                       <Share2 className="w-4 h-4" />
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      className="backdrop-blur-sm bg-background/80"
-                    >
-                      <Heart className="w-4 h-4" />
-                    </Button>
+                    <FavoriteButton 
+                      vehicleId={vehicle.id} 
+                      size="md" 
+                      variant="overlay"
+                    />
                   </div>
                 </div>
 
