@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, LayoutDashboard, Heart } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useHasVehicles } from "@/hooks/useOwnerDashboard";
+import { useUnreadMessagesCount } from "@/hooks/useMessages";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +20,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { data: hasVehicles } = useHasVehicles();
+  const { data: unreadCount } = useUnreadMessagesCount();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -76,6 +79,17 @@ const Navbar = () => {
                     <Link to="/favorites" className="cursor-pointer">
                       <Heart className="mr-2 h-4 w-4" />
                       Favoritos
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/messages" className="cursor-pointer flex items-center">
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Mensagens
+                      {unreadCount && unreadCount > 0 ? (
+                        <Badge variant="destructive" className="ml-auto text-xs px-1.5 py-0">
+                          {unreadCount}
+                        </Badge>
+                      ) : null}
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -176,6 +190,17 @@ const Navbar = () => {
                     <Link to="/favorites" onClick={() => setIsMenuOpen(false)}>
                       <Heart className="w-4 h-4 mr-2" />
                       Favoritos
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full relative" size="sm" asChild>
+                    <Link to="/messages" onClick={() => setIsMenuOpen(false)}>
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Mensagens
+                      {unreadCount && unreadCount > 0 ? (
+                        <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs px-1.5 py-0">
+                          {unreadCount}
+                        </Badge>
+                      ) : null}
                     </Link>
                   </Button>
                   <Button variant="outline" className="w-full" size="sm" asChild>
