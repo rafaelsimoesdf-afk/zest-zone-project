@@ -32,7 +32,18 @@ const CarDetails = () => {
   const { user } = useAuth();
   const [mainImage, setMainImage] = useState(0);
   const [startDate, setStartDate] = useState("");
+  const [startTime, setStartTime] = useState("10:00");
   const [endDate, setEndDate] = useState("");
+  const [endTime, setEndTime] = useState("10:00");
+
+  // Generate time options from 06:00 to 22:00 in 30-minute intervals
+  const timeOptions = [];
+  for (let hour = 6; hour <= 22; hour++) {
+    timeOptions.push(`${hour.toString().padStart(2, '0')}:00`);
+    if (hour < 22) {
+      timeOptions.push(`${hour.toString().padStart(2, '0')}:30`);
+    }
+  }
 
   const { data: vehicle, isLoading } = useVehicle(id || "");
   
@@ -283,29 +294,70 @@ const CarDetails = () => {
                   </div>
 
                   <div className="space-y-4 mb-6">
+                    {/* Pickup - Data e Hora */}
                     <div>
                       <label className="text-sm font-medium mb-2 block">
-                        Data de Retirada
+                        Retirada
                       </label>
-                      <Input 
-                        type="date" 
-                        className="h-12"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
-                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">Data</label>
+                          <Input 
+                            type="date" 
+                            className="h-11"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            min={new Date().toISOString().split('T')[0]}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
+                          <select
+                            className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            value={startTime}
+                            onChange={(e) => setStartTime(e.target.value)}
+                          >
+                            {timeOptions.map((time) => (
+                              <option key={`start-${time}`} value={time}>
+                                {time}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Return - Data e Hora */}
                     <div>
                       <label className="text-sm font-medium mb-2 block">
-                        Data de Devolução
+                        Devolução
                       </label>
-                      <Input 
-                        type="date" 
-                        className="h-12"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        min={startDate || new Date().toISOString().split('T')[0]}
-                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">Data</label>
+                          <Input 
+                            type="date" 
+                            className="h-11"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            min={startDate || new Date().toISOString().split('T')[0]}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
+                          <select
+                            className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            value={endTime}
+                            onChange={(e) => setEndTime(e.target.value)}
+                          >
+                            {timeOptions.map((time) => (
+                              <option key={`end-${time}`} value={time}>
+                                {time}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -359,8 +411,8 @@ const CarDetails = () => {
                         return;
                       }
 
-                      // Navigate to checkout with booking data
-                      navigate(`/checkout?vehicleId=${vehicle.id}&startDate=${startDate}&endDate=${endDate}`);
+                      // Navigate to checkout with booking data including time
+                      navigate(`/checkout?vehicleId=${vehicle.id}&startDate=${startDate}&startTime=${startTime}&endDate=${endDate}&endTime=${endTime}`);
                     }}
                     disabled={!startDate || !endDate}
                   >
