@@ -665,9 +665,12 @@ const OwnerDashboard = () => {
                 <div className="border-t pt-4">
                   <h4 className="font-semibold mb-3">Resumo Financeiro</h4>
                   {(() => {
-                    const subtotal = selectedBooking.daily_rate * selectedBooking.total_days;
-                    const platformFee = subtotal * 0.15;
-                    const ownerReceives = subtotal - platformFee;
+                    const dailySubtotal = selectedBooking.daily_rate * selectedBooking.total_days;
+                    const extraHoursCharge = Number((selectedBooking as any).extra_hours_charge) || 0;
+                    const extraHours = Number((selectedBooking as any).extra_hours) || 0;
+                    const rentalAmount = dailySubtotal + extraHoursCharge;
+                    const platformFee = rentalAmount * 0.15;
+                    const ownerReceives = rentalAmount - platformFee;
                     
                     return (
                       <div className="space-y-2">
@@ -680,8 +683,18 @@ const OwnerDashboard = () => {
                           <span>× {selectedBooking.total_days}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Subtotal</span>
-                          <span>{formatCurrency(subtotal)}</span>
+                          <span className="text-muted-foreground">Subtotal diárias</span>
+                          <span>{formatCurrency(dailySubtotal)}</span>
+                        </div>
+                        {extraHoursCharge > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Horas extras ({extraHours.toFixed(1)}h)</span>
+                            <span>{formatCurrency(extraHoursCharge)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between font-medium border-t pt-2">
+                          <span className="text-muted-foreground">Total do aluguel</span>
+                          <span>{formatCurrency(rentalAmount)}</span>
                         </div>
                         <div className="flex justify-between text-red-600">
                           <span>Taxa da Plataforma (15%)</span>

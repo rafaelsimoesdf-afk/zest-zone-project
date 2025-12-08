@@ -269,9 +269,9 @@ const BookingDetails = () => {
                   {(() => {
                     const dailySubtotal = booking.daily_rate * booking.total_days;
                     const insurance = booking.total_days * 20;
-                    // Calculate extra hours from time difference if stored, otherwise derive from total
-                    const calculatedTotal = dailySubtotal + insurance;
-                    const extraHoursCharge = booking.total_price - calculatedTotal;
+                    // Use stored extra_hours_charge if available, otherwise calculate
+                    const extraHoursCharge = Number((booking as any).extra_hours_charge) || 0;
+                    const extraHours = Number((booking as any).extra_hours) || 0;
                     
                     return (
                       <>
@@ -283,7 +283,7 @@ const BookingDetails = () => {
                         </div>
                         {extraHoursCharge > 0.01 && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Horas adicionais</span>
+                            <span className="text-muted-foreground">Horas adicionais ({extraHours.toFixed(1)}h)</span>
                             <span>R$ {extraHoursCharge.toFixed(2)}</span>
                           </div>
                         )}

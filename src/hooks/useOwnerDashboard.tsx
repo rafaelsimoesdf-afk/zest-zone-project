@@ -9,9 +9,13 @@ export interface OwnerBooking {
   owner_id: string;
   start_date: string;
   end_date: string;
+  start_time: string | null;
+  end_time: string | null;
   total_days: number;
   daily_rate: number;
   total_price: number;
+  extra_hours: number;
+  extra_hours_charge: number;
   status: string;
   pickup_location: string | null;
   return_location: string | null;
@@ -108,9 +112,9 @@ export const useOwnerDashboardStats = () => {
         b.status === "confirmed" || b.status === "completed"
       );
       
-      // Calcular receitas - Taxa de 15% do subtotal é paga pelo proprietário
-      // O locatário paga: subtotal + seguro
-      // O proprietário recebe: subtotal - 15% do subtotal = 85% do subtotal
+      // Calcular receitas - Taxa de 15% (diárias + horas extras) é paga pelo proprietário
+      // O locatário paga: diárias + horas extras + seguro
+      // O proprietário recebe: (diárias + horas extras) - 15% = 85% do valor das diárias + horas extras
       const PLATFORM_FEE_RATE = 0.15;
       const INSURANCE_PER_DAY = 20;
       
@@ -119,11 +123,13 @@ export const useOwnerDashboardStats = () => {
       let netRevenue = 0;
       
       revenueBookings.forEach(b => {
-        const subtotal = Number(b.daily_rate) * b.total_days;
+        const dailySubtotal = Number(b.daily_rate) * b.total_days;
+        const extraHoursCharge = Number(b.extra_hours_charge) || 0;
+        const rentalAmount = dailySubtotal + extraHoursCharge; // Diárias + horas extras
         const insurance = b.total_days * INSURANCE_PER_DAY;
-        const bookingGross = subtotal + insurance; // O que o locatário pagou
-        const platformFee = subtotal * PLATFORM_FEE_RATE;
-        const bookingNet = subtotal - platformFee; // O que o proprietário recebe (sem seguro pois vai para a plataforma)
+        const bookingGross = rentalAmount + insurance; // O que o locatário pagou
+        const platformFee = rentalAmount * PLATFORM_FEE_RATE; // 15% das diárias + horas extras
+        const bookingNet = rentalAmount - platformFee; // O que o proprietário recebe
         
         grossRevenue += bookingGross;
         platformFees += platformFee;
@@ -138,9 +144,11 @@ export const useOwnerDashboardStats = () => {
       
       let thisMonthNetRevenue = 0;
       thisMonthBookings.forEach(b => {
-        const subtotal = Number(b.daily_rate) * b.total_days;
-        const platformFee = subtotal * PLATFORM_FEE_RATE;
-        thisMonthNetRevenue += subtotal - platformFee;
+        const dailySubtotal = Number(b.daily_rate) * b.total_days;
+        const extraHoursCharge = Number(b.extra_hours_charge) || 0;
+        const rentalAmount = dailySubtotal + extraHoursCharge;
+        const platformFee = rentalAmount * PLATFORM_FEE_RATE;
+        thisMonthNetRevenue += rentalAmount - platformFee;
       });
 
       const lastMonthBookings = revenueBookings.filter(b => {
@@ -150,9 +158,11 @@ export const useOwnerDashboardStats = () => {
       
       let lastMonthNetRevenue = 0;
       lastMonthBookings.forEach(b => {
-        const subtotal = Number(b.daily_rate) * b.total_days;
-        const platformFee = subtotal * PLATFORM_FEE_RATE;
-        lastMonthNetRevenue += subtotal - platformFee;
+        const dailySubtotal = Number(b.daily_rate) * b.total_days;
+        const extraHoursCharge = Number(b.extra_hours_charge) || 0;
+        const rentalAmount = dailySubtotal + extraHoursCharge;
+        const platformFee = rentalAmount * PLATFORM_FEE_RATE;
+        lastMonthNetRevenue += rentalAmount - platformFee;
       });
 
       const revenueGrowth = lastMonthNetRevenue > 0 
@@ -228,14 +238,16 @@ export const useOwnerVehicleStats = () => {
         let netRevenue = 0;
         
         revenueBookings.forEach(b => {
-          const subtotal = Number(b.daily_rate) * b.total_days;
+          const dailySubtotal = Number(b.daily_rate) * b.total_days;
+          const extraHoursCharge = Number(b.extra_hours_charge) || 0;
+          const rentalAmount = dailySubtotal + extraHoursCharge;
           const insurance = b.total_days * INSURANCE_PER_DAY;
-          const bookingGross = subtotal + insurance;
-          const fee = subtotal * PLATFORM_FEE_RATE;
+          const bookingGross = rentalAmount + insurance;
+          const fee = rentalAmount * PLATFORM_FEE_RATE;
           
           grossRevenue += bookingGross;
           platformFee += fee;
-          netRevenue += subtotal - fee;
+          netRevenue += rentalAmount - fee;
         });
 
         return {
