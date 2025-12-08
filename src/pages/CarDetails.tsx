@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useVehicle } from "@/hooks/useVehicles";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   ArrowLeft,
   Star,
@@ -10,11 +12,12 @@ import {
   Users,
   Fuel,
   Settings,
-  Calendar,
+  Calendar as CalendarIcon,
   Shield,
   MessageSquare,
   Share2,
   CheckCircle2,
+  CalendarDays,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -23,17 +26,20 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { useVehicleBookings, getDisabledDates, isDateRangeAvailable } from "@/hooks/useVehicleBookings";
 
 const CarDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [mainImage, setMainImage] = useState(0);
-  const [startDate, setStartDate] = useState("");
+  const [startDate, setStartDate] = useState<Date | undefined>();
   const [startTime, setStartTime] = useState("10:00");
-  const [endDate, setEndDate] = useState("");
+  const [endDate, setEndDate] = useState<Date | undefined>();
   const [endTime, setEndTime] = useState("10:00");
 
   // Generate time options from 06:00 to 22:00 in 30-minute intervals
@@ -46,6 +52,27 @@ const CarDetails = () => {
   }
 
   const { data: vehicle, isLoading } = useVehicle(id || "");
+  const { data: vehicleBookings } = useVehicleBookings(id || "");
+  
+  // Get all disabled dates from existing bookings
+  const disabledDates = getDisabledDates(vehicleBookings);
+  
+  // Function to check if a date is disabled
+  const isDateDisabled = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Disable past dates
+    if (date < today) return true;
+    
+    // Disable booked dates
+    return disabledDates.some(
+      (disabled) =>
+        disabled.getFullYear() === date.getFullYear() &&
+        disabled.getMonth() === date.getMonth() &&
+        disabled.getDate() === date.getDate()
+    );
+  };
   
 
   if (isLoading) {
@@ -302,13 +329,36 @@ const CarDetails = () => {
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label className="text-xs text-muted-foreground mb-1 block">Data</label>
-                          <Input 
-                            type="date" 
-                            className="h-11"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            min={new Date().toISOString().split('T')[0]}
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "h-11 w-full justify-start text-left font-normal",
+                                  !startDate && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarDays className="mr-2 h-4 w-4" />
+                                {startDate ? format(startDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={startDate}
+                                onSelect={(date) => {
+                                  setStartDate(date);
+                                  // Reset end date if it's before new start date
+                                  if (date && endDate && endDate < date) {
+                                    setEndDate(undefined);
+                                  }
+                                }}
+                                disabled={isDateDisabled}
+                                initialFocus
+                                locale={ptBR}
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div>
                           <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
@@ -335,13 +385,35 @@ const CarDetails = () => {
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <label className="text-xs text-muted-foreground mb-1 block">Data</label>
-                          <Input 
-                            type="date" 
-                            className="h-11"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            min={startDate || new Date().toISOString().split('T')[0]}
-                          />
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "h-11 w-full justify-start text-left font-normal",
+                                  !endDate && "text-muted-foreground"
+                                )}
+                              >
+                                <CalendarDays className="mr-2 h-4 w-4" />
+                                {endDate ? format(endDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar"}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={endDate}
+                                onSelect={setEndDate}
+                                disabled={(date) => {
+                                  // Disable if before start date
+                                  if (startDate && date < startDate) return true;
+                                  // Also disable booked dates
+                                  return isDateDisabled(date);
+                                }}
+                                initialFocus
+                                locale={ptBR}
+                              />
+                            </PopoverContent>
+                          </Popover>
                         </div>
                         <div>
                           <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
@@ -365,7 +437,7 @@ const CarDetails = () => {
                     <div className="space-y-3 mb-6 p-4 bg-muted/50 rounded-xl">
                       {(() => {
                         // Calculate full days
-                        const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+                        const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
                         
                         // Calculate extra hours if return time > pickup time
                         const [startHour, startMinute] = startTime.split(':').map(Number);
@@ -388,8 +460,16 @@ const CarDetails = () => {
                         const insurance = days * 20;
                         const total = subtotal + insurance;
 
+                        // Check for date conflicts
+                        const hasConflict = !isDateRangeAvailable(startDate, endDate, vehicleBookings);
+
                         return (
                           <>
+                            {hasConflict && (
+                              <div className="text-destructive text-sm font-medium mb-2 p-2 bg-destructive/10 rounded-lg">
+                                ⚠️ O período selecionado conflita com uma reserva existente
+                              </div>
+                            )}
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">
                                 R$ {vehicle.daily_price} x {days} {days === 1 ? 'dia' : 'dias'}
@@ -432,16 +512,26 @@ const CarDetails = () => {
                         return;
                       }
 
-                      const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+                      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
                       if (days <= 0) {
                         toast.error("A data de devolução deve ser posterior à data de retirada");
                         return;
                       }
 
+                      // Check for booking conflicts
+                      if (!isDateRangeAvailable(startDate, endDate, vehicleBookings)) {
+                        toast.error("O período selecionado conflita com uma reserva existente. Escolha outras datas.");
+                        return;
+                      }
+
+                      // Format dates as ISO strings for URL
+                      const formattedStartDate = format(startDate, "yyyy-MM-dd");
+                      const formattedEndDate = format(endDate, "yyyy-MM-dd");
+
                       // Navigate to checkout with booking data including time
-                      navigate(`/checkout?vehicleId=${vehicle.id}&startDate=${startDate}&startTime=${startTime}&endDate=${endDate}&endTime=${endTime}`);
+                      navigate(`/checkout?vehicleId=${vehicle.id}&startDate=${formattedStartDate}&startTime=${startTime}&endDate=${formattedEndDate}&endTime=${endTime}`);
                     }}
-                    disabled={!startDate || !endDate}
+                    disabled={!startDate || !endDate || (startDate && endDate && !isDateRangeAvailable(startDate, endDate, vehicleBookings))}
                   >
                     {!user ? "Faça login para reservar" : "Reservar Agora"}
                   </Button>
