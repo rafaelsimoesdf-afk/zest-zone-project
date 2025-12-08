@@ -69,9 +69,10 @@ serve(async (req) => {
       throw new Error("Missing required payment information");
     }
 
-    // Calcular a taxa de serviço da plataforma (15% do subtotal - pago pelo proprietário)
-    const platformFee = Math.round(subtotal * 0.15 * 100); // em centavos
-    logStep("Platform fee calculated", { platformFee: platformFee / 100, subtotal });
+    // Calcular a taxa de serviço da plataforma (15% das diárias + horas extras - pago pelo proprietário)
+    const rentalAmount = dailySubtotal + (extraHoursCharge || 0);
+    const platformFee = Math.round(rentalAmount * 0.15 * 100); // em centavos
+    logStep("Platform fee calculated", { platformFee: platformFee / 100, rentalAmount, dailySubtotal, extraHoursCharge });
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
