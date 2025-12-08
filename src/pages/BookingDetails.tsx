@@ -266,17 +266,29 @@ const BookingDetails = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      Diária (R$ {booking.daily_rate.toFixed(2)} x {booking.total_days})
-                    </span>
-                    <span>R$ {(booking.daily_rate * booking.total_days).toFixed(2)}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between font-semibold text-lg">
-                    <span>Total</span>
-                    <span className="text-primary">R$ {booking.total_price.toFixed(2)}</span>
-                  </div>
+                  {(() => {
+                    const subtotal = booking.daily_rate * booking.total_days;
+                    const insurance = booking.total_days * 20;
+                    return (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">
+                            Diária (R$ {booking.daily_rate.toFixed(2)} × {booking.total_days})
+                          </span>
+                          <span>R$ {subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Seguro</span>
+                          <span>R$ {insurance.toFixed(2)}</span>
+                        </div>
+                        <Separator />
+                        <div className="flex justify-between font-semibold text-lg">
+                          <span>Total</span>
+                          <span className="text-primary">R$ {booking.total_price.toFixed(2)}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </CardContent>
               </Card>
 
