@@ -267,16 +267,26 @@ const BookingDetails = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {(() => {
-                    const subtotal = booking.daily_rate * booking.total_days;
+                    const dailySubtotal = booking.daily_rate * booking.total_days;
                     const insurance = booking.total_days * 20;
+                    // Calculate extra hours from time difference if stored, otherwise derive from total
+                    const calculatedTotal = dailySubtotal + insurance;
+                    const extraHoursCharge = booking.total_price - calculatedTotal;
+                    
                     return (
                       <>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
                             Diária (R$ {booking.daily_rate.toFixed(2)} × {booking.total_days})
                           </span>
-                          <span>R$ {subtotal.toFixed(2)}</span>
+                          <span>R$ {dailySubtotal.toFixed(2)}</span>
                         </div>
+                        {extraHoursCharge > 0.01 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Horas adicionais</span>
+                            <span>R$ {extraHoursCharge.toFixed(2)}</span>
+                          </div>
+                        )}
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Seguro</span>
                           <span>R$ {insurance.toFixed(2)}</span>
