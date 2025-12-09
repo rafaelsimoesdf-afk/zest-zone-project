@@ -20,7 +20,7 @@ import { StepPersonalData } from "@/components/registration/StepPersonalData";
 import { StepAddress } from "@/components/registration/StepAddress";
 import { StepIdentityDocuments } from "@/components/registration/StepIdentityDocuments";
 import { StepCNH } from "@/components/registration/StepCNH";
-import { StepSelfie } from "@/components/registration/StepSelfie";
+import { StepSelfieQRCode } from "@/components/registration/StepSelfieQRCode";
 import { StepProofOfResidence } from "@/components/registration/StepProofOfResidence";
 import { StepReview } from "@/components/registration/StepReview";
 
@@ -199,7 +199,10 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         break;
 
       case 5:
-        if (!selfieData.selfie_image) newErrors.selfie_image = "Selfie é obrigatória";
+        // Allow either selfie_image (File) or selfie_preview (URL from mobile upload)
+        if (!selfieData.selfie_image && !selfieData.selfie_preview) {
+          newErrors.selfie_image = "Selfie é obrigatória";
+        }
         break;
 
       case 6:
@@ -314,8 +317,14 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         digital_image_url: cnhDigitalUrl,
       });
 
-      // 5. Upload and save selfie
-      const selfieUrl = await uploadDocument(selfieData.selfie_image!, "selfie");
+      // 5. Upload and save selfie (may already be a URL from mobile upload)
+      let selfieUrl: string;
+      if (selfieData.selfie_image) {
+        selfieUrl = await uploadDocument(selfieData.selfie_image, "selfie");
+      } else {
+        // Already uploaded via mobile, use the preview URL
+        selfieUrl = selfieData.selfie_preview;
+      }
       await saveSelfie.mutateAsync(selfieUrl);
 
       // 6. Upload and save proof of residence
@@ -385,7 +394,7 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
             <StepCNH data={cnhData} onChange={setCnhData} errors={errors} />
           )}
           {currentStep === 5 && (
-            <StepSelfie data={selfieData} onChange={setSelfieData} errors={errors} />
+            <StepSelfieQRCode data={selfieData} onChange={setSelfieData} errors={errors} />
           )}
           {currentStep === 6 && (
             <StepProofOfResidence data={proofData} onChange={setProofData} errors={errors} />

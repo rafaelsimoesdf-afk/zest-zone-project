@@ -665,6 +665,39 @@ export type Database = {
           },
         ]
       }
+      selfie_upload_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          selfie_url: string | null
+          session_token: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          selfie_url?: string | null
+          session_token: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          selfie_url?: string | null
+          session_token?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       selfie_verifications: {
         Row: {
           created_at: string
