@@ -31,6 +31,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useVehicleBookings, getDisabledDates, isDateRangeAvailable } from "@/hooks/useVehicleBookings";
+import { formatCurrencyBRL } from "@/lib/validators";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -311,7 +312,7 @@ const CarDetails = () => {
                   <div className="mb-6">
                     <div className="flex items-baseline gap-2 mb-2">
                       <span className="text-4xl font-display font-bold text-primary">
-                        R$ {vehicle.daily_price}
+                        {formatCurrencyBRL(vehicle.daily_price)}
                       </span>
                       <span className="text-muted-foreground">/dia</span>
                     </div>
@@ -472,26 +473,26 @@ const CarDetails = () => {
                             )}
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">
-                                R$ {vehicle.daily_price} x {days} {days === 1 ? 'dia' : 'dias'}
+                                {formatCurrencyBRL(vehicle.daily_price)} x {days} {days === 1 ? 'dia' : 'dias'}
                               </span>
-                              <span className="font-semibold">R$ {(vehicle.daily_price * days).toFixed(2)}</span>
+                              <span className="font-semibold">{formatCurrencyBRL(vehicle.daily_price * days)}</span>
                             </div>
                             {extraHoursCharge > 0 && (
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">
                                   Horas adicionais ({extraHours.toFixed(1)}h)
                                 </span>
-                                <span className="font-semibold">R$ {extraHoursCharge.toFixed(2)}</span>
+                                <span className="font-semibold">{formatCurrencyBRL(extraHoursCharge)}</span>
                               </div>
                             )}
                             <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">Seguro</span>
-                              <span className="font-semibold">R$ {insurance.toFixed(2)}</span>
+                              <span className="font-semibold">{formatCurrencyBRL(insurance)}</span>
                             </div>
                             <Separator />
                             <div className="flex justify-between font-bold">
                               <span>Total</span>
-                              <span className="text-primary text-lg">R$ {total.toFixed(2)}</span>
+                              <span className="text-primary text-lg">{formatCurrencyBRL(total)}</span>
                             </div>
                           </>
                         );

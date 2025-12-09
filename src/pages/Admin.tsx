@@ -18,6 +18,7 @@ import UserVerificationTab from "@/components/admin/UserVerificationTab";
 import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { formatCurrencyBRL } from "@/lib/validators";
 
 const Admin = () => {
   const { user, loading } = useAuth();
@@ -272,7 +273,7 @@ const Admin = () => {
                           <div className="text-xs text-muted-foreground">{vehicle.profiles?.email}</div>
                         </TableCell>
                         <TableCell>{vehicle.license_plate}</TableCell>
-                        <TableCell>R$ {vehicle.daily_price}</TableCell>
+                        <TableCell>{formatCurrencyBRL(vehicle.daily_price)}</TableCell>
                         <TableCell>{format(new Date(vehicle.created_at), "dd/MM/yyyy")}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
@@ -342,7 +343,7 @@ const Admin = () => {
                         </TableCell>
                         <TableCell>{vehicle.license_plate}</TableCell>
                         <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
-                        <TableCell>R$ {vehicle.daily_price}</TableCell>
+                        <TableCell>{formatCurrencyBRL(vehicle.daily_price)}</TableCell>
                         <TableCell>{format(new Date(vehicle.created_at), "dd/MM/yyyy")}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">

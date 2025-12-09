@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Heart, Trash2, Car, MapPin, Fuel, Settings2 } from 'lucide-react';
 import { Link, Navigate } from 'react-router-dom';
+import { formatCurrencyBRL } from '@/lib/validators';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -176,7 +177,7 @@ const Favorites = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-2xl font-bold text-primary">
-                          R$ {vehicle.daily_price.toLocaleString('pt-BR')}
+                          {formatCurrencyBRL(vehicle.daily_price)}
                         </span>
                         <span className="text-sm text-muted-foreground">/dia</span>
                       </div>

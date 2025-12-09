@@ -26,6 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { VerificationRequired } from "@/components/VerificationRequired";
+import { maskCPF, formatCurrencyBRL } from "@/lib/validators";
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
@@ -318,9 +319,10 @@ const Checkout = () => {
                     className="h-12"
                   />
                   <Input
-                    placeholder="CPF"
+                    placeholder="000.000.000-00"
                     value={cpf}
-                    onChange={(e) => setCpf(e.target.value)}
+                    onChange={(e) => setCpf(maskCPF(e.target.value))}
+                    maxLength={14}
                     className="h-12"
                   />
                 </div>
@@ -475,9 +477,9 @@ const Checkout = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">
-                          Diária (R$ {vehicle.daily_price.toFixed(2)} × {days})
+                          Diária ({formatCurrencyBRL(vehicle.daily_price)} × {days})
                         </span>
-                        <span className="font-medium">R$ {dailySubtotal.toFixed(2)}</span>
+                        <span className="font-medium">{formatCurrencyBRL(dailySubtotal)}</span>
                       </div>
 
                       {extraHoursCharge > 0 && (
@@ -485,20 +487,20 @@ const Checkout = () => {
                           <span className="text-muted-foreground">
                             Horas adicionais ({extraHours.toFixed(1)}h)
                           </span>
-                          <span className="font-medium">R$ {extraHoursCharge.toFixed(2)}</span>
+                          <span className="font-medium">{formatCurrencyBRL(extraHoursCharge)}</span>
                         </div>
                       )}
 
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Seguro</span>
-                        <span className="font-medium">R$ {insurance.toFixed(2)}</span>
+                        <span className="font-medium">{formatCurrencyBRL(insurance)}</span>
                       </div>
 
                       <Separator />
 
                       <div className="flex justify-between items-center">
                         <span className="font-bold">Total</span>
-                        <span className="font-bold text-lg text-primary">R$ {totalPrice.toFixed(2)}</span>
+                        <span className="font-bold text-lg text-primary">{formatCurrencyBRL(totalPrice)}</span>
                       </div>
                     </div>
                   </div>

@@ -92,3 +92,53 @@ export const isFutureDate = (date: Date): boolean => {
 export const isCNHExpired = (expiryDate: Date): boolean => {
   return new Date(expiryDate) < new Date();
 };
+
+// Currency Mask (BRL) - formats as R$ 1.234,56
+export const maskCurrency = (value: string | number): string => {
+  let numericValue: number;
+  
+  if (typeof value === 'number') {
+    numericValue = value;
+  } else {
+    // Remove tudo exceto números
+    const cleanValue = value.replace(/\D/g, '');
+    if (!cleanValue) return '';
+    // Converte centavos para reais
+    numericValue = parseInt(cleanValue) / 100;
+  }
+  
+  return numericValue.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+// Parse currency string to number
+export const parseCurrency = (value: string): number => {
+  if (!value) return 0;
+  // Remove R$, espaços e pontos de milhar, substitui vírgula por ponto
+  const cleanValue = value
+    .replace(/R\$\s?/g, '')
+    .replace(/\./g, '')
+    .replace(',', '.');
+  return parseFloat(cleanValue) || 0;
+};
+
+// Format currency for display (read-only)
+export const formatCurrencyBRL = (value: number): string => {
+  return value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+};
+
+// Mask email - just validates and trims
+export const formatEmail = (value: string): string => {
+  return value.trim().toLowerCase();
+};
+
+// Validate email format
+export const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+};
