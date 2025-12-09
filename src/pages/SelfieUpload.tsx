@@ -77,32 +77,25 @@ const SelfieUpload = () => {
       const response = await fetch(preview);
       const blob = await response.blob();
       
-      const fileName = `${sessionData.user_id}/selfie-${Date.now()}.jpg`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from("user-documents")
-        .upload(fileName, blob, {
-          contentType: "image/jpeg",
-          upsert: true,
-        });
+      // Create FormData to send to edge function
+      const formData = new FormData();
+      formData.append("file", blob, "selfie.jpg");
+      formData.append("sessionToken", sessionToken || "");
 
-      if (uploadError) throw uploadError;
+      // Use edge function to bypass RLS
+      const uploadResponse = await fetch(
+        "https://ptimwsvsizqpecakzkcn.supabase.co/functions/v1/upload-selfie",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      const { data: urlData } = supabase.storage
-        .from("user-documents")
-        .getPublicUrl(fileName);
+      const result = await uploadResponse.json();
 
-      // Update session with selfie URL
-      const { error: updateError } = await supabase
-        .from("selfie_upload_sessions")
-        .update({
-          selfie_url: urlData.publicUrl,
-          status: "completed",
-          completed_at: new Date().toISOString(),
-        })
-        .eq("session_token", sessionToken);
-
-      if (updateError) throw updateError;
+      if (!uploadResponse.ok) {
+        throw new Error(result.error || "Falha no upload");
+      }
 
       setSuccess(true);
       toast.success("Selfie enviada com sucesso!");
