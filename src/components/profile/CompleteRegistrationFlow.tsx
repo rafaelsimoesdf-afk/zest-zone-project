@@ -78,8 +78,10 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
     document_type: "rg" as "rg" | "cnh",
     front_image: null as File | null,
     back_image: null as File | null,
+    digital_image: null as File | null,
     front_preview: "",
     back_preview: "",
+    digital_preview: "",
   });
 
   const [cnhData, setCnhData] = useState({
@@ -165,8 +167,18 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         break;
 
       case 3:
-        if (!identityData.front_image) newErrors.front_image = "Frente do documento é obrigatória";
-        if (!identityData.back_image) newErrors.back_image = "Verso do documento é obrigatório";
+        // For RG: require front + back
+        // For CNH: require (front + back) OR digital
+        if (identityData.document_type === 'rg') {
+          if (!identityData.front_image) newErrors.front_image = "Frente do documento é obrigatória";
+          if (!identityData.back_image) newErrors.back_image = "Verso do documento é obrigatório";
+        } else {
+          const hasPhysical = identityData.front_image && identityData.back_image;
+          const hasDigital = identityData.digital_image;
+          if (!hasPhysical && !hasDigital) {
+            newErrors.identity_documents = "Envie a CNH Frente + Verso OU a CNH Digital";
+          }
+        }
         break;
 
       case 4:
@@ -255,8 +267,20 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
       }
 
       // 3. Upload and save identity documents
-      const identityFrontUrl = await uploadDocument(identityData.front_image!, "identity");
-      const identityBackUrl = await uploadDocument(identityData.back_image!, "identity");
+      let identityFrontUrl = "";
+      let identityBackUrl = "";
+      
+      if (identityData.document_type === 'rg' || (identityData.front_image && identityData.back_image)) {
+        // RG or CNH with physical documents
+        identityFrontUrl = await uploadDocument(identityData.front_image!, "identity");
+        identityBackUrl = await uploadDocument(identityData.back_image!, "identity");
+      } else if (identityData.digital_image) {
+        // CNH Digital for identity
+        const digitalUrl = await uploadDocument(identityData.digital_image, "identity");
+        identityFrontUrl = digitalUrl;
+        identityBackUrl = digitalUrl;
+      }
+      
       await saveIdentity.mutateAsync({
         document_type: identityData.document_type,
         front_image_url: identityFrontUrl,
