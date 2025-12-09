@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Car } from "lucide-react";
+import { formatCurrencyBRL } from "@/lib/validators";
 
 const MyBookings = () => {
   const { user } = useAuth();
@@ -79,7 +80,7 @@ const MyBookings = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold">
-                            Total: R$ {booking.total_price.toFixed(2)}
+                            Total: {formatCurrencyBRL(booking.total_price)}
                           </span>
                         </div>
                       </div>

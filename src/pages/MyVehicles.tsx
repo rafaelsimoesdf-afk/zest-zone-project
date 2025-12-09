@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Car, Plus, Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { formatCurrencyBRL } from "@/lib/validators";
 
 const MyVehicles = () => {
   const { user } = useAuth();
@@ -105,7 +106,7 @@ const MyVehicles = () => {
                         <div className="flex items-center justify-between pt-2 border-t">
                           <div>
                             <span className="text-muted-foreground text-sm">Diária:</span>
-                            <span className="font-semibold text-lg ml-2">R$ {vehicle.daily_price}</span>
+                            <span className="font-semibold text-lg ml-2">{formatCurrencyBRL(vehicle.daily_price)}</span>
                           </div>
                         </div>
                         <div className="flex gap-2">

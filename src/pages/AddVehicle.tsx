@@ -19,6 +19,7 @@ import { ArrowLeft, Upload, X, Shield, Sofa, Cpu, Car, Package } from "lucide-re
 import { Link } from "react-router-dom";
 import { brazilianStates, getCitiesForState } from "@/hooks/useBrazilLocations";
 import { VerificationRequired } from "@/components/VerificationRequired";
+import { maskCurrency, parseCurrency } from "@/lib/validators";
 
 const AddVehicle = () => {
   const navigate = useNavigate();
@@ -718,32 +719,40 @@ const AddVehicle = () => {
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="daily_price">Preço por Dia (R$) *</Label>
-                    <Input
-                      id="daily_price"
-                      type="number"
-                      required
-                      min="0"
-                      step="0.01"
-                      value={formData.daily_price}
-                      onChange={(e) => setFormData({ ...formData, daily_price: parseFloat(e.target.value) })}
-                      placeholder="150.00"
-                    />
+                    <Label htmlFor="daily_price">Preço por Dia *</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                      <Input
+                        id="daily_price"
+                        required
+                        value={formData.daily_price ? maskCurrency(formData.daily_price) : ''}
+                        onChange={(e) => {
+                          const value = parseCurrency(e.target.value);
+                          setFormData({ ...formData, daily_price: value });
+                        }}
+                        placeholder="150,00"
+                        className="pl-10"
+                      />
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       Sugerimos uma diária entre R$ 100 e R$ 300 para maior competitividade
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="caucao">Caução (R$)</Label>
-                    <Input
-                      id="caucao"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.caucao}
-                      onChange={(e) => setFormData({ ...formData, caucao: parseFloat(e.target.value) || 0 })}
-                      placeholder="500.00"
-                    />
+                    <Label htmlFor="caucao">Caução</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                      <Input
+                        id="caucao"
+                        value={formData.caucao ? maskCurrency(formData.caucao) : ''}
+                        onChange={(e) => {
+                          const value = parseCurrency(e.target.value);
+                          setFormData({ ...formData, caucao: value });
+                        }}
+                        placeholder="500,00"
+                        className="pl-10"
+                      />
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       Valor do depósito de segurança (opcional)
                     </p>

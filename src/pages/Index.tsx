@@ -20,6 +20,7 @@ import { CityAutocomplete } from "@/components/CityAutocomplete";
 import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
 import { Skeleton } from "@/components/ui/skeleton";
 import heroImage from "@/assets/hero-car.jpg";
+import { formatCurrencyBRL } from "@/lib/validators";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -266,7 +267,7 @@ const Index = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-2xl font-bold text-primary">
-                            R$ {vehicle.daily_price}
+                            {formatCurrencyBRL(vehicle.daily_price)}
                           </span>
                           <span className="text-muted-foreground">/dia</span>
                         </div>

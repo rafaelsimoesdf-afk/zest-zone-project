@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard, MessageSquare } from "lucide-react";
+import { formatCurrencyBRL } from "@/lib/validators";
 
 const statusLabels: Record<string, string> = {
   pending: "Pendente",
@@ -277,24 +278,24 @@ const BookingDetails = () => {
                       <>
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">
-                            Diária (R$ {booking.daily_rate.toFixed(2)} × {booking.total_days})
+                            Diária ({formatCurrencyBRL(booking.daily_rate)} × {booking.total_days})
                           </span>
-                          <span>R$ {dailySubtotal.toFixed(2)}</span>
+                          <span>{formatCurrencyBRL(dailySubtotal)}</span>
                         </div>
                         {extraHoursCharge > 0.01 && (
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">Horas adicionais ({extraHours.toFixed(1)}h)</span>
-                            <span>R$ {extraHoursCharge.toFixed(2)}</span>
+                            <span>{formatCurrencyBRL(extraHoursCharge)}</span>
                           </div>
                         )}
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Seguro</span>
-                          <span>R$ {insurance.toFixed(2)}</span>
+                          <span>{formatCurrencyBRL(insurance)}</span>
                         </div>
                         <Separator />
                         <div className="flex justify-between font-semibold text-lg">
                           <span>Total</span>
-                          <span className="text-primary">R$ {booking.total_price.toFixed(2)}</span>
+                          <span className="text-primary">{formatCurrencyBRL(booking.total_price)}</span>
                         </div>
                       </>
                     );

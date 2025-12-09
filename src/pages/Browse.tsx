@@ -17,6 +17,7 @@ import {
 import { Link } from "react-router-dom";
 import { CityAutocomplete } from "@/components/CityAutocomplete";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { formatCurrencyBRL } from "@/lib/validators";
 
 const Browse = () => {
   const [showFilters, setShowFilters] = useState(false);
@@ -268,7 +269,7 @@ const Browse = () => {
                         <div className="flex items-center justify-between">
                           <div>
                             <span className="text-2xl font-bold text-primary">
-                              R$ {vehicle.daily_price}
+                              {formatCurrencyBRL(vehicle.daily_price)}
                             </span>
                             <span className="text-muted-foreground text-sm">/dia</span>
                           </div>
