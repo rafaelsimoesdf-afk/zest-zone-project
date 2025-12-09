@@ -109,7 +109,7 @@ const Messages = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden pt-16">
         {/* Conversations List - Left Sidebar */}
         <div className={cn(
           "w-full md:w-80 lg:w-96 border-r border-border flex flex-col bg-card",
