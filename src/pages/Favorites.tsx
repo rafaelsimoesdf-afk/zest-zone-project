@@ -67,7 +67,7 @@ const Favorites = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pt-24 pb-8">
         <div className="flex items-center gap-3 mb-8">
           <Heart className="h-8 w-8 text-primary fill-primary" />
           <h1 className="text-3xl font-bold text-foreground">Meus Favoritos</h1>

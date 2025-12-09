@@ -108,7 +108,7 @@ const Index = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center pt-16 overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center pt-24 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             src={heroImage}
