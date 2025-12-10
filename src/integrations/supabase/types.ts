@@ -972,6 +972,9 @@ export type Database = {
           direcao: string | null
           direcao_eletrica: boolean | null
           direcao_hidraulica: boolean | null
+          document_url: string | null
+          document_verified: boolean | null
+          document_verified_at: string | null
           doors: number
           engate: boolean | null
           entrada_usb: boolean | null
@@ -1039,6 +1042,9 @@ export type Database = {
           direcao?: string | null
           direcao_eletrica?: boolean | null
           direcao_hidraulica?: boolean | null
+          document_url?: string | null
+          document_verified?: boolean | null
+          document_verified_at?: string | null
           doors: number
           engate?: boolean | null
           entrada_usb?: boolean | null
@@ -1106,6 +1112,9 @@ export type Database = {
           direcao?: string | null
           direcao_eletrica?: boolean | null
           direcao_hidraulica?: boolean | null
+          document_url?: string | null
+          document_verified?: boolean | null
+          document_verified_at?: string | null
           doors?: number
           engate?: boolean | null
           entrada_usb?: boolean | null
