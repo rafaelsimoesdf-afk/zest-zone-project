@@ -204,7 +204,7 @@ const CarDetails = () => {
                   <h2 className="font-bold text-xl mb-4">Especificações</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                       <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <Calendar className="w-5 h-5 text-primary" />
+                      <CalendarIcon className="w-5 h-5 text-primary" />
                       <div>
                         <div className="text-sm text-muted-foreground">Ano</div>
                         <div className="font-semibold">{vehicle.year}</div>
