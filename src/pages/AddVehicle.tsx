@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Upload, X, Shield, Sofa, Cpu, Car, Package } from "lucide-react";
+import { ArrowLeft, Upload, X, Shield, Sofa, Cpu, Car, Package, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { brazilianStates, getCitiesForState } from "@/hooks/useBrazilLocations";
 import { VerificationRequired } from "@/components/VerificationRequired";
@@ -29,6 +29,8 @@ const AddVehicle = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [documentPreview, setDocumentPreview] = useState<string | null>(null);
   
   const { data: brands } = useBrands();
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
@@ -137,6 +139,23 @@ const AddVehicle = () => {
 
   const handleCheckboxChange = (field: string, checked: boolean) => {
     setFormData({ ...formData, [field]: checked });
+  };
+
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Arquivo muito grande. Máximo de 10MB.");
+        return;
+      }
+      setDocumentFile(file);
+      setDocumentPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeDocument = () => {
+    setDocumentFile(null);
+    setDocumentPreview(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -268,6 +287,33 @@ const AddVehicle = () => {
         .single();
 
       if (vehicleError) throw vehicleError;
+
+      // Upload vehicle document if provided
+      let documentUrl = null;
+      if (documentFile) {
+        const fileExt = documentFile.name.split('.').pop();
+        const documentFileName = `${user.id}/${vehicle.id}/document-${Date.now()}.${fileExt}`;
+        
+        const { error: docUploadError } = await supabase.storage
+          .from('vehicle-images')
+          .upload(documentFileName, documentFile);
+
+        if (docUploadError) {
+          console.error('Document upload error:', docUploadError);
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('vehicle-images')
+            .getPublicUrl(documentFileName);
+          
+          documentUrl = publicUrl;
+          
+          // Update vehicle with document URL
+          await supabase
+            .from("vehicles")
+            .update({ document_url: documentUrl })
+            .eq("id", vehicle.id);
+        }
+      }
 
       // Upload images to Supabase Storage
       const imagePromises = images.map(async (image, index) => {
@@ -794,6 +840,71 @@ const AddVehicle = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Vehicle Document Upload */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Documento do Veículo
+                </CardTitle>
+                <CardDescription>
+                  Envie o CRLV (Certificado de Registro e Licenciamento de Veículo) ou documento equivalente
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {documentPreview ? (
+                    <div className="relative border rounded-lg p-4 bg-muted/50">
+                      <div className="flex items-center gap-4">
+                        <FileText className="w-12 h-12 text-primary" />
+                        <div className="flex-1">
+                          <p className="font-medium">{documentFile?.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {documentFile ? `${(documentFile.size / 1024 / 1024).toFixed(2)} MB` : ''}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={removeDocument}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Remover
+                        </Button>
+                      </div>
+                      {documentPreview && documentFile?.type.startsWith('image/') && (
+                        <div className="mt-4">
+                          <img 
+                            src={documentPreview} 
+                            alt="Preview do documento" 
+                            className="max-h-48 rounded-lg object-contain"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <label className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                      <Upload className="w-10 h-10 text-muted-foreground mb-3" />
+                      <span className="font-medium">Clique para enviar o documento</span>
+                      <span className="text-sm text-muted-foreground mt-1">
+                        PDF, JPG ou PNG (máx. 10MB)
+                      </span>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={handleDocumentChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    O documento será analisado pela nossa equipe antes da aprovação do veículo.
+                  </p>
                 </div>
               </CardContent>
             </Card>

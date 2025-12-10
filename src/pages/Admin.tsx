@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useDeleteVehicle } from "@/hooks/useVehicles";
 import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
 import UserVerificationTab from "@/components/admin/UserVerificationTab";
-import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck } from "lucide-react";
+import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck, FileText, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { formatCurrencyBRL } from "@/lib/validators";
@@ -248,7 +248,7 @@ const Admin = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Veículos Aguardando Aprovação</CardTitle>
-                <CardDescription>Aprove ou rejeite cadastros de veículos</CardDescription>
+                <CardDescription>Aprove ou rejeite cadastros de veículos. Verifique o documento do veículo antes de aprovar.</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -257,13 +257,14 @@ const Admin = () => {
                       <TableHead>Veículo</TableHead>
                       <TableHead>Proprietário</TableHead>
                       <TableHead>Placa</TableHead>
+                      <TableHead>Documento</TableHead>
                       <TableHead>Preço/Dia</TableHead>
                       <TableHead>Data</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {pendingVehicles?.map((vehicle) => (
+                    {pendingVehicles?.map((vehicle: any) => (
                       <TableRow key={vehicle.id}>
                         <TableCell className="font-medium">
                           {vehicle.brand} {vehicle.model} ({vehicle.year})
@@ -273,6 +274,29 @@ const Admin = () => {
                           <div className="text-xs text-muted-foreground">{vehicle.profiles?.email}</div>
                         </TableCell>
                         <TableCell>{vehicle.license_plate}</TableCell>
+                        <TableCell>
+                          {vehicle.document_url ? (
+                            <div className="flex items-center gap-2">
+                              <a 
+                                href={vehicle.document_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline"
+                              >
+                                <FileText className="h-4 w-4" />
+                                Ver documento
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                              {vehicle.document_verified ? (
+                                <Badge className="bg-green-500">Verificado</Badge>
+                              ) : (
+                                <Badge variant="outline" className="text-yellow-600 border-yellow-600">Pendente</Badge>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">Não enviado</span>
+                          )}
+                        </TableCell>
                         <TableCell>{formatCurrencyBRL(vehicle.daily_price)}</TableCell>
                         <TableCell>{format(new Date(vehicle.created_at), "dd/MM/yyyy")}</TableCell>
                         <TableCell className="text-right">
@@ -301,7 +325,7 @@ const Admin = () => {
                     ))}
                     {!pendingVehicles?.length && (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center text-muted-foreground">
                           Nenhum veículo pendente
                         </TableCell>
                       </TableRow>
@@ -326,6 +350,7 @@ const Admin = () => {
                       <TableHead>Veículo</TableHead>
                       <TableHead>Proprietário</TableHead>
                       <TableHead>Placa</TableHead>
+                      <TableHead>Documento</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Preço/Dia</TableHead>
                       <TableHead>Data</TableHead>
@@ -333,7 +358,7 @@ const Admin = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {allVehicles?.map((vehicle) => (
+                    {allVehicles?.map((vehicle: any) => (
                       <TableRow key={vehicle.id}>
                         <TableCell className="font-medium">
                           {vehicle.brand} {vehicle.model} ({vehicle.year})
@@ -342,6 +367,22 @@ const Admin = () => {
                           {vehicle.profiles?.first_name} {vehicle.profiles?.last_name}
                         </TableCell>
                         <TableCell>{vehicle.license_plate}</TableCell>
+                        <TableCell>
+                          {vehicle.document_url ? (
+                            <a 
+                              href={vehicle.document_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-primary hover:underline"
+                            >
+                              <FileText className="h-4 w-4" />
+                              Ver
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">-</span>
+                          )}
+                        </TableCell>
                         <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
                         <TableCell>{formatCurrencyBRL(vehicle.daily_price)}</TableCell>
                         <TableCell>{format(new Date(vehicle.created_at), "dd/MM/yyyy")}</TableCell>
