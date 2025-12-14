@@ -41,11 +41,16 @@ const PaymentSuccess = () => {
       setIsCreating(true);
 
       try {
+        // Parse dates correctly to avoid timezone issues
+        // Format: yyyy-MM-dd - add T12:00:00 to ensure correct date in any timezone
+        const formattedStartDate = `${startDate}T12:00:00`;
+        const formattedEndDate = `${endDate}T12:00:00`;
+
         await createBooking.mutateAsync({
           vehicle_id: vehicleId,
           owner_id: ownerId,
-          start_date: new Date(startDate).toISOString(),
-          end_date: new Date(endDate).toISOString(),
+          start_date: formattedStartDate,
+          end_date: formattedEndDate,
           total_days: parseInt(days),
           daily_rate: parseFloat(dailyRate),
           total_price: parseFloat(totalPrice),
