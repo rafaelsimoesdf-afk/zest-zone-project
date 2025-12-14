@@ -1,7 +1,14 @@
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Mail, Phone } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserRoles } from "@/hooks/useUserRoles";
 
 const Footer = () => {
+  const { user } = useAuth();
+  const { data: userRoles } = useUserRoles(user?.id);
+  
+  const isAdmin = userRoles?.some(role => role.role === 'admin') ?? false;
+
   return (
     <footer className="bg-muted border-t border-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -148,12 +155,14 @@ const Footer = () => {
               >
                 Política de Privacidade
               </Link>
-              <Link
-                to="/admin"
-                className="block text-sm text-muted-foreground hover:text-primary transition-fast"
-              >
-                Administração
-              </Link>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="block text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Minha Conta
+                </Link>
+              )}
             </div>
           </div>
         </div>
