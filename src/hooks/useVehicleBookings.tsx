@@ -32,15 +32,12 @@ export const getDisabledDates = (bookings: VehicleBooking[] | undefined): Date[]
   const disabledDates: Date[] = [];
 
   bookings.forEach((booking) => {
-    // Parse dates properly - handle both ISO strings and date-only strings
-    const startStr = booking.start_date.split('T')[0];
-    const endStr = booking.end_date.split('T')[0];
-    
-    const [startYear, startMonth, startDay] = startStr.split('-').map(Number);
-    const [endYear, endMonth, endDay] = endStr.split('-').map(Number);
-    
-    const start = new Date(startYear, startMonth - 1, startDay);
-    const end = new Date(endYear, endMonth - 1, endDay);
+    // Parse database timestamps as local dates to avoid off-by-one issues
+    const startDate = new Date(booking.start_date);
+    const endDate = new Date(booking.end_date);
+
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const end = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
 
     // Add all dates between start and end (inclusive)
     const current = new Date(start);
@@ -62,15 +59,20 @@ export const isDateRangeAvailable = (
   if (!bookings || bookings.length === 0) return true;
 
   return !bookings.some((booking) => {
-    // Parse dates properly
-    const startStr = booking.start_date.split('T')[0];
-    const endStr = booking.end_date.split('T')[0];
-    
-    const [startYear, startMonth, startDay] = startStr.split('-').map(Number);
-    const [endYear, endMonth, endDay] = endStr.split('-').map(Number);
-    
-    const bookingStart = new Date(startYear, startMonth - 1, startDay);
-    const bookingEnd = new Date(endYear, endMonth - 1, endDay);
+    // Parse database timestamps as local dates to avoid off-by-one issues
+    const bookingStartDate = new Date(booking.start_date);
+    const bookingEndDate = new Date(booking.end_date);
+
+    const bookingStart = new Date(
+      bookingStartDate.getFullYear(),
+      bookingStartDate.getMonth(),
+      bookingStartDate.getDate()
+    );
+    const bookingEnd = new Date(
+      bookingEndDate.getFullYear(),
+      bookingEndDate.getMonth(),
+      bookingEndDate.getDate()
+    );
 
     // Check for overlap
     return startDate <= bookingEnd && endDate >= bookingStart;
