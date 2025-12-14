@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useHasVehicles } from "@/hooks/useOwnerDashboard";
 import { useUnreadMessagesCount } from "@/hooks/useMessages";
+import { useUserRoles } from "@/hooks/useUserRoles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +22,9 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { data: hasVehicles } = useHasVehicles();
   const { data: unreadCount } = useUnreadMessagesCount();
+  const { data: userRoles } = useUserRoles(user?.id);
+  
+  const isAdmin = userRoles?.some(role => role.role === 'admin') ?? false;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -107,6 +111,14 @@ const Navbar = () => {
                       <Link to="/owner-dashboard" className="cursor-pointer">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         Dashboard Proprietário
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Administração
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -218,6 +230,14 @@ const Navbar = () => {
                       <Link to="/owner-dashboard" onClick={() => setIsMenuOpen(false)}>
                         <LayoutDashboard className="w-4 h-4 mr-2" />
                         Dashboard Proprietário
+                      </Link>
+                    </Button>
+                  )}
+                  {isAdmin && (
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Administração
                       </Link>
                     </Button>
                   )}
