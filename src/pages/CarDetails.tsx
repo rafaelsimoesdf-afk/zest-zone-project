@@ -357,6 +357,7 @@ const CarDetails = () => {
                                 disabled={isDateDisabled}
                                 initialFocus
                                 locale={ptBR}
+                                className="pointer-events-auto"
                               />
                             </PopoverContent>
                           </Popover>
@@ -412,6 +413,7 @@ const CarDetails = () => {
                                 }}
                                 initialFocus
                                 locale={ptBR}
+                                className="pointer-events-auto"
                               />
                             </PopoverContent>
                           </Popover>
