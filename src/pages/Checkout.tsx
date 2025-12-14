@@ -50,9 +50,15 @@ const Checkout = () => {
   const [cpf, setCpf] = useState(profile?.cpf || "");
   const [message, setMessage] = useState("");
 
+  // Helper function to parse date string (yyyy-MM-dd) without timezone issues
+  const parseDateString = (dateStr: string): Date => {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   // Calculate pricing - Locatário paga apenas subtotal + seguro
   const days = startDate && endDate
-    ? Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))
+    ? Math.ceil((parseDateString(endDate).getTime() - parseDateString(startDate).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
   
   // Calculate extra hours if return time > pickup time
@@ -209,7 +215,9 @@ const Checkout = () => {
   };
 
   const formatDate = (dateStr: string) => {
-    return format(new Date(dateStr), "d 'de' MMM", { locale: ptBR });
+    // Parse date without timezone issues
+    const date = parseDateString(dateStr);
+    return format(date, "d 'de' MMM", { locale: ptBR });
   };
 
   return (
