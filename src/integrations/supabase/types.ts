@@ -1190,6 +1190,14 @@ export type Database = {
     }
     Functions: {
       add_admin_role_by_email: { Args: { _email: string }; Returns: undefined }
+      get_public_vehicle_bookings: {
+        Args: { _vehicle_id: string }
+        Returns: {
+          end_date: string
+          start_date: string
+          status: Database["public"]["Enums"]["booking_status"]
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface VehicleBooking {
-  id: string;
   start_date: string;
   end_date: string;
   status: string;
@@ -12,13 +11,17 @@ export const useVehicleBookings = (vehicleId: string) => {
   return useQuery({
     queryKey: ["vehicle-bookings", vehicleId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("id, start_date, end_date, status")
-        .eq("vehicle_id", vehicleId)
-        .in("status", ["pending", "confirmed", "in_progress"]);
+      // Use the secure database function that returns correct date ranges
+      const { data, error } = await supabase.rpc("get_public_vehicle_bookings", {
+        _vehicle_id: vehicleId,
+      });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching vehicle bookings:", error);
+        throw error;
+      }
+      
+      console.log("Vehicle bookings for", vehicleId, ":", data);
       return data as VehicleBooking[];
     },
     enabled: !!vehicleId,
@@ -32,15 +35,17 @@ export const getDisabledDates = (bookings: VehicleBooking[] | undefined): Date[]
   const disabledDates: Date[] = [];
 
   bookings.forEach((booking) => {
-    // Parse dates properly - handle both ISO strings and date-only strings
-    const startStr = booking.start_date.split('T')[0];
-    const endStr = booking.end_date.split('T')[0];
+    // Dates come as yyyy-MM-dd from the database function
+    const startStr = booking.start_date;
+    const endStr = booking.end_date;
     
     const [startYear, startMonth, startDay] = startStr.split('-').map(Number);
     const [endYear, endMonth, endDay] = endStr.split('-').map(Number);
     
     const start = new Date(startYear, startMonth - 1, startDay);
     const end = new Date(endYear, endMonth - 1, endDay);
+
+    console.log(`Booking: ${startStr} to ${endStr} -> blocking dates from`, start, "to", end);
 
     // Add all dates between start and end (inclusive)
     const current = new Date(start);
@@ -50,6 +55,7 @@ export const getDisabledDates = (bookings: VehicleBooking[] | undefined): Date[]
     }
   });
 
+  console.log("Total disabled dates:", disabledDates.length, disabledDates.map(d => d.toISOString().split('T')[0]));
   return disabledDates;
 };
 
@@ -62,9 +68,9 @@ export const isDateRangeAvailable = (
   if (!bookings || bookings.length === 0) return true;
 
   return !bookings.some((booking) => {
-    // Parse dates properly
-    const startStr = booking.start_date.split('T')[0];
-    const endStr = booking.end_date.split('T')[0];
+    // Dates come as yyyy-MM-dd from the database function
+    const startStr = booking.start_date;
+    const endStr = booking.end_date;
     
     const [startYear, startMonth, startDay] = startStr.split('-').map(Number);
     const [endYear, endMonth, endDay] = endStr.split('-').map(Number);
@@ -72,7 +78,11 @@ export const isDateRangeAvailable = (
     const bookingStart = new Date(startYear, startMonth - 1, startDay);
     const bookingEnd = new Date(endYear, endMonth - 1, endDay);
 
+    // Normalize the input dates to midnight
+    const checkStart = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const checkEnd = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
     // Check for overlap
-    return startDate <= bookingEnd && endDate >= bookingStart;
+    return checkStart <= bookingEnd && checkEnd >= bookingStart;
   });
 };
