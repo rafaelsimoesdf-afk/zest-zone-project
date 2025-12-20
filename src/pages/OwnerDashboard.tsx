@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VehicleBookingsChart } from "@/components/owner/VehicleBookingsChart";
 import { 
   useOwnerDashboardStats, 
   useOwnerVehicleStats, 
@@ -236,6 +237,12 @@ const OwnerDashboard = () => {
               </CardContent>
             </Card>
           )}
+
+          {/* Vehicle Bookings Chart */}
+          <VehicleBookingsChart 
+            vehicleStats={vehicleStats || []} 
+            isLoading={loadingVehicleStats} 
+          />
 
           <Tabs defaultValue="bookings" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
