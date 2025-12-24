@@ -27,7 +27,7 @@ const BecomeOwner = () => {
   
   const estimatedEarnings = useMemo(() => {
     const gross = dailyPrice * availableDays;
-    const netEarnings = gross * 0.8; // 20% platform fee
+    const netEarnings = gross * 0.85; // 15% platform fee
     return netEarnings;
   }, [dailyPrice, availableDays]);
 
@@ -145,7 +145,7 @@ const BecomeOwner = () => {
     {
       question: "Qual é a taxa cobrada?",
       answer:
-        "Cobramos 20% do valor da reserva para manter a plataforma e cobrir seguros.",
+        "Cobramos 15% do valor da reserva para manter a plataforma e cobrir seguros.",
     },
   ];
 
@@ -215,7 +215,7 @@ const BecomeOwner = () => {
                       {formatCurrency(estimatedEarnings)}
                     </div>
                     <div className="text-sm mt-2 opacity-90">
-                      * Após taxa de 20% da plataforma
+                      * Após taxa da plataforma
                     </div>
                   </div>
                 </div>
