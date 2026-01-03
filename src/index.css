@@ -7,6 +7,11 @@ All colors MUST be HSL.
 */
 
 @layer base {
+  /* Prevent layout shift when scrollbar appears/disappears */
+  html {
+    overflow-y: scroll;
+  }
+
   :root {
     /* Core colors - CarShare identity */
     --background: 0 0% 100%;
