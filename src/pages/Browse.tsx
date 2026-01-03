@@ -34,7 +34,9 @@ const Browse = () => {
     untilDate: undefined as string | undefined,
     fromTime: undefined as string | undefined,
     untilTime: undefined as string | undefined,
+    minYear: undefined as number | undefined,
   });
+  const [sortBy, setSortBy] = useState("relevance");
 
   // Ler parâmetros da URL ao carregar a página
   const urlCity = searchParams.get("city") || "";
@@ -57,6 +59,20 @@ const Browse = () => {
   const { data: brands } = useBrands();
   const { data: models } = useModels(filters.brandId !== "all" ? filters.brandId : undefined);
   const { data: vehicles, isLoading } = useVehicles(filters);
+
+  // Ordenar veículos
+  const sortedVehicles = vehicles ? [...vehicles].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low":
+        return a.daily_price - b.daily_price;
+      case "price-high":
+        return b.daily_price - a.daily_price;
+      case "year-new":
+        return b.year - a.year;
+      default:
+        return 0;
+    }
+  }) : [];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -82,121 +98,153 @@ const Browse = () => {
               <h2 className="font-semibold text-lg">Filtros</h2>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <Select
-                value={filters.brandId}
-                onValueChange={(value) => setFilters({ ...filters, brandId: value, modelId: "all" })}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Marca" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as Marcas</SelectItem>
-                  {brands?.map((brand) => (
-                    <SelectItem key={brand.id} value={brand.id}>
-                      {brand.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={filters.modelId}
-                onValueChange={(value) => setFilters({ ...filters, modelId: value })}
-                disabled={filters.brandId === "all"}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Modelo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os Modelos</SelectItem>
-                  {models?.map((model) => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={filters.vehicleType}
-                onValueChange={(value) => setFilters({ ...filters, vehicleType: value })}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="sedan">Sedan</SelectItem>
-                  <SelectItem value="suv">SUV</SelectItem>
-                  <SelectItem value="hatchback">Hatchback</SelectItem>
-                  <SelectItem value="pickup">Pickup</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select
-                value={filters.transmission}
-                onValueChange={(value) => setFilters({ ...filters, transmission: value })}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Transmissão" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  <SelectItem value="manual">Manual</SelectItem>
-                  <SelectItem value="automatic">Automático</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select
-                value={filters.fuel}
-                onValueChange={(value) => setFilters({ ...filters, fuel: value })}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Combustível" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="flex">Flex</SelectItem>
-                  <SelectItem value="gasoline">Gasolina</SelectItem>
-                  <SelectItem value="diesel">Diesel</SelectItem>
-                  <SelectItem value="electric">Elétrico</SelectItem>
-                  <SelectItem value="hybrid">Híbrido</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Marca</label>
+                <Select
+                  value={filters.brandId}
+                  onValueChange={(value) => setFilters({ ...filters, brandId: value, modelId: "all" })}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Selecione a marca" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as Marcas</SelectItem>
+                    {brands?.map((brand) => (
+                      <SelectItem key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Modelo</label>
+                <Select
+                  value={filters.modelId}
+                  onValueChange={(value) => setFilters({ ...filters, modelId: value })}
+                  disabled={filters.brandId === "all"}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Selecione o modelo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os Modelos</SelectItem>
+                    {models?.map((model) => (
+                      <SelectItem key={model.id} value={model.id}>
+                        {model.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Tipo de Veículo</label>
+                <Select
+                  value={filters.vehicleType}
+                  onValueChange={(value) => setFilters({ ...filters, vehicleType: value })}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os Tipos</SelectItem>
+                    <SelectItem value="sedan">Sedan</SelectItem>
+                    <SelectItem value="suv">SUV</SelectItem>
+                    <SelectItem value="hatchback">Hatchback</SelectItem>
+                    <SelectItem value="pickup">Pickup</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Transmissão</label>
+                <Select
+                  value={filters.transmission}
+                  onValueChange={(value) => setFilters({ ...filters, transmission: value })}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="automatic">Automático</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Combustível</label>
+                <Select
+                  value={filters.fuel}
+                  onValueChange={(value) => setFilters({ ...filters, fuel: value })}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="flex">Flex</SelectItem>
+                    <SelectItem value="gasoline">Gasolina</SelectItem>
+                    <SelectItem value="diesel">Diesel</SelectItem>
+                    <SelectItem value="electric">Elétrico</SelectItem>
+                    <SelectItem value="hybrid">Híbrido</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-              <Select
-                value={filters.maxPrice?.toString() || ""}
-                onValueChange={(value) => setFilters({ ...filters, maxPrice: value ? parseFloat(value) : undefined })}
-              >
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Preço Máximo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="100">Até R$ 100/dia</SelectItem>
-                  <SelectItem value="150">Até R$ 150/dia</SelectItem>
-                  <SelectItem value="200">Até R$ 200/dia</SelectItem>
-                  <SelectItem value="300">Até R$ 300/dia</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Ano" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2023">2023</SelectItem>
-                  <SelectItem value="2022">2022</SelectItem>
-                  <SelectItem value="2021">2021 ou anterior</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Ordenar por" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">Relevância</SelectItem>
-                  <SelectItem value="price-low">Menor Preço</SelectItem>
-                  <SelectItem value="price-high">Maior Preço</SelectItem>
-                  <SelectItem value="rating">Melhor Avaliado</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Preço Máximo</label>
+                <Select
+                  value={filters.maxPrice?.toString() || "all"}
+                  onValueChange={(value) => setFilters({ ...filters, maxPrice: value !== "all" ? parseFloat(value) : undefined })}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Selecione o preço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Sem limite</SelectItem>
+                    <SelectItem value="100">Até R$ 100/dia</SelectItem>
+                    <SelectItem value="150">Até R$ 150/dia</SelectItem>
+                    <SelectItem value="200">Até R$ 200/dia</SelectItem>
+                    <SelectItem value="300">Até R$ 300/dia</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Ano Mínimo</label>
+                <Select
+                  value={filters.minYear?.toString() || "all"}
+                  onValueChange={(value) => setFilters({ ...filters, minYear: value !== "all" ? parseInt(value) : undefined })}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Selecione o ano" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Qualquer ano</SelectItem>
+                    <SelectItem value="2024">A partir de 2024</SelectItem>
+                    <SelectItem value="2023">A partir de 2023</SelectItem>
+                    <SelectItem value="2022">A partir de 2022</SelectItem>
+                    <SelectItem value="2020">A partir de 2020</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Ordenar por</label>
+                <Select
+                  value={sortBy}
+                  onValueChange={setSortBy}
+                >
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Ordenar por" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="relevance">Relevância</SelectItem>
+                    <SelectItem value="price-low">Menor Preço</SelectItem>
+                    <SelectItem value="price-high">Maior Preço</SelectItem>
+                    <SelectItem value="year-new">Mais Novo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -205,7 +253,7 @@ const Browse = () => {
           <div className="mb-4">
             <p className="text-muted-foreground">
               {isLoading ? "Carregando..." : (
-                <>Mostrando <span className="font-semibold text-foreground">{vehicles?.length || 0}</span> resultados</>
+                <>Mostrando <span className="font-semibold text-foreground">{sortedVehicles.length}</span> resultados</>
               )}
             </p>
           </div>
@@ -214,13 +262,13 @@ const Browse = () => {
             <div className="text-center py-12">
               <p className="text-muted-foreground">Carregando veículos...</p>
             </div>
-          ) : !vehicles || vehicles.length === 0 ? (
+          ) : sortedVehicles.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Nenhum veículo encontrado com os filtros selecionados.</p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {vehicles.map((vehicle) => {
+              {sortedVehicles.map((vehicle) => {
                 const primaryImage = vehicle.vehicle_images?.find(img => img.is_primary) || vehicle.vehicle_images?.[0];
                 const location = vehicle.addresses ? `${vehicle.addresses.city}, ${vehicle.addresses.state}` : "Localização não informada";
                 
