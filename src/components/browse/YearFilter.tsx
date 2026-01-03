@@ -28,12 +28,16 @@ export const YearFilter = ({
 
   const handleSliderChange = (values: number[]) => {
     setLocalRange(values);
-    onChange(values[0], values[1]);
   };
 
   const handleReset = () => {
     setLocalRange([2000, currentYear]);
     onReset();
+  };
+
+  const handleApply = () => {
+    onChange(localRange[0], localRange[1]);
+    onApply();
   };
 
   const getLabel = () => {
@@ -62,7 +66,7 @@ export const YearFilter = ({
         <Button variant="outline" size="sm" onClick={handleReset}>
           Limpar
         </Button>
-        <Button size="sm" onClick={onApply}>
+        <Button size="sm" onClick={handleApply}>
           Ver {resultsCount}+ resultados
         </Button>
       </div>

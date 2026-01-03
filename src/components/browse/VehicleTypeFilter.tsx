@@ -1,5 +1,5 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Car, Truck } from "lucide-react";
 
 interface VehicleTypeFilterProps {
   selectedTypes: string[];
@@ -27,12 +27,28 @@ export const VehicleTypeFilter = ({
   onApply,
   resultsCount,
 }: VehicleTypeFilterProps) => {
+  const [localSelected, setLocalSelected] = useState<string[]>(selectedTypes);
+
+  useEffect(() => {
+    setLocalSelected(selectedTypes);
+  }, [selectedTypes]);
+
   const toggleType = (type: string) => {
-    if (selectedTypes.includes(type)) {
-      onChange(selectedTypes.filter((t) => t !== type));
+    if (localSelected.includes(type)) {
+      setLocalSelected(localSelected.filter((t) => t !== type));
     } else {
-      onChange([type]);
+      setLocalSelected([type]);
     }
+  };
+
+  const handleReset = () => {
+    setLocalSelected([]);
+    onReset();
+  };
+
+  const handleApply = () => {
+    onChange(localSelected);
+    onApply();
   };
 
   return (
@@ -43,7 +59,7 @@ export const VehicleTypeFilter = ({
             key={type.value}
             onClick={() => toggleType(type.value)}
             className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all hover:border-primary/50 ${
-              selectedTypes.includes(type.value)
+              localSelected.includes(type.value)
                 ? "border-primary bg-primary/10"
                 : "border-border"
             }`}
@@ -55,10 +71,10 @@ export const VehicleTypeFilter = ({
       </div>
 
       <div className="flex justify-between pt-2">
-        <Button variant="outline" size="sm" onClick={onReset}>
+        <Button variant="outline" size="sm" onClick={handleReset}>
           Limpar
         </Button>
-        <Button size="sm" onClick={onApply}>
+        <Button size="sm" onClick={handleApply}>
           Ver {resultsCount}+ resultados
         </Button>
       </div>

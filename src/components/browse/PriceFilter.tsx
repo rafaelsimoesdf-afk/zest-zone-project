@@ -27,12 +27,16 @@ export const PriceFilter = ({
 
   const handleSliderChange = (values: number[]) => {
     setLocalRange(values);
-    onChange(values[0], values[1]);
   };
 
   const handleReset = () => {
     setLocalRange([10, 500]);
     onReset();
+  };
+
+  const handleApply = () => {
+    onChange(localRange[0], localRange[1]);
+    onApply();
   };
 
   return (
@@ -56,7 +60,7 @@ export const PriceFilter = ({
         <Button variant="outline" size="sm" onClick={handleReset}>
           Limpar
         </Button>
-        <Button size="sm" onClick={onApply}>
+        <Button size="sm" onClick={handleApply}>
           Ver {resultsCount}+ resultados
         </Button>
       </div>
