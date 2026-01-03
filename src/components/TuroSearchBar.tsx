@@ -48,7 +48,7 @@ export function TuroSearchBar() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto">
       {/* Desktop Version */}
       <div className="hidden md:flex items-center !bg-white rounded-full shadow-xl border-l-4 border-l-primary" style={{ backgroundColor: 'white' }}>
         {/* Where Section */}
