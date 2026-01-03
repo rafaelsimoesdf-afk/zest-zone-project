@@ -71,7 +71,7 @@ export function TuroSearchBar({
       <div className="hidden md:flex items-center !bg-white rounded-full shadow-xl border-l-4 border-l-primary" style={{ backgroundColor: 'white' }}>
         {/* Where Section */}
         <div className="flex-1 px-6 py-3 border-r border-gray-200">
-          <div className="text-xs font-medium text-gray-500 mb-1">Onde</div>
+          <div className="text-xs font-medium text-gray-500 mb-1 text-left">Onde</div>
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <CityAutocomplete
@@ -86,7 +86,7 @@ export function TuroSearchBar({
 
         {/* From Date Section */}
         <div className="px-4 py-3 border-r border-gray-200">
-          <div className="text-xs font-medium text-gray-500 mb-1">De</div>
+          <div className="text-xs font-medium text-gray-500 mb-1 text-left">De</div>
           <div className="flex items-center gap-2">
             <Popover>
               <PopoverTrigger asChild>
@@ -125,7 +125,7 @@ export function TuroSearchBar({
 
         {/* Until Date Section */}
         <div className="px-4 py-3">
-          <div className="text-xs font-medium text-gray-500 mb-1">Até</div>
+          <div className="text-xs font-medium text-gray-500 mb-1 text-left">Até</div>
           <div className="flex items-center gap-2">
             <Popover>
               <PopoverTrigger asChild>
