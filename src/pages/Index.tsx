@@ -108,7 +108,7 @@ const Index = () => {
         </div>
 
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="max-w-2xl">
+          <div className="text-center max-w-4xl mx-auto">
             <Badge className="mb-6 bg-accent text-accent-foreground">
               🚗 Mais de 10.000 carros disponíveis
             </Badge>
@@ -118,17 +118,17 @@ const Index = () => {
                 Entre Pessoas
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-lg sm:text-xl text-muted-foreground mb-8 leading-relaxed max-w-2xl mx-auto">
               A plataforma que conecta proprietários e locatários. Alugue o
               carro ideal ou ganhe dinheiro com seu veículo parado.
             </p>
 
             {/* Search Bar */}
-            <div className="mb-8 flex justify-center">
+            <div className="mb-8">
               <TuroSearchBar />
             </div>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Button size="lg" className="bg-primary text-white hover:bg-primary/90" asChild>
                 <Link to="/browse">
                   Ver Todos os Carros
