@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
-  Search,
   Shield,
   DollarSign,
   Star,
@@ -16,24 +14,14 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { CityAutocomplete } from "@/components/CityAutocomplete";
+import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
 import { Skeleton } from "@/components/ui/skeleton";
 import heroImage from "@/assets/hero-car.jpg";
 import { formatCurrencyBRL } from "@/lib/validators";
 
 const Index = () => {
-  const navigate = useNavigate();
-  const [searchCity, setSearchCity] = useState("");
   const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(3);
-
-  const handleSearch = () => {
-    if (searchCity) {
-      navigate(`/browse?city=${encodeURIComponent(searchCity)}`);
-    } else {
-      navigate('/browse');
-    }
-  };
 
   const getVehicleImage = (vehicle: any) => {
     const primaryImage = vehicle.vehicle_images?.find((img: any) => img.is_primary);
@@ -136,25 +124,8 @@ const Index = () => {
             </p>
 
             {/* Search Bar */}
-            <div className="bg-background rounded-2xl p-4 shadow-xl border border-border mb-8">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1">
-                  <CityAutocomplete
-                    value={searchCity}
-                    onChange={setSearchCity}
-                    placeholder="Digite a cidade ou endereço..."
-                    className="border-0 bg-muted h-12 pl-10"
-                  />
-                </div>
-                <Button
-                  size="lg"
-                  onClick={handleSearch}
-                  className="bg-primary text-white hover:bg-primary/90"
-                >
-                  <Search className="w-5 h-5 mr-2" />
-                  Buscar Carros
-                </Button>
-              </div>
+            <div className="mb-8">
+              <TuroSearchBar />
             </div>
 
             <div className="flex flex-wrap gap-4">
