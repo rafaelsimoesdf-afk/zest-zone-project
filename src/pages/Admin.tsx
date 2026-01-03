@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useDeleteVehicle } from "@/hooks/useVehicles";
 import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
 import UserVerificationTab from "@/components/admin/UserVerificationTab";
+import EditVehicleModal from "@/components/admin/EditVehicleModal";
 import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck, FileText, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -37,6 +38,14 @@ const Admin = () => {
   const deleteUser = useDeleteUser();
   const updateBookingStatus = useUpdateBookingStatus();
   const deleteBooking = useDeleteBooking();
+
+  const [editVehicleModalOpen, setEditVehicleModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+
+  const handleEditVehicle = (vehicle: any) => {
+    setSelectedVehicle(vehicle);
+    setEditVehicleModalOpen(true);
+  };
 
   useEffect(() => {
     const checkAdminRole = async () => {
@@ -388,7 +397,7 @@ const Admin = () => {
                         <TableCell>{format(new Date(vehicle.created_at), "dd/MM/yyyy")}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" disabled>
+                            <Button variant="outline" size="sm" onClick={() => handleEditVehicle(vehicle)}>
                               <Edit className="h-4 w-4 mr-1" />
                               Editar
                             </Button>
@@ -665,6 +674,12 @@ const Admin = () => {
       </main>
 
       <Footer />
+
+      <EditVehicleModal
+        vehicle={selectedVehicle}
+        open={editVehicleModalOpen}
+        onOpenChange={setEditVehicleModalOpen}
+      />
     </div>
   );
 };
