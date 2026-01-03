@@ -123,25 +123,26 @@ const Index = () => {
               carro ideal ou ganhe dinheiro com seu veículo parado.
             </p>
 
-            {/* Search Bar */}
-            <div className="mb-8">
-              <TuroSearchBar />
-            </div>
-
-            <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="bg-primary text-white hover:bg-primary/90" asChild>
-                <Link to="/browse">
-                  Ver Todos os Carros
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                className="bg-white text-primary font-semibold hover:bg-white/90"
-                asChild
-              >
-                <Link to="/become-owner">Anuncie seu Carro</Link>
-              </Button>
+            {/* Search Bar with Buttons */}
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 mb-8">
+              <div className="flex-1 w-full">
+                <TuroSearchBar />
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Button size="lg" className="bg-primary text-white hover:bg-primary/90" asChild>
+                  <Link to="/browse">
+                    Ver Todos os Carros
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  className="bg-white text-primary font-semibold hover:bg-white/90"
+                  asChild
+                >
+                  <Link to="/become-owner">Anuncie seu Carro</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
