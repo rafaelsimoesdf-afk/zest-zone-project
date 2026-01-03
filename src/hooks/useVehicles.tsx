@@ -41,6 +41,7 @@ export const useVehicles = (filters?: {
   vehicleType?: string;
   transmission?: string;
   fuel?: string;
+  minPrice?: number;
   maxPrice?: number;
   city?: string;
   brandId?: string;
@@ -50,6 +51,7 @@ export const useVehicles = (filters?: {
   fromTime?: string;
   untilTime?: string;
   minYear?: number;
+  maxYear?: number;
 }) => {
   return useQuery({
     queryKey: ["vehicles", filters],
@@ -87,6 +89,10 @@ export const useVehicles = (filters?: {
         query = query.eq("fuel_type", filters.fuel as any);
       }
 
+      if (filters?.minPrice) {
+        query = query.gte("daily_price", filters.minPrice);
+      }
+
       if (filters?.maxPrice) {
         query = query.lte("daily_price", filters.maxPrice);
       }
@@ -101,6 +107,10 @@ export const useVehicles = (filters?: {
 
       if (filters?.minYear) {
         query = query.gte("year", filters.minYear);
+      }
+
+      if (filters?.maxYear) {
+        query = query.lte("year", filters.maxYear);
       }
 
       const { data, error } = await query;

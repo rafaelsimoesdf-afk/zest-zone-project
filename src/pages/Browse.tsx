@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useBrands, useModels } from "@/hooks/useBrands";
 import Navbar from "@/components/Navbar";
@@ -8,17 +8,11 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Link } from "react-router-dom";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { formatCurrencyBRL } from "@/lib/validators";
 import { TuroSearchBar } from "@/components/TuroSearchBar";
+import { FilterBar } from "@/components/browse/FilterBar";
 
 const Browse = () => {
   const [searchParams] = useSearchParams();
@@ -27,6 +21,7 @@ const Browse = () => {
     transmission: "all",
     fuel: "all",
     maxPrice: undefined as number | undefined,
+    minPrice: undefined as number | undefined,
     city: "",
     brandId: "all",
     modelId: "all",
@@ -35,6 +30,7 @@ const Browse = () => {
     fromTime: undefined as string | undefined,
     untilTime: undefined as string | undefined,
     minYear: undefined as number | undefined,
+    maxYear: undefined as number | undefined,
   });
   const [sortBy, setSortBy] = useState("relevance");
 
@@ -81,7 +77,7 @@ const Browse = () => {
       <main className="flex-1 pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Search Bar */}
-          <div className="mb-8">
+          <div className="mb-6">
             <TuroSearchBar
               initialLocation={urlCity}
               initialFromDate={urlFromDate}
@@ -91,163 +87,16 @@ const Browse = () => {
             />
           </div>
 
-          {/* Filters - Always Visible */}
-          <div className="bg-card border rounded-2xl p-6 mb-8 shadow-md">
-            <div className="flex items-center gap-2 mb-4">
-              <SlidersHorizontal className="w-5 h-5 text-muted-foreground" />
-              <h2 className="font-semibold text-lg">Filtros</h2>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Marca</label>
-                <Select
-                  value={filters.brandId}
-                  onValueChange={(value) => setFilters({ ...filters, brandId: value, modelId: "all" })}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecione a marca" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas as Marcas</SelectItem>
-                    {brands?.map((brand) => (
-                      <SelectItem key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Modelo</label>
-                <Select
-                  value={filters.modelId}
-                  onValueChange={(value) => setFilters({ ...filters, modelId: value })}
-                  disabled={filters.brandId === "all"}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecione o modelo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos os Modelos</SelectItem>
-                    {models?.map((model) => (
-                      <SelectItem key={model.id} value={model.id}>
-                        {model.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Tipo de Veículo</label>
-                <Select
-                  value={filters.vehicleType}
-                  onValueChange={(value) => setFilters({ ...filters, vehicleType: value })}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecione o tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos os Tipos</SelectItem>
-                    <SelectItem value="sedan">Sedan</SelectItem>
-                    <SelectItem value="suv">SUV</SelectItem>
-                    <SelectItem value="hatchback">Hatchback</SelectItem>
-                    <SelectItem value="pickup">Pickup</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Transmissão</label>
-                <Select
-                  value={filters.transmission}
-                  onValueChange={(value) => setFilters({ ...filters, transmission: value })}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas</SelectItem>
-                    <SelectItem value="manual">Manual</SelectItem>
-                    <SelectItem value="automatic">Automático</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Combustível</label>
-                <Select
-                  value={filters.fuel}
-                  onValueChange={(value) => setFilters({ ...filters, fuel: value })}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="flex">Flex</SelectItem>
-                    <SelectItem value="gasoline">Gasolina</SelectItem>
-                    <SelectItem value="diesel">Diesel</SelectItem>
-                    <SelectItem value="electric">Elétrico</SelectItem>
-                    <SelectItem value="hybrid">Híbrido</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Preço Máximo</label>
-                <Select
-                  value={filters.maxPrice?.toString() || "all"}
-                  onValueChange={(value) => setFilters({ ...filters, maxPrice: value !== "all" ? parseFloat(value) : undefined })}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecione o preço" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Sem limite</SelectItem>
-                    <SelectItem value="100">Até R$ 100/dia</SelectItem>
-                    <SelectItem value="150">Até R$ 150/dia</SelectItem>
-                    <SelectItem value="200">Até R$ 200/dia</SelectItem>
-                    <SelectItem value="300">Até R$ 300/dia</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Ano Mínimo</label>
-                <Select
-                  value={filters.minYear?.toString() || "all"}
-                  onValueChange={(value) => setFilters({ ...filters, minYear: value !== "all" ? parseInt(value) : undefined })}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Selecione o ano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Qualquer ano</SelectItem>
-                    <SelectItem value="2024">A partir de 2024</SelectItem>
-                    <SelectItem value="2023">A partir de 2023</SelectItem>
-                    <SelectItem value="2022">A partir de 2022</SelectItem>
-                    <SelectItem value="2020">A partir de 2020</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Ordenar por</label>
-                <Select
-                  value={sortBy}
-                  onValueChange={setSortBy}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Ordenar por" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="relevance">Relevância</SelectItem>
-                    <SelectItem value="price-low">Menor Preço</SelectItem>
-                    <SelectItem value="price-high">Maior Preço</SelectItem>
-                    <SelectItem value="year-new">Mais Novo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-
+          {/* Turo-style Filter Bar */}
+          <FilterBar
+            filters={filters}
+            onFiltersChange={setFilters}
+            brands={brands}
+            models={models}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            resultsCount={sortedVehicles.length}
+          />
 
           {/* Results */}
           <div className="mb-4">
