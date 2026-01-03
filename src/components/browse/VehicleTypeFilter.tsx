@@ -6,7 +6,7 @@ interface VehicleTypeFilterProps {
   onChange: (types: string[]) => void;
   onReset: () => void;
   onApply: () => void;
-  resultsCount: number;
+  getPreviewCount: (types: string[]) => number;
 }
 
 const vehicleTypes = [
@@ -25,7 +25,7 @@ export const VehicleTypeFilter = ({
   onChange,
   onReset,
   onApply,
-  resultsCount,
+  getPreviewCount,
 }: VehicleTypeFilterProps) => {
   const [localSelected, setLocalSelected] = useState<string[]>(selectedTypes);
 
@@ -51,6 +51,8 @@ export const VehicleTypeFilter = ({
     onApply();
   };
 
+  const previewCount = getPreviewCount(localSelected);
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-3">
@@ -75,7 +77,7 @@ export const VehicleTypeFilter = ({
           Limpar
         </Button>
         <Button size="sm" onClick={handleApply}>
-          Ver {resultsCount}+ resultados
+          Ver {previewCount} resultados
         </Button>
       </div>
     </div>

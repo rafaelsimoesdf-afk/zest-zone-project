@@ -8,7 +8,7 @@ interface YearFilterProps {
   onChange: (min: number, max: number) => void;
   onReset: () => void;
   onApply: () => void;
-  resultsCount: number;
+  getPreviewCount: (min: number, max: number) => number;
 }
 
 export const YearFilter = ({
@@ -17,7 +17,7 @@ export const YearFilter = ({
   onChange,
   onReset,
   onApply,
-  resultsCount,
+  getPreviewCount,
 }: YearFilterProps) => {
   const currentYear = new Date().getFullYear();
   const [localRange, setLocalRange] = useState([minYear, maxYear]);
@@ -47,6 +47,8 @@ export const YearFilter = ({
     return `${localRange[0]} - ${localRange[1]}`;
   };
 
+  const previewCount = getPreviewCount(localRange[0], localRange[1]);
+
   return (
     <div className="space-y-6">
       <div className="text-sm font-medium">{getLabel()}</div>
@@ -67,7 +69,7 @@ export const YearFilter = ({
           Limpar
         </Button>
         <Button size="sm" onClick={handleApply}>
-          Ver {resultsCount}+ resultados
+          Ver {previewCount} resultados
         </Button>
       </div>
     </div>
