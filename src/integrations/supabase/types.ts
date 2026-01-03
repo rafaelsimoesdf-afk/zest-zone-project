@@ -963,6 +963,7 @@ export type Database = {
           caucao: number | null
           chassi_mascarado: string | null
           chave_reserva: boolean | null
+          city: string | null
           color: string
           controle_estabilidade: boolean | null
           controle_tracao: boolean | null
@@ -1004,6 +1005,7 @@ export type Database = {
           sensor_estacionamento: boolean | null
           situacao_veiculo: string | null
           start_stop: boolean | null
+          state: string | null
           status: Database["public"]["Enums"]["vehicle_status"]
           transmission_type: Database["public"]["Enums"]["transmission_type"]
           updated_at: string
@@ -1033,6 +1035,7 @@ export type Database = {
           caucao?: number | null
           chassi_mascarado?: string | null
           chave_reserva?: boolean | null
+          city?: string | null
           color: string
           controle_estabilidade?: boolean | null
           controle_tracao?: boolean | null
@@ -1074,6 +1077,7 @@ export type Database = {
           sensor_estacionamento?: boolean | null
           situacao_veiculo?: string | null
           start_stop?: boolean | null
+          state?: string | null
           status?: Database["public"]["Enums"]["vehicle_status"]
           transmission_type: Database["public"]["Enums"]["transmission_type"]
           updated_at?: string
@@ -1103,6 +1107,7 @@ export type Database = {
           caucao?: number | null
           chassi_mascarado?: string | null
           chave_reserva?: boolean | null
+          city?: string | null
           color?: string
           controle_estabilidade?: boolean | null
           controle_tracao?: boolean | null
@@ -1144,6 +1149,7 @@ export type Database = {
           sensor_estacionamento?: boolean | null
           situacao_veiculo?: string | null
           start_stop?: boolean | null
+          state?: string | null
           status?: Database["public"]["Enums"]["vehicle_status"]
           transmission_type?: Database["public"]["Enums"]["transmission_type"]
           updated_at?: string

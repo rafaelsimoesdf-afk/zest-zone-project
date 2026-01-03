@@ -21,6 +21,8 @@ export interface Vehicle {
   status: string;
   owner_id: string;
   address_id: string | null;
+  city: string | null;
+  state: string | null;
   created_at: string;
   vehicle_images?: Array<{
     id: string;
@@ -28,13 +30,6 @@ export interface Vehicle {
     is_primary: boolean;
     display_order: number;
   }>;
-  addresses?: {
-    city: string;
-    state: string;
-    neighborhood: string;
-    latitude: number | null;
-    longitude: number | null;
-  };
 }
 
 export const useVehicles = (filters?: {
@@ -65,13 +60,6 @@ export const useVehicles = (filters?: {
             image_url,
             is_primary,
             display_order
-          ),
-          addresses (
-            city,
-            state,
-            neighborhood,
-            latitude,
-            longitude
           )
         `)
         .eq("status", "approved")
