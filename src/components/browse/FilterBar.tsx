@@ -121,27 +121,12 @@ export const FilterBar = ({
     return "Tipo de Veículo";
   };
 
-  const FilterButton = ({
-    label,
-    isActive,
-    popoverKey,
-  }: {
-    label: string;
-    isActive: boolean;
-    popoverKey: string;
-  }) => (
-    <Button
-      variant="outline"
-      className={`h-10 px-4 rounded-full border-2 gap-1 ${
-        isActive
-          ? "border-primary bg-primary/10 text-primary"
-          : "border-border hover:border-primary/50"
-      }`}
-    >
-      {label}
-      <ChevronDown className="w-4 h-4" />
-    </Button>
-  );
+  const getFilterButtonClass = (isActive: boolean) =>
+    `h-10 px-4 rounded-full border-2 gap-1 ${
+      isActive
+        ? "border-primary bg-primary/10 text-primary"
+        : "border-border hover:border-primary/50"
+    }`;
 
   return (
     <div className="flex flex-wrap items-center gap-2 p-4 bg-card border rounded-xl mb-6">
@@ -155,11 +140,13 @@ export const FilterBar = ({
         onOpenChange={(open) => setOpenPopover(open ? "price" : null)}
       >
         <PopoverTrigger asChild>
-          <FilterButton
-            label={getPriceLabel()}
-            isActive={!!(filters.minPrice || filters.maxPrice)}
-            popoverKey="price"
-          />
+          <Button
+            variant="outline"
+            className={getFilterButtonClass(!!(filters.minPrice || filters.maxPrice))}
+          >
+            {getPriceLabel()}
+            <ChevronDown className="w-4 h-4" />
+          </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80 p-4" align="start">
           <PriceFilter
@@ -179,11 +166,13 @@ export const FilterBar = ({
         onOpenChange={(open) => setOpenPopover(open ? "vehicleType" : null)}
       >
         <PopoverTrigger asChild>
-          <FilterButton
-            label={getVehicleTypeLabel()}
-            isActive={filters.vehicleType !== "all"}
-            popoverKey="vehicleType"
-          />
+          <Button
+            variant="outline"
+            className={getFilterButtonClass(filters.vehicleType !== "all")}
+          >
+            {getVehicleTypeLabel()}
+            <ChevronDown className="w-4 h-4" />
+          </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[400px] p-4" align="start">
           <VehicleTypeFilter
@@ -281,11 +270,13 @@ export const FilterBar = ({
         onOpenChange={(open) => setOpenPopover(open ? "year" : null)}
       >
         <PopoverTrigger asChild>
-          <FilterButton
-            label={getYearLabel()}
-            isActive={!!(filters.minYear || filters.maxYear)}
-            popoverKey="year"
-          />
+          <Button
+            variant="outline"
+            className={getFilterButtonClass(!!(filters.minYear || filters.maxYear))}
+          >
+            {getYearLabel()}
+            <ChevronDown className="w-4 h-4" />
+          </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80 p-4" align="start">
           <YearFilter
