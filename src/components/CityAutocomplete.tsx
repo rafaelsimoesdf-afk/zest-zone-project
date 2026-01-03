@@ -95,17 +95,17 @@ export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou end
       {showSuggestions && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto"
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
         >
           {suggestions.map((prediction) => (
             <button
               key={prediction.place_id}
               type="button"
               onClick={() => handleSelectSuggestion(prediction)}
-              className="w-full px-4 py-2 text-left hover:bg-accent transition-colors flex flex-col"
+              className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex flex-col"
             >
-              <span className="font-medium text-foreground">{prediction.structured_formatting.main_text}</span>
-              <span className="text-sm text-muted-foreground">{prediction.structured_formatting.secondary_text}</span>
+              <span className="font-medium text-gray-900">{prediction.structured_formatting.main_text}</span>
+              <span className="text-sm text-gray-500">{prediction.structured_formatting.secondary_text}</span>
             </button>
           ))}
         </div>
