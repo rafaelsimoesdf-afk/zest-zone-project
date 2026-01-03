@@ -50,7 +50,7 @@ export function TuroSearchBar() {
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* Desktop Version */}
-      <div className="hidden md:flex items-center bg-white rounded-full shadow-xl border-l-4 border-l-primary overflow-hidden">
+      <div className="hidden md:flex items-center !bg-white rounded-full shadow-xl border-l-4 border-l-primary overflow-hidden" style={{ backgroundColor: 'white' }}>
         {/* Where Section */}
         <div className="flex-1 px-6 py-3 border-r border-gray-200">
           <div className="text-xs font-medium text-gray-500 mb-1">Onde</div>
@@ -77,7 +77,7 @@ export function TuroSearchBar() {
                   <ChevronDown className="w-3 h-3 text-gray-400" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 bg-white" align="start">
                 <Calendar
                   mode="single"
                   selected={fromDate}
@@ -116,7 +116,7 @@ export function TuroSearchBar() {
                   <ChevronDown className="w-3 h-3 text-gray-400" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 bg-white" align="start">
                 <Calendar
                   mode="single"
                   selected={untilDate}
@@ -155,7 +155,7 @@ export function TuroSearchBar() {
       </div>
 
       {/* Mobile Version */}
-      <div className="md:hidden bg-white rounded-2xl shadow-xl border-l-4 border-l-primary p-4 space-y-4">
+      <div className="md:hidden !bg-white rounded-2xl shadow-xl border-l-4 border-l-primary p-4 space-y-4" style={{ backgroundColor: 'white' }}>
         {/* Where */}
         <div>
           <div className="text-xs font-medium text-gray-500 mb-1">Onde</div>
@@ -184,7 +184,7 @@ export function TuroSearchBar() {
                     <ChevronDown className="w-3 h-3 text-gray-400" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 bg-white" align="start">
                   <Calendar
                     mode="single"
                     selected={fromDate}
@@ -223,7 +223,7 @@ export function TuroSearchBar() {
                     <ChevronDown className="w-3 h-3 text-gray-400" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 bg-white" align="start">
                   <Calendar
                     mode="single"
                     selected={untilDate}
