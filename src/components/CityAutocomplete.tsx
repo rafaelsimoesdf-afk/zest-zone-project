@@ -68,8 +68,6 @@ export const CityAutocomplete = ({
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      // Para trazer mais cidades do banco (ex.: Taguatinga), usamos o próprio DB
-      // e não o Google Places.
       if (!parsed.cityPart || parsed.cityPart.length < 2) {
         setSuggestions([]);
         setShowSuggestions(false);
@@ -78,29 +76,38 @@ export const CityAutocomplete = ({
 
       setIsLoading(true);
       try {
+        // Busca todas as cidades distintas de veículos aprovados
         let query = supabase
           .from("vehicles")
-          .select("city,state")
+          .select("city, state")
           .eq("status", "approved")
           .not("city", "is", null)
-          .not("state", "is", null)
-          .ilike("city", `%${parsed.cityPart}%`)
-          .limit(50);
-
-        if (parsed.uf) {
-          query = query.eq("state", parsed.uf);
-        }
+          .not("state", "is", null);
 
         const { data, error } = await query;
-        if (error) throw error;
+        
+        if (error) {
+          console.error("Error fetching cities:", error);
+          throw error;
+        }
 
+        console.log("Cities from DB:", data);
+
+        // Filtra e deduplica no frontend para garantir que funcione
         const seen = new Set<string>();
         const deduped: CitySuggestion[] = [];
+        const searchTerm = parsed.cityPart.toLowerCase();
 
         for (const row of data ?? []) {
-          const city = (row as any).city as string | null;
-          const state = (row as any).state as string | null;
+          const city = row.city as string | null;
+          const state = row.state as string | null;
           if (!city || !state) continue;
+
+          // Filtro por cidade (case insensitive)
+          if (!city.toLowerCase().includes(searchTerm)) continue;
+
+          // Filtro por UF se fornecido
+          if (parsed.uf && state.toUpperCase() !== parsed.uf) continue;
 
           const key = `${city}__${state}`;
           if (seen.has(key)) continue;
@@ -116,8 +123,10 @@ export const CityAutocomplete = ({
 
         deduped.sort((a, b) => a.display.localeCompare(b.display, "pt-BR"));
 
+        console.log("Filtered suggestions:", deduped);
+
         setSuggestions(deduped.slice(0, 10));
-        setShowSuggestions(true);
+        setShowSuggestions(deduped.length > 0);
       } catch (error) {
         console.error("Error fetching city suggestions from DB:", error);
         setSuggestions([]);
