@@ -101,6 +101,12 @@ export const useVehicles = (filters?: {
         query = query.lte("year", filters.maxYear);
       }
 
+      // Filtro por cidade - extrai apenas a cidade do formato "Cidade, UF, BR"
+      if (filters?.city) {
+        const cityName = filters.city.split(",")[0].trim();
+        query = query.ilike("city", cityName);
+      }
+
       const { data, error } = await query;
 
       if (error) throw error;
