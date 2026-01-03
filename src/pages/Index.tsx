@@ -109,9 +109,6 @@ const Index = () => {
 
         <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center max-w-4xl mx-auto">
-            <Badge className="mb-6 bg-accent text-accent-foreground">
-              🚗 Mais de 10.000 carros disponíveis
-            </Badge>
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl mb-6 leading-tight whitespace-nowrap">
               Alugue Carros <span className="text-primary">Entre Pessoas</span>
             </h1>
