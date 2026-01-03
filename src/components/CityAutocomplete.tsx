@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,44 +11,127 @@ interface CityAutocompleteProps {
   hideIcon?: boolean;
 }
 
-type CitySuggestion = {
-  key: string;
-  city: string;
-  state: string;
-  display: string; // "Cidade, UF, BR"
+interface Prediction {
+  place_id: string;
+  description: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text: string;
+  };
+  terms: Array<{ offset: number; value: string }>;
+}
+
+// Função para formatar a localização no formato "Cidade, UF, BR"
+const formatLocation = (prediction: Prediction): string => {
+  const terms = prediction.terms || [];
+  
+  // Encontrar o estado na lista de terms (será uma sigla de 2 letras ou nome completo de estado)
+  let cityName = '';
+  let stateAbbrev = '';
+  
+  for (let i = 0; i < terms.length; i++) {
+    const termValue = terms[i]?.value || '';
+    
+    // Verificar se é uma sigla de estado (2 letras) ou nome de estado brasileiro
+    const abbrev = getStateAbbreviation(termValue);
+    if (abbrev.length === 2 && abbrev !== termValue.substring(0, 2)) {
+      // É um nome de estado que foi convertido para sigla
+      stateAbbrev = abbrev;
+      // A cidade é o termo anterior (se não for bairro/subdivisão)
+      if (i > 0) {
+        cityName = terms[i - 1]?.value || '';
+      }
+      break;
+    } else if (termValue.length === 2 && /^[A-Z]{2}$/.test(termValue)) {
+      // É uma sigla de estado diretamente
+      stateAbbrev = termValue;
+      // A cidade é o termo anterior
+      if (i > 0) {
+        cityName = terms[i - 1]?.value || '';
+      }
+      break;
+    }
+  }
+  
+  // Se não encontrou, pegar o primeiro termo como cidade
+  if (!cityName && terms.length > 0) {
+    cityName = terms[0]?.value || '';
+  }
+  
+  if (cityName && stateAbbrev) {
+    return `${cityName}, ${stateAbbrev}, BR`;
+  }
+  
+  // Fallback: usar o main_text
+  return prediction.structured_formatting.main_text;
 };
 
-const formatCityState = (city: string, state: string) => `${city}, ${state}, BR`;
-
-const parseLocationInput = (input: string) => {
-  const parts = input
-    .split(",")
-    .map((p) => p.trim())
-    .filter(Boolean);
-
-  const cityPart = parts[0] ?? "";
-  const statePart = parts[1] ?? "";
-
-  // Aceita UF (2 letras) e ignora "BR" no final
-  const uf = /^[A-Za-z]{2}$/.test(statePart) ? statePart.toUpperCase() : "";
-
-  return { cityPart, uf };
+// Mapeamento de estados brasileiros para siglas
+const getStateAbbreviation = (stateName: string): string => {
+  const stateMap: Record<string, string> = {
+    'Acre': 'AC',
+    'Alagoas': 'AL',
+    'Amapá': 'AP',
+    'Amazonas': 'AM',
+    'Bahia': 'BA',
+    'Ceará': 'CE',
+    'Distrito Federal': 'DF',
+    'Espírito Santo': 'ES',
+    'Goiás': 'GO',
+    'Maranhão': 'MA',
+    'Mato Grosso': 'MT',
+    'Mato Grosso do Sul': 'MS',
+    'Minas Gerais': 'MG',
+    'Pará': 'PA',
+    'Paraíba': 'PB',
+    'Paraná': 'PR',
+    'Pernambuco': 'PE',
+    'Piauí': 'PI',
+    'Rio de Janeiro': 'RJ',
+    'Rio Grande do Norte': 'RN',
+    'Rio Grande do Sul': 'RS',
+    'Rondônia': 'RO',
+    'Roraima': 'RR',
+    'Santa Catarina': 'SC',
+    'São Paulo': 'SP',
+    'Sergipe': 'SE',
+    'Tocantins': 'TO',
+    'State of Acre': 'AC',
+    'State of Alagoas': 'AL',
+    'State of Amapá': 'AP',
+    'State of Amazonas': 'AM',
+    'State of Bahia': 'BA',
+    'State of Ceará': 'CE',
+    'State of Espírito Santo': 'ES',
+    'State of Goiás': 'GO',
+    'State of Maranhão': 'MA',
+    'State of Mato Grosso': 'MT',
+    'State of Mato Grosso do Sul': 'MS',
+    'State of Minas Gerais': 'MG',
+    'State of Pará': 'PA',
+    'State of Paraíba': 'PB',
+    'State of Paraná': 'PR',
+    'State of Pernambuco': 'PE',
+    'State of Piauí': 'PI',
+    'State of Rio de Janeiro': 'RJ',
+    'State of Rio Grande do Norte': 'RN',
+    'State of Rio Grande do Sul': 'RS',
+    'State of Rondônia': 'RO',
+    'State of Roraima': 'RR',
+    'State of Santa Catarina': 'SC',
+    'State of São Paulo': 'SP',
+    'State of Sergipe': 'SE',
+    'State of Tocantins': 'TO',
+  };
+  return stateMap[stateName] || stateName;
 };
 
-export const CityAutocomplete = ({
-  value,
-  onChange,
-  placeholder = "Cidade ou endereço...",
-  className,
-  hideIcon = false,
-}: CityAutocompleteProps) => {
-  const [suggestions, setSuggestions] = useState<CitySuggestion[]>([]);
+export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou endereço...", className, hideIcon = false }: CityAutocompleteProps) => {
+  const [suggestions, setSuggestions] = useState<Prediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-
-  const parsed = useMemo(() => parseLocationInput(value), [value]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -68,80 +151,36 @@ export const CityAutocomplete = ({
 
   useEffect(() => {
     const fetchSuggestions = async () => {
-      if (!parsed.cityPart || parsed.cityPart.length < 2) {
+      if (!value || value.length < 3) {
         setSuggestions([]);
-        setShowSuggestions(false);
         return;
       }
 
       setIsLoading(true);
       try {
-        // Busca todas as cidades distintas de veículos aprovados
-        let query = supabase
-          .from("vehicles")
-          .select("city, state")
-          .eq("status", "approved")
-          .not("city", "is", null)
-          .not("state", "is", null);
+        const { data, error } = await supabase.functions.invoke('google-places-autocomplete', {
+          body: { input: value, type: 'city' }
+        });
 
-        const { data, error } = await query;
+        if (error) throw error;
         
-        if (error) {
-          console.error("Error fetching cities:", error);
-          throw error;
-        }
-
-        console.log("Cities from DB:", data);
-
-        // Filtra e deduplica no frontend para garantir que funcione
-        const seen = new Set<string>();
-        const deduped: CitySuggestion[] = [];
-        const searchTerm = parsed.cityPart.toLowerCase();
-
-        for (const row of data ?? []) {
-          const city = row.city as string | null;
-          const state = row.state as string | null;
-          if (!city || !state) continue;
-
-          // Filtro por cidade (case insensitive)
-          if (!city.toLowerCase().includes(searchTerm)) continue;
-
-          // Filtro por UF se fornecido
-          if (parsed.uf && state.toUpperCase() !== parsed.uf) continue;
-
-          const key = `${city}__${state}`;
-          if (seen.has(key)) continue;
-          seen.add(key);
-
-          deduped.push({
-            key,
-            city,
-            state,
-            display: formatCityState(city, state),
-          });
-        }
-
-        deduped.sort((a, b) => a.display.localeCompare(b.display, "pt-BR"));
-
-        console.log("Filtered suggestions:", deduped);
-
-        setSuggestions(deduped.slice(0, 10));
-        setShowSuggestions(deduped.length > 0);
+        setSuggestions(data.predictions || []);
+        setShowSuggestions(true);
       } catch (error) {
-        console.error("Error fetching city suggestions from DB:", error);
+        console.error('Error fetching city suggestions:', error);
         setSuggestions([]);
-        setShowSuggestions(false);
       } finally {
         setIsLoading(false);
       }
     };
 
-    const debounceTimer = setTimeout(fetchSuggestions, 250);
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
     return () => clearTimeout(debounceTimer);
-  }, [parsed.cityPart, parsed.uf]);
+  }, [value]);
 
-  const handleSelectSuggestion = (suggestion: CitySuggestion) => {
-    onChange(suggestion.display);
+  const handleSelectSuggestion = (prediction: Prediction) => {
+    const formattedLocation = formatLocation(prediction);
+    onChange(formattedLocation);
     setShowSuggestions(false);
     setSuggestions([]);
   };
@@ -151,7 +190,6 @@ export const CityAutocomplete = ({
       {!hideIcon && (
         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
       )}
-
       <Input
         ref={inputRef}
         type="text"
@@ -159,29 +197,29 @@ export const CityAutocomplete = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={className}
-        onFocus={() => {
-          if (suggestions.length > 0) setShowSuggestions(true);
-        }}
       />
-
+      
       {showSuggestions && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
           className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
         >
-          {suggestions.map((s) => (
-            <button
-              key={s.key}
-              type="button"
-              onClick={() => handleSelectSuggestion(s)}
-              className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors"
-            >
-              <span className="font-medium text-gray-900">{s.display}</span>
-            </button>
-          ))}
+          {suggestions.map((prediction) => {
+            const formattedLocation = formatLocation(prediction);
+            return (
+              <button
+                key={prediction.place_id}
+                type="button"
+                onClick={() => handleSelectSuggestion(prediction)}
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors"
+              >
+                <span className="font-medium text-gray-900">{formattedLocation}</span>
+              </button>
+            );
+          })}
         </div>
       )}
-
+      
       {isLoading && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
           <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />

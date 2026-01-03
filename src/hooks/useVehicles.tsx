@@ -101,24 +101,10 @@ export const useVehicles = (filters?: {
         query = query.lte("year", filters.maxYear);
       }
 
-      // Filtro por cidade/estado
-      // Aceita "Cidade, UF, BR" (valor vindo do autocomplete) e também texto livre.
+      // Filtro por cidade - extrai apenas a cidade do formato "Cidade, UF, BR"
       if (filters?.city) {
-        const parts = filters.city
-          .split(",")
-          .map((p) => p.trim())
-          .filter(Boolean);
-
-        const city = parts[0] ?? "";
-        const uf = parts[1] && /^[A-Za-z]{2}$/.test(parts[1]) ? parts[1].toUpperCase() : "";
-
-        if (city) {
-          if (uf) {
-            query = query.eq("city", city).eq("state", uf);
-          } else {
-            query = query.ilike("city", `%${city}%`);
-          }
-        }
+        const cityName = filters.city.split(",")[0].trim();
+        query = query.ilike("city", cityName);
       }
 
       const { data, error } = await query;
