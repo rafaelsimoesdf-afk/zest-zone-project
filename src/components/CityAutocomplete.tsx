@@ -18,7 +18,83 @@ interface Prediction {
     main_text: string;
     secondary_text: string;
   };
+  terms: Array<{ offset: number; value: string }>;
 }
+
+// Função para formatar a localização no formato "Cidade, UF, BR"
+const formatLocation = (prediction: Prediction): string => {
+  const terms = prediction.terms || [];
+  
+  if (terms.length >= 2) {
+    const city = terms[0]?.value || '';
+    const state = terms[1]?.value || '';
+    // Pegar sigla do estado (primeiras 2 letras se for nome completo)
+    const stateAbbrev = state.length > 2 ? getStateAbbreviation(state) : state;
+    return `${city}, ${stateAbbrev}, BR`;
+  }
+  
+  return prediction.structured_formatting.main_text;
+};
+
+// Mapeamento de estados brasileiros para siglas
+const getStateAbbreviation = (stateName: string): string => {
+  const stateMap: Record<string, string> = {
+    'Acre': 'AC',
+    'Alagoas': 'AL',
+    'Amapá': 'AP',
+    'Amazonas': 'AM',
+    'Bahia': 'BA',
+    'Ceará': 'CE',
+    'Distrito Federal': 'DF',
+    'Espírito Santo': 'ES',
+    'Goiás': 'GO',
+    'Maranhão': 'MA',
+    'Mato Grosso': 'MT',
+    'Mato Grosso do Sul': 'MS',
+    'Minas Gerais': 'MG',
+    'Pará': 'PA',
+    'Paraíba': 'PB',
+    'Paraná': 'PR',
+    'Pernambuco': 'PE',
+    'Piauí': 'PI',
+    'Rio de Janeiro': 'RJ',
+    'Rio Grande do Norte': 'RN',
+    'Rio Grande do Sul': 'RS',
+    'Rondônia': 'RO',
+    'Roraima': 'RR',
+    'Santa Catarina': 'SC',
+    'São Paulo': 'SP',
+    'Sergipe': 'SE',
+    'Tocantins': 'TO',
+    'State of Acre': 'AC',
+    'State of Alagoas': 'AL',
+    'State of Amapá': 'AP',
+    'State of Amazonas': 'AM',
+    'State of Bahia': 'BA',
+    'State of Ceará': 'CE',
+    'State of Espírito Santo': 'ES',
+    'State of Goiás': 'GO',
+    'State of Maranhão': 'MA',
+    'State of Mato Grosso': 'MT',
+    'State of Mato Grosso do Sul': 'MS',
+    'State of Minas Gerais': 'MG',
+    'State of Pará': 'PA',
+    'State of Paraíba': 'PB',
+    'State of Paraná': 'PR',
+    'State of Pernambuco': 'PE',
+    'State of Piauí': 'PI',
+    'State of Rio de Janeiro': 'RJ',
+    'State of Rio Grande do Norte': 'RN',
+    'State of Rio Grande do Sul': 'RS',
+    'State of Rondônia': 'RO',
+    'State of Roraima': 'RR',
+    'State of Santa Catarina': 'SC',
+    'State of São Paulo': 'SP',
+    'State of Sergipe': 'SE',
+    'State of Tocantins': 'TO',
+  };
+  return stateMap[stateName] || stateName;
+};
 
 export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou endereço...", className, hideIcon = false }: CityAutocompleteProps) => {
   const [suggestions, setSuggestions] = useState<Prediction[]>([]);
@@ -73,7 +149,8 @@ export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou end
   }, [value]);
 
   const handleSelectSuggestion = (prediction: Prediction) => {
-    onChange(prediction.structured_formatting.main_text);
+    const formattedLocation = formatLocation(prediction);
+    onChange(formattedLocation);
     setShowSuggestions(false);
     setSuggestions([]);
   };
@@ -97,17 +174,19 @@ export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou end
           ref={suggestionsRef}
           className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
         >
-          {suggestions.map((prediction) => (
-            <button
-              key={prediction.place_id}
-              type="button"
-              onClick={() => handleSelectSuggestion(prediction)}
-              className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors flex flex-col"
-            >
-              <span className="font-medium text-gray-900">{prediction.structured_formatting.main_text}</span>
-              <span className="text-sm text-gray-500">{prediction.structured_formatting.secondary_text}</span>
-            </button>
-          ))}
+          {suggestions.map((prediction) => {
+            const formattedLocation = formatLocation(prediction);
+            return (
+              <button
+                key={prediction.place_id}
+                type="button"
+                onClick={() => handleSelectSuggestion(prediction)}
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors"
+              >
+                <span className="font-medium text-gray-900">{formattedLocation}</span>
+              </button>
+            );
+          })}
         </div>
       )}
       
