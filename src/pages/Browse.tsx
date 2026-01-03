@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, Star } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useBrands, useModels } from "@/hooks/useBrands";
@@ -20,6 +21,7 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { formatCurrencyBRL } from "@/lib/validators";
 
 const Browse = () => {
+  const [searchParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     vehicleType: "all",
@@ -29,7 +31,29 @@ const Browse = () => {
     city: "",
     brandId: "all",
     modelId: "all",
+    fromDate: undefined as string | undefined,
+    untilDate: undefined as string | undefined,
+    fromTime: undefined as string | undefined,
+    untilTime: undefined as string | undefined,
   });
+
+  // Ler parâmetros da URL ao carregar a página
+  useEffect(() => {
+    const city = searchParams.get("city") || "";
+    const fromDate = searchParams.get("from") || undefined;
+    const untilDate = searchParams.get("until") || undefined;
+    const fromTime = searchParams.get("fromTime") || undefined;
+    const untilTime = searchParams.get("untilTime") || undefined;
+
+    setFilters(prev => ({
+      ...prev,
+      city,
+      fromDate,
+      untilDate,
+      fromTime,
+      untilTime,
+    }));
+  }, [searchParams]);
 
   const { data: brands } = useBrands();
   const { data: models } = useModels(filters.brandId !== "all" ? filters.brandId : undefined);

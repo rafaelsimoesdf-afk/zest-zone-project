@@ -45,6 +45,10 @@ export const useVehicles = (filters?: {
   city?: string;
   brandId?: string;
   modelId?: string;
+  fromDate?: string;
+  untilDate?: string;
+  fromTime?: string;
+  untilTime?: string;
 }) => {
   return useQuery({
     queryKey: ["vehicles", filters],
@@ -97,7 +101,40 @@ export const useVehicles = (filters?: {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as Vehicle[];
+      
+      let vehicles = data as Vehicle[];
+
+      // Filtrar por disponibilidade se datas foram fornecidas
+      if (filters?.fromDate && filters?.untilDate) {
+        const searchStart = new Date(filters.fromDate);
+        const searchEnd = new Date(filters.untilDate);
+
+        // Buscar reservas de todos os veículos e filtrar os disponíveis
+        const availableVehicles: Vehicle[] = [];
+
+        for (const vehicle of vehicles) {
+          const { data: bookings } = await supabase.rpc('get_public_vehicle_bookings', {
+            _vehicle_id: vehicle.id
+          });
+
+          // Verificar se há conflito de datas
+          const hasConflict = bookings?.some((booking: any) => {
+            const bookingStart = new Date(booking.start_date);
+            const bookingEnd = new Date(booking.end_date);
+            
+            // Há conflito se as datas se sobrepõem
+            return !(searchEnd < bookingStart || searchStart > bookingEnd);
+          });
+
+          if (!hasConflict) {
+            availableVehicles.push(vehicle);
+          }
+        }
+
+        return availableVehicles;
+      }
+
+      return vehicles;
     },
   });
 };
