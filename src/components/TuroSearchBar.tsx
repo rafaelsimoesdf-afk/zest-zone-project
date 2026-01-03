@@ -61,6 +61,7 @@ export function TuroSearchBar() {
               onChange={setLocation}
               placeholder="Cidade ou endereço"
               className="border-0 bg-transparent h-6 p-0 text-gray-900 placeholder:text-gray-400 focus-visible:ring-0 text-sm"
+              hideIcon
             />
           </div>
         </div>
@@ -90,12 +91,12 @@ export function TuroSearchBar() {
             </Popover>
 
             <Select value={fromTime} onValueChange={setFromTime}>
-              <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 gap-1">
+              <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 gap-1 bg-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {timeOptions.map((time) => (
-                  <SelectItem key={time} value={time}>
+                  <SelectItem key={time} value={time} className="text-gray-900">
                     {time}
                   </SelectItem>
                 ))}
@@ -129,12 +130,12 @@ export function TuroSearchBar() {
             </Popover>
 
             <Select value={untilTime} onValueChange={setUntilTime}>
-              <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 gap-1">
+              <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 gap-1 bg-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {timeOptions.map((time) => (
-                  <SelectItem key={time} value={time}>
+                  <SelectItem key={time} value={time} className="text-gray-900">
                     {time}
                   </SelectItem>
                 ))}
@@ -165,6 +166,7 @@ export function TuroSearchBar() {
               onChange={setLocation}
               placeholder="Cidade ou endereço"
               className="border-0 bg-transparent h-8 p-0 text-gray-900 placeholder:text-gray-400 focus-visible:ring-0"
+              hideIcon
             />
           </div>
         </div>
@@ -196,12 +198,12 @@ export function TuroSearchBar() {
               </Popover>
 
               <Select value={fromTime} onValueChange={setFromTime}>
-                <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0">
+                <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 bg-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {timeOptions.map((time) => (
-                    <SelectItem key={time} value={time}>
+                    <SelectItem key={time} value={time} className="text-gray-900">
                       {time}
                     </SelectItem>
                   ))}
@@ -235,12 +237,12 @@ export function TuroSearchBar() {
               </Popover>
 
               <Select value={untilTime} onValueChange={setUntilTime}>
-                <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0">
+                <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 bg-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {timeOptions.map((time) => (
-                    <SelectItem key={time} value={time}>
+                    <SelectItem key={time} value={time} className="text-gray-900">
                       {time}
                     </SelectItem>
                   ))}
