@@ -8,7 +8,7 @@ interface PriceFilterProps {
   onChange: (min: number, max: number) => void;
   onReset: () => void;
   onApply: () => void;
-  resultsCount: number;
+  getPreviewCount: (min: number, max: number) => number;
 }
 
 export const PriceFilter = ({
@@ -17,7 +17,7 @@ export const PriceFilter = ({
   onChange,
   onReset,
   onApply,
-  resultsCount,
+  getPreviewCount,
 }: PriceFilterProps) => {
   const [localRange, setLocalRange] = useState([minPrice, maxPrice]);
 
@@ -38,6 +38,8 @@ export const PriceFilter = ({
     onChange(localRange[0], localRange[1]);
     onApply();
   };
+
+  const previewCount = getPreviewCount(localRange[0], localRange[1]);
 
   return (
     <div className="space-y-6">
@@ -61,7 +63,7 @@ export const PriceFilter = ({
           Limpar
         </Button>
         <Button size="sm" onClick={handleApply}>
-          Ver {resultsCount}+ resultados
+          Ver {previewCount} resultados
         </Button>
       </div>
     </div>

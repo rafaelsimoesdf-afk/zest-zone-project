@@ -96,6 +96,7 @@ const Browse = () => {
             sortBy={sortBy}
             onSortChange={setSortBy}
             resultsCount={sortedVehicles.length}
+            vehicles={vehicles || []}
           />
 
           {/* Results */}

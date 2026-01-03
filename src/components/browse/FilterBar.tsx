@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Vehicle } from "@/hooks/useVehicles";
 
 interface FilterBarProps {
   filters: {
@@ -35,6 +36,7 @@ interface FilterBarProps {
   sortBy: string;
   onSortChange: (value: string) => void;
   resultsCount: number;
+  vehicles: Vehicle[];
 }
 
 export const FilterBar = ({
@@ -45,8 +47,39 @@ export const FilterBar = ({
   sortBy,
   onSortChange,
   resultsCount,
+  vehicles,
 }: FilterBarProps) => {
   const [openPopover, setOpenPopover] = useState<string | null>(null);
+
+  // Calculate preview count for price filter
+  const getPreviewCountForPrice = useCallback((minPrice: number, maxPrice: number) => {
+    return vehicles.filter((v) => {
+      const priceMatch = v.daily_price >= minPrice && v.daily_price <= maxPrice;
+      const typeMatch = filters.vehicleType === "all" || v.vehicle_type === filters.vehicleType;
+      const yearMatch = (!filters.minYear || v.year >= filters.minYear) && (!filters.maxYear || v.year <= filters.maxYear);
+      return priceMatch && typeMatch && yearMatch;
+    }).length;
+  }, [vehicles, filters.vehicleType, filters.minYear, filters.maxYear]);
+
+  // Calculate preview count for vehicle type filter
+  const getPreviewCountForType = useCallback((types: string[]) => {
+    return vehicles.filter((v) => {
+      const typeMatch = types.length === 0 || types.includes(v.vehicle_type);
+      const priceMatch = (!filters.minPrice || v.daily_price >= filters.minPrice) && (!filters.maxPrice || v.daily_price <= filters.maxPrice);
+      const yearMatch = (!filters.minYear || v.year >= filters.minYear) && (!filters.maxYear || v.year <= filters.maxYear);
+      return typeMatch && priceMatch && yearMatch;
+    }).length;
+  }, [vehicles, filters.minPrice, filters.maxPrice, filters.minYear, filters.maxYear]);
+
+  // Calculate preview count for year filter
+  const getPreviewCountForYear = useCallback((minYear: number, maxYear: number) => {
+    return vehicles.filter((v) => {
+      const yearMatch = v.year >= minYear && v.year <= maxYear;
+      const typeMatch = filters.vehicleType === "all" || v.vehicle_type === filters.vehicleType;
+      const priceMatch = (!filters.minPrice || v.daily_price >= filters.minPrice) && (!filters.maxPrice || v.daily_price <= filters.maxPrice);
+      return yearMatch && typeMatch && priceMatch;
+    }).length;
+  }, [vehicles, filters.vehicleType, filters.minPrice, filters.maxPrice]);
 
   const handlePriceChange = (minPrice: number, maxPrice: number) => {
     onFiltersChange({
@@ -155,7 +188,7 @@ export const FilterBar = ({
             onChange={handlePriceChange}
             onReset={() => resetFilter("price")}
             onApply={() => setOpenPopover(null)}
-            resultsCount={resultsCount}
+            getPreviewCount={getPreviewCountForPrice}
           />
         </PopoverContent>
       </Popover>
@@ -180,7 +213,7 @@ export const FilterBar = ({
             onChange={handleVehicleTypeChange}
             onReset={() => resetFilter("vehicleType")}
             onApply={() => setOpenPopover(null)}
-            resultsCount={resultsCount}
+            getPreviewCount={getPreviewCountForType}
           />
         </PopoverContent>
       </Popover>
@@ -257,7 +290,7 @@ export const FilterBar = ({
                 Limpar
               </Button>
               <Button size="sm" onClick={() => setOpenPopover(null)}>
-                Ver {resultsCount}+ resultados
+                Ver {resultsCount} resultados
               </Button>
             </div>
           </div>
@@ -285,7 +318,7 @@ export const FilterBar = ({
             onChange={handleYearChange}
             onReset={() => resetFilter("year")}
             onApply={() => setOpenPopover(null)}
-            resultsCount={resultsCount}
+            getPreviewCount={getPreviewCountForYear}
           />
         </PopoverContent>
       </Popover>
