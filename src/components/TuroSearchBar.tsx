@@ -50,7 +50,7 @@ export function TuroSearchBar() {
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* Desktop Version */}
-      <div className="hidden md:flex items-center !bg-white rounded-full shadow-xl border-l-4 border-l-primary overflow-hidden" style={{ backgroundColor: 'white' }}>
+      <div className="hidden md:flex items-center !bg-white rounded-full shadow-xl border-l-4 border-l-primary" style={{ backgroundColor: 'white' }}>
         {/* Where Section */}
         <div className="flex-1 px-6 py-3 border-r border-gray-200">
           <div className="text-xs font-medium text-gray-500 mb-1">Onde</div>
