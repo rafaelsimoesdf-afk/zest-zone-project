@@ -25,14 +25,44 @@ interface Prediction {
 const formatLocation = (prediction: Prediction): string => {
   const terms = prediction.terms || [];
   
-  if (terms.length >= 2) {
-    const city = terms[0]?.value || '';
-    const state = terms[1]?.value || '';
-    // Pegar sigla do estado (primeiras 2 letras se for nome completo)
-    const stateAbbrev = state.length > 2 ? getStateAbbreviation(state) : state;
-    return `${city}, ${stateAbbrev}, BR`;
+  // Encontrar o estado na lista de terms (será uma sigla de 2 letras ou nome completo de estado)
+  let cityName = '';
+  let stateAbbrev = '';
+  
+  for (let i = 0; i < terms.length; i++) {
+    const termValue = terms[i]?.value || '';
+    
+    // Verificar se é uma sigla de estado (2 letras) ou nome de estado brasileiro
+    const abbrev = getStateAbbreviation(termValue);
+    if (abbrev.length === 2 && abbrev !== termValue.substring(0, 2)) {
+      // É um nome de estado que foi convertido para sigla
+      stateAbbrev = abbrev;
+      // A cidade é o termo anterior (se não for bairro/subdivisão)
+      if (i > 0) {
+        cityName = terms[i - 1]?.value || '';
+      }
+      break;
+    } else if (termValue.length === 2 && /^[A-Z]{2}$/.test(termValue)) {
+      // É uma sigla de estado diretamente
+      stateAbbrev = termValue;
+      // A cidade é o termo anterior
+      if (i > 0) {
+        cityName = terms[i - 1]?.value || '';
+      }
+      break;
+    }
   }
   
+  // Se não encontrou, pegar o primeiro termo como cidade
+  if (!cityName && terms.length > 0) {
+    cityName = terms[0]?.value || '';
+  }
+  
+  if (cityName && stateAbbrev) {
+    return `${cityName}, ${stateAbbrev}, BR`;
+  }
+  
+  // Fallback: usar o main_text
   return prediction.structured_formatting.main_text;
 };
 
