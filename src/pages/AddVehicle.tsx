@@ -282,6 +282,8 @@ const AddVehicle = () => {
           // Owner and address
           owner_id: user.id,
           address_id: addressResult.id,
+          city: formData.city,
+          state: formData.state,
         }])
         .select()
         .single();
