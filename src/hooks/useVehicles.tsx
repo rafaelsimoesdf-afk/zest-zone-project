@@ -49,6 +49,7 @@ export const useVehicles = (filters?: {
   untilDate?: string;
   fromTime?: string;
   untilTime?: string;
+  minYear?: number;
 }) => {
   return useQuery({
     queryKey: ["vehicles", filters],
@@ -96,6 +97,10 @@ export const useVehicles = (filters?: {
 
       if (filters?.modelId && filters.modelId !== "all") {
         query = query.eq("model_id", filters.modelId);
+      }
+
+      if (filters?.minYear) {
+        query = query.gte("year", filters.minYear);
       }
 
       const { data, error } = await query;
