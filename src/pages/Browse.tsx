@@ -122,7 +122,7 @@ const Browse = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedVehicles.map((vehicle) => {
                 const primaryImage = vehicle.vehicle_images?.find(img => img.is_primary) || vehicle.vehicle_images?.[0];
-                const location = vehicle.addresses ? `${vehicle.addresses.city}, ${vehicle.addresses.state}` : "Localização não informada";
+                const location = vehicle.addresses ? `${vehicle.addresses.city}, ${vehicle.addresses.state}, BR` : "Localização não informada";
                 
                 return (
                   <Link key={vehicle.id} to={`/cars/${vehicle.id}`}>
