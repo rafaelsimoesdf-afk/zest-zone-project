@@ -28,13 +28,31 @@ const timeOptions = [
   "22:00", "22:30", "23:00", "23:30"
 ];
 
-export function TuroSearchBar() {
+interface TuroSearchBarProps {
+  initialLocation?: string;
+  initialFromDate?: string;
+  initialUntilDate?: string;
+  initialFromTime?: string;
+  initialUntilTime?: string;
+}
+
+export function TuroSearchBar({
+  initialLocation = "",
+  initialFromDate,
+  initialUntilDate,
+  initialFromTime = "10:00",
+  initialUntilTime = "10:00",
+}: TuroSearchBarProps = {}) {
   const navigate = useNavigate();
-  const [location, setLocation] = useState("");
-  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
-  const [untilDate, setUntilDate] = useState<Date | undefined>(undefined);
-  const [fromTime, setFromTime] = useState("10:00");
-  const [untilTime, setUntilTime] = useState("10:00");
+  const [location, setLocation] = useState(initialLocation);
+  const [fromDate, setFromDate] = useState<Date | undefined>(
+    initialFromDate ? new Date(initialFromDate + "T00:00:00") : undefined
+  );
+  const [untilDate, setUntilDate] = useState<Date | undefined>(
+    initialUntilDate ? new Date(initialUntilDate + "T00:00:00") : undefined
+  );
+  const [fromTime, setFromTime] = useState(initialFromTime);
+  const [untilTime, setUntilTime] = useState(initialUntilTime);
 
   const handleSearch = () => {
     const params = new URLSearchParams();

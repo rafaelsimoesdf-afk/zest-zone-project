@@ -16,13 +16,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Link } from "react-router-dom";
-import { CityAutocomplete } from "@/components/CityAutocomplete";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { TuroSearchBar } from "@/components/TuroSearchBar";
 
 const Browse = () => {
   const [searchParams] = useSearchParams();
-  const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     vehicleType: "all",
     transmission: "all",
@@ -38,30 +37,26 @@ const Browse = () => {
   });
 
   // Ler parâmetros da URL ao carregar a página
-  useEffect(() => {
-    const city = searchParams.get("city") || "";
-    const fromDate = searchParams.get("from") || undefined;
-    const untilDate = searchParams.get("until") || undefined;
-    const fromTime = searchParams.get("fromTime") || undefined;
-    const untilTime = searchParams.get("untilTime") || undefined;
+  const urlCity = searchParams.get("city") || "";
+  const urlFromDate = searchParams.get("from") || undefined;
+  const urlUntilDate = searchParams.get("until") || undefined;
+  const urlFromTime = searchParams.get("fromTime") || "10:00";
+  const urlUntilTime = searchParams.get("untilTime") || "10:00";
 
+  useEffect(() => {
     setFilters(prev => ({
       ...prev,
-      city,
-      fromDate,
-      untilDate,
-      fromTime,
-      untilTime,
+      city: urlCity,
+      fromDate: urlFromDate,
+      untilDate: urlUntilDate,
+      fromTime: urlFromTime,
+      untilTime: urlUntilTime,
     }));
-  }, [searchParams]);
+  }, [urlCity, urlFromDate, urlUntilDate, urlFromTime, urlUntilTime]);
 
   const { data: brands } = useBrands();
   const { data: models } = useModels(filters.brandId !== "all" ? filters.brandId : undefined);
   const { data: vehicles, isLoading } = useVehicles(filters);
-
-  const handleSearch = () => {
-    // Filters are already applied via the query
-  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -69,27 +64,24 @@ const Browse = () => {
 
       <main className="flex-1 pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
+          {/* Search Bar */}
           <div className="mb-8">
-            <h1 className="font-display text-4xl sm:text-5xl font-bold mb-4">
-              Encontre o Carro Perfeito
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Mais de 10.000 carros disponíveis para você
-            </p>
+            <TuroSearchBar
+              initialLocation={urlCity}
+              initialFromDate={urlFromDate}
+              initialUntilDate={urlUntilDate}
+              initialFromTime={urlFromTime}
+              initialUntilTime={urlUntilTime}
+            />
           </div>
 
-          {/* Search and Filters */}
+          {/* Filters - Always Visible */}
           <div className="bg-card border rounded-2xl p-6 mb-8 shadow-md">
-            <div className="grid lg:grid-cols-6 gap-4">
-              <div className="lg:col-span-2">
-                <CityAutocomplete
-                  value={filters.city}
-                  onChange={(city) => setFilters({ ...filters, city })}
-                  placeholder="Cidade ou endereço..."
-                  className="pl-10 h-12"
-                />
-              </div>
+            <div className="flex items-center gap-2 mb-4">
+              <SlidersHorizontal className="w-5 h-5 text-muted-foreground" />
+              <h2 className="font-semibold text-lg">Filtros</h2>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <Select
                 value={filters.brandId}
                 onValueChange={(value) => setFilters({ ...filters, brandId: value, modelId: "all" })}
@@ -138,96 +130,76 @@ const Browse = () => {
                   <SelectItem value="pickup">Pickup</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex gap-2 lg:col-span-6">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="flex-1 lg:flex-none"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <SlidersHorizontal className="w-5 h-5 mr-2" />
-                  Filtros
-                </Button>
-                <Button
-                  size="lg"
-                  className="flex-1 bg-primary text-white hover:bg-primary/90 transition-smooth"
-                >
-                  <Search className="w-5 h-5 mr-2" />
-                  Buscar
-                </Button>
-              </div>
+              <Select
+                value={filters.transmission}
+                onValueChange={(value) => setFilters({ ...filters, transmission: value })}
+              >
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Transmissão" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="manual">Manual</SelectItem>
+                  <SelectItem value="automatic">Automático</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={filters.fuel}
+                onValueChange={(value) => setFilters({ ...filters, fuel: value })}
+              >
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Combustível" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="flex">Flex</SelectItem>
+                  <SelectItem value="gasoline">Gasolina</SelectItem>
+                  <SelectItem value="diesel">Diesel</SelectItem>
+                  <SelectItem value="electric">Elétrico</SelectItem>
+                  <SelectItem value="hybrid">Híbrido</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-
-            {showFilters && (
-              <div className="mt-6 pt-6 border-t grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Select
-                  value={filters.maxPrice?.toString() || ""}
-                  onValueChange={(value) => setFilters({ ...filters, maxPrice: value ? parseFloat(value) : undefined })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Preço Máximo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="100">Até R$ 100/dia</SelectItem>
-                    <SelectItem value="150">Até R$ 150/dia</SelectItem>
-                    <SelectItem value="200">Até R$ 200/dia</SelectItem>
-                    <SelectItem value="300">Até R$ 300/dia</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={filters.transmission}
-                  onValueChange={(value) => setFilters({ ...filters, transmission: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Transmissão" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas</SelectItem>
-                    <SelectItem value="manual">Manual</SelectItem>
-                    <SelectItem value="automatic">Automático</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={filters.fuel}
-                  onValueChange={(value) => setFilters({ ...filters, fuel: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Combustível" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="flex">Flex</SelectItem>
-                    <SelectItem value="gasoline">Gasolina</SelectItem>
-                    <SelectItem value="diesel">Diesel</SelectItem>
-                    <SelectItem value="electric">Elétrico</SelectItem>
-                    <SelectItem value="hybrid">Híbrido</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Ano" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2024">2024</SelectItem>
-                    <SelectItem value="2023">2023</SelectItem>
-                    <SelectItem value="2022">2022</SelectItem>
-                    <SelectItem value="2021">2021 ou anterior</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Ordenar por" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="relevance">Relevância</SelectItem>
-                    <SelectItem value="price-low">Menor Preço</SelectItem>
-                    <SelectItem value="price-high">Maior Preço</SelectItem>
-                    <SelectItem value="rating">Melhor Avaliado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+              <Select
+                value={filters.maxPrice?.toString() || ""}
+                onValueChange={(value) => setFilters({ ...filters, maxPrice: value ? parseFloat(value) : undefined })}
+              >
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Preço Máximo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="100">Até R$ 100/dia</SelectItem>
+                  <SelectItem value="150">Até R$ 150/dia</SelectItem>
+                  <SelectItem value="200">Até R$ 200/dia</SelectItem>
+                  <SelectItem value="300">Até R$ 300/dia</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select>
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Ano" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2024">2024</SelectItem>
+                  <SelectItem value="2023">2023</SelectItem>
+                  <SelectItem value="2022">2022</SelectItem>
+                  <SelectItem value="2021">2021 ou anterior</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select>
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Ordenar por" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance">Relevância</SelectItem>
+                  <SelectItem value="price-low">Menor Preço</SelectItem>
+                  <SelectItem value="price-high">Maior Preço</SelectItem>
+                  <SelectItem value="rating">Melhor Avaliado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
 
           {/* Results */}
           <div className="mb-4">
