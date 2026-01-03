@@ -8,6 +8,7 @@ interface CityAutocompleteProps {
   onChange: (city: string) => void;
   placeholder?: string;
   className?: string;
+  hideIcon?: boolean;
 }
 
 interface Prediction {
@@ -19,7 +20,7 @@ interface Prediction {
   };
 }
 
-export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou endereço...", className }: CityAutocompleteProps) => {
+export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou endereço...", className, hideIcon = false }: CityAutocompleteProps) => {
   const [suggestions, setSuggestions] = useState<Prediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -79,7 +80,9 @@ export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou end
 
   return (
     <div className="relative">
-      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+      {!hideIcon && (
+        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+      )}
       <Input
         ref={inputRef}
         type="text"
