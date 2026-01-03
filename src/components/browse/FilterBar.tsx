@@ -9,6 +9,7 @@ import {
 import { PriceFilter } from "./PriceFilter";
 import { VehicleTypeFilter } from "./VehicleTypeFilter";
 import { YearFilter } from "./YearFilter";
+import { BrandModelFilter } from "./BrandModelFilter";
 import {
   Select,
   SelectContent,
@@ -31,6 +32,7 @@ interface FilterBarProps {
     maxYear?: number;
   };
   onFiltersChange: (filters: any) => void;
+  onBrandChange: (brandId: string) => void;
   brands?: { id: string; name: string }[];
   models?: { id: string; name: string }[];
   sortBy: string;
@@ -42,6 +44,7 @@ interface FilterBarProps {
 export const FilterBar = ({
   filters,
   onFiltersChange,
+  onBrandChange,
   brands,
   models,
   sortBy,
@@ -81,6 +84,19 @@ export const FilterBar = ({
     }).length;
   }, [vehicles, filters.vehicleType, filters.minPrice, filters.maxPrice]);
 
+  // Calculate preview count for brand/model filter
+  const getPreviewCountForBrandModel = useCallback((brandId: string, modelId: string) => {
+    return vehicles.filter((v) => {
+      // Note: We're filtering by brand name since brand_id might not be set on all vehicles
+      const brandMatch = brandId === "all" || (v as any).brand_id === brandId;
+      const modelMatch = modelId === "all" || (v as any).model_id === modelId;
+      const typeMatch = filters.vehicleType === "all" || v.vehicle_type === filters.vehicleType;
+      const priceMatch = (!filters.minPrice || v.daily_price >= filters.minPrice) && (!filters.maxPrice || v.daily_price <= filters.maxPrice);
+      const yearMatch = (!filters.minYear || v.year >= filters.minYear) && (!filters.maxYear || v.year <= filters.maxYear);
+      return brandMatch && modelMatch && typeMatch && priceMatch && yearMatch;
+    }).length;
+  }, [vehicles, filters.vehicleType, filters.minPrice, filters.maxPrice, filters.minYear, filters.maxYear]);
+
   const handlePriceChange = (minPrice: number, maxPrice: number) => {
     onFiltersChange({
       ...filters,
@@ -105,6 +121,14 @@ export const FilterBar = ({
     });
   };
 
+  const handleBrandModelChange = (brandId: string, modelId: string) => {
+    onFiltersChange({
+      ...filters,
+      brandId,
+      modelId,
+    });
+  };
+
   const resetFilter = (filterName: string) => {
     switch (filterName) {
       case "price":
@@ -115,6 +139,9 @@ export const FilterBar = ({
         break;
       case "year":
         onFiltersChange({ ...filters, minYear: undefined, maxYear: undefined });
+        break;
+      case "brandModel":
+        onFiltersChange({ ...filters, brandId: "all", modelId: "all" });
         break;
     }
   };
@@ -218,7 +245,7 @@ export const FilterBar = ({
         </PopoverContent>
       </Popover>
 
-      {/* Brand Filter */}
+      {/* Brand & Model Filter */}
       <Popover
         open={openPopover === "brand"}
         onOpenChange={(open) => setOpenPopover(open ? "brand" : null)}
@@ -226,11 +253,7 @@ export const FilterBar = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`h-10 px-4 rounded-full border-2 gap-1 ${
-              filters.brandId !== "all"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border hover:border-primary/50"
-            }`}
+            className={getFilterButtonClass(filters.brandId !== "all")}
           >
             {filters.brandId !== "all"
               ? brands?.find((b) => b.id === filters.brandId)?.name || "Marca"
@@ -239,61 +262,17 @@ export const FilterBar = ({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-72 p-4" align="start">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Marca</label>
-              <Select
-                value={filters.brandId}
-                onValueChange={(value) =>
-                  onFiltersChange({ ...filters, brandId: value, modelId: "all" })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a marca" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as Marcas</SelectItem>
-                  {brands?.map((brand) => (
-                    <SelectItem key={brand.id} value={brand.id}>
-                      {brand.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Modelo</label>
-              <Select
-                value={filters.modelId}
-                onValueChange={(value) => onFiltersChange({ ...filters, modelId: value })}
-                disabled={filters.brandId === "all"}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o modelo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os Modelos</SelectItem>
-                  {models?.map((model) => (
-                    <SelectItem key={model.id} value={model.id}>
-                      {model.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-between pt-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onFiltersChange({ ...filters, brandId: "all", modelId: "all" })}
-              >
-                Limpar
-              </Button>
-              <Button size="sm" onClick={() => setOpenPopover(null)}>
-                Ver {resultsCount} resultados
-              </Button>
-            </div>
-          </div>
+          <BrandModelFilter
+            brandId={filters.brandId}
+            modelId={filters.modelId}
+            brands={brands}
+            models={models}
+            onBrandChange={onBrandChange}
+            onChange={handleBrandModelChange}
+            onReset={() => resetFilter("brandModel")}
+            onApply={() => setOpenPopover(null)}
+            getPreviewCount={getPreviewCountForBrandModel}
+          />
         </PopoverContent>
       </Popover>
 
@@ -331,11 +310,7 @@ export const FilterBar = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`h-10 px-4 rounded-full border-2 gap-1 ${
-              filters.transmission !== "all"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border hover:border-primary/50"
-            }`}
+            className={getFilterButtonClass(filters.transmission !== "all")}
           >
             {filters.transmission === "all"
               ? "Transmissão"
@@ -376,11 +351,7 @@ export const FilterBar = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={`h-10 px-4 rounded-full border-2 gap-1 ${
-              filters.fuel !== "all"
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border hover:border-primary/50"
-            }`}
+            className={getFilterButtonClass(filters.fuel !== "all")}
           >
             {filters.fuel === "all"
               ? "Combustível"

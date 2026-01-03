@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Star } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -52,8 +52,9 @@ const Browse = () => {
     }));
   }, [urlCity, urlFromDate, urlUntilDate, urlFromTime, urlUntilTime]);
 
+  const [previewBrandId, setPreviewBrandId] = useState<string>("all");
   const { data: brands } = useBrands();
-  const { data: models } = useModels(filters.brandId !== "all" ? filters.brandId : undefined);
+  const { data: models } = useModels(previewBrandId !== "all" ? previewBrandId : (filters.brandId !== "all" ? filters.brandId : undefined));
   const { data: vehicles, isLoading } = useVehicles(filters);
 
   // Ordenar veículos
@@ -91,6 +92,7 @@ const Browse = () => {
           <FilterBar
             filters={filters}
             onFiltersChange={setFilters}
+            onBrandChange={setPreviewBrandId}
             brands={brands}
             models={models}
             sortBy={sortBy}
