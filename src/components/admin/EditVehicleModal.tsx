@@ -7,17 +7,19 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Shield, Sofa, Cpu, Car, Package } from "lucide-react";
+import { Loader2, Shield, Sofa, Cpu, Car, Package, FileText, Upload, X, ExternalLink } from "lucide-react";
 import { useBrands, useModels } from "@/hooks/useBrands";
 import { brazilianStates, getCitiesForState } from "@/hooks/useBrazilLocations";
 import { maskCurrency, parseCurrency } from "@/lib/validators";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Vehicle {
   id: string;
+  owner_id?: string;
   brand: string;
   model: string;
   brand_id?: string;
@@ -45,6 +47,7 @@ interface Vehicle {
   state: string | null;
   chassi_mascarado?: string;
   situacao_veiculo?: string;
+  document_url?: string | null;
   // Security accessories
   airbag_frontal?: boolean;
   airbag_lateral?: boolean;
@@ -104,12 +107,18 @@ const VEHICLE_STATUSES = [
 
 export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin = false }: EditVehicleModalProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
   const { data: brands } = useBrands();
   const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const { data: models } = useModels(selectedBrandId);
+
+  // Document upload state
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [documentPreview, setDocumentPreview] = useState<string | null>(null);
+  const [existingDocumentUrl, setExistingDocumentUrl] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     // Basic info
@@ -199,6 +208,11 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
       const brandId = vehicle.brand_id || "";
       setSelectedBrandId(brandId);
       
+      // Reset document state
+      setDocumentFile(null);
+      setDocumentPreview(null);
+      setExistingDocumentUrl(vehicle.document_url || null);
+      
       setFormData({
         brand_id: brandId,
         model_id: vehicle.model_id || "",
@@ -267,6 +281,23 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
     setFormData({ ...formData, [field]: checked });
   };
 
+  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Arquivo muito grande. Máximo de 10MB.");
+        return;
+      }
+      setDocumentFile(file);
+      setDocumentPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeDocument = () => {
+    setDocumentFile(null);
+    setDocumentPreview(null);
+  };
+
   const handleSaveClick = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAdmin) {
@@ -285,6 +316,28 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
       // Get brand and model names for the text fields
       const selectedBrand = brands?.find(b => b.id === formData.brand_id);
       const selectedModel = models?.find(m => m.id === formData.model_id);
+
+      // Upload new document if provided
+      let documentUrl = existingDocumentUrl;
+      if (documentFile && user) {
+        const fileExt = documentFile.name.split('.').pop();
+        const documentFileName = `${vehicle.owner_id || user.id}/${vehicle.id}/document-${Date.now()}.${fileExt}`;
+        
+        const { error: docUploadError } = await supabase.storage
+          .from('vehicle-images')
+          .upload(documentFileName, documentFile);
+
+        if (docUploadError) {
+          console.error('Document upload error:', docUploadError);
+          toast.error('Erro ao enviar documento');
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('vehicle-images')
+            .getPublicUrl(documentFileName);
+          
+          documentUrl = publicUrl;
+        }
+      }
 
       const updateData: any = {
         brand_id: formData.brand_id || null,
@@ -313,6 +366,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
         situacao_veiculo: formData.situacao_veiculo || null,
         description: formData.description || null,
         regras: formData.regras || null,
+        document_url: documentUrl,
         airbag_frontal: formData.airbag_frontal,
         airbag_lateral: formData.airbag_lateral,
         freios_abs: formData.freios_abs,
@@ -775,6 +829,96 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                     </Select>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Vehicle Document Upload */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Documento do Veículo
+                </CardTitle>
+                <CardDescription>
+                  Envie o CRLV (Certificado de Registro e Licenciamento de Veículo) ou documento equivalente
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Existing document */}
+                  {existingDocumentUrl && !documentFile && (
+                    <div className="border rounded-lg p-4 bg-muted/50">
+                      <div className="flex items-center gap-4">
+                        <FileText className="w-12 h-12 text-primary" />
+                        <div className="flex-1">
+                          <p className="font-medium">Documento enviado anteriormente</p>
+                          <p className="text-sm text-muted-foreground">
+                            Você pode enviar um novo documento para substituir
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(existingDocumentUrl, '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          Ver
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* New document preview */}
+                  {documentPreview ? (
+                    <div className="relative border rounded-lg p-4 bg-muted/50">
+                      <div className="flex items-center gap-4">
+                        <FileText className="w-12 h-12 text-primary" />
+                        <div className="flex-1">
+                          <p className="font-medium">{documentFile?.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {documentFile ? `${(documentFile.size / 1024 / 1024).toFixed(2)} MB` : ''}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={removeDocument}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Remover
+                        </Button>
+                      </div>
+                      {documentPreview && documentFile?.type.startsWith('image/') && (
+                        <div className="mt-4">
+                          <img 
+                            src={documentPreview} 
+                            alt="Preview do documento" 
+                            className="max-h-48 rounded-lg object-contain"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <label className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                      <Upload className="w-10 h-10 text-muted-foreground mb-3" />
+                      <span className="font-medium">Clique para enviar {existingDocumentUrl ? 'um novo ' : 'o '}documento</span>
+                      <span className="text-sm text-muted-foreground mt-1">
+                        PDF, JPG ou PNG (máx. 10MB)
+                      </span>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={handleDocumentChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    O documento será analisado pela nossa equipe antes da aprovação do veículo.
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
