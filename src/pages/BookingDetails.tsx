@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBooking } from "@/hooks/useBookings";
+import { useExistingReview } from "@/hooks/useReviews";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard, MessageSquare } from "lucide-react";
+import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard, MessageSquare, Star } from "lucide-react";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
 
 const statusLabels: Record<string, string> = {
   pending: "Pendente",
@@ -29,6 +32,7 @@ const BookingDetails = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: booking, isLoading } = useBooking(id || "");
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   if (isLoading) {
     return (
@@ -86,6 +90,14 @@ const BookingDetails = () => {
   
   const isOwner = user?.id === booking.owner_id;
   const isCustomer = user?.id === booking.customer_id;
+  
+  // Check if customer already reviewed the owner
+  const { data: existingReview } = useExistingReview(
+    booking.status === "completed" ? booking.id : "",
+    isCustomer ? user?.id || "" : ""
+  );
+  
+  const canReview = isCustomer && booking.status === "completed" && !existingReview;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -327,9 +339,31 @@ const BookingDetails = () => {
 
               {/* Actions */}
               <div className="space-y-2">
+                {/* Review Button - Available for completed bookings for customers who haven't reviewed yet */}
+                {canReview && (
+                  <Button 
+                    className="w-full" 
+                    variant="default"
+                    onClick={() => setShowReviewModal(true)}
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    Avaliar Proprietário
+                  </Button>
+                )}
+                {/* Show if already reviewed */}
+                {isCustomer && booking.status === 'completed' && existingReview && (
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => setShowReviewModal(true)}
+                  >
+                    <Star className="w-4 h-4 mr-2 fill-accent text-accent" />
+                    Editar Avaliação
+                  </Button>
+                )}
                 {/* Message Button - Available for confirmed, in_progress, and completed bookings */}
                 {['confirmed', 'in_progress', 'completed'].includes(booking.status) && (
-                  <Button className="w-full" asChild>
+                  <Button className="w-full" variant="outline" asChild>
                     <Link to={`/messages?booking=${booking.id}`}>
                       <MessageSquare className="w-4 h-4 mr-2" />
                       Enviar Mensagem
@@ -354,6 +388,18 @@ const BookingDetails = () => {
             </div>
           </div>
         </div>
+        
+        {/* Review Modal */}
+        {isCustomer && booking.status === 'completed' && (
+          <ReviewForm
+            open={showReviewModal}
+            onOpenChange={setShowReviewModal}
+            bookingId={booking.id}
+            reviewerId={user?.id || ""}
+            reviewedId={booking.owner_id}
+            reviewedName={ownerName}
+          />
+        )}
       </main>
       <Footer />
     </div>

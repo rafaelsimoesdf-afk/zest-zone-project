@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyBookings } from "@/hooks/useBookings";
 import Navbar from "@/components/Navbar";
@@ -5,12 +6,18 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Car } from "lucide-react";
+import { Calendar, MapPin, Car, Star } from "lucide-react";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
 
 const MyBookings = () => {
   const { user } = useAuth();
   const { data: bookings, isLoading } = useMyBookings();
+  const [reviewBooking, setReviewBooking] = useState<{
+    id: string;
+    ownerId: string;
+    ownerName: string;
+  } | null>(null);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -90,10 +97,24 @@ const MyBookings = () => {
                           <span className="text-sm">{booking.pickup_location}</span>
                         </div>
                       )}
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button variant="outline" size="sm" asChild>
                           <a href={`/booking/${booking.id}`}>Ver Detalhes</a>
                         </Button>
+                        {booking.status === 'completed' && user?.id === booking.customer_id && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setReviewBooking({
+                              id: booking.id,
+                              ownerId: booking.owner_id,
+                              ownerName: ownerName
+                            })}
+                          >
+                            <Star className="w-4 h-4 mr-1" />
+                            Avaliar
+                          </Button>
+                        )}
                         {booking.status === 'pending' && (
                           <Button variant="ghost" size="sm">Cancelar</Button>
                         )}
@@ -105,6 +126,18 @@ const MyBookings = () => {
             </div>
           )}
         </div>
+        
+        {/* Review Modal */}
+        {reviewBooking && (
+          <ReviewForm
+            open={!!reviewBooking}
+            onOpenChange={(open) => !open && setReviewBooking(null)}
+            bookingId={reviewBooking.id}
+            reviewerId={user?.id || ""}
+            reviewedId={reviewBooking.ownerId}
+            reviewedName={reviewBooking.ownerName}
+          />
+        )}
       </main>
       <Footer />
     </div>

@@ -40,6 +40,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { useVehicleBookings, getDisabledDates, isDateRangeAvailable } from "@/hooks/useVehicleBookings";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { useOwnerReviews } from "@/hooks/useReviews";
+import { OwnerReputationModal } from "@/components/reviews/OwnerReputationModal";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -51,6 +53,7 @@ const CarDetails = () => {
   const [startTime, setStartTime] = useState("10:00");
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [endTime, setEndTime] = useState("10:00");
+  const [showReputationModal, setShowReputationModal] = useState(false);
 
   // Generate time options from 06:00 to 22:00 in 30-minute intervals
   const timeOptions = [];
@@ -84,6 +87,10 @@ const CarDetails = () => {
 
   const { data: vehicle, isLoading } = useVehicle(id || "");
   const { data: vehicleBookings } = useVehicleBookings(id || "");
+  
+  // Fetch owner reviews
+  const ownerId = vehicle?.owner_id || "";
+  const { data: ownerStats } = useOwnerReviews(ownerId);
   
   // Get all disabled dates from existing bookings
   const disabledDates = getDisabledDates(vehicleBookings);
@@ -656,13 +663,15 @@ const CarDetails = () => {
                           <div className="flex items-center gap-3 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Star className="w-4 h-4 fill-accent text-accent" />
-                              <span>4.9</span>
+                              <span>{ownerStats?.average_rating.toFixed(1) || "0.0"}</span>
                             </div>
                             <span>•</span>
-                            <span>0 viagens</span>
+                            <span>{ownerStats?.total_reviews || 0} avaliações</span>
+                            <span>•</span>
+                            <span>{ownerStats?.total_trips || 0} viagens</span>
                           </div>
                         </div>
-                        <Button variant="outline" onClick={() => toast.info("Funcionalidade de avaliações em breve!")}>
+                        <Button variant="outline" onClick={() => setShowReputationModal(true)}>
                           <Star className="w-4 h-4 mr-2" />
                           Ver Reputação
                         </Button>
@@ -670,6 +679,15 @@ const CarDetails = () => {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Owner Reputation Modal */}
+                <OwnerReputationModal
+                  open={showReputationModal}
+                  onOpenChange={setShowReputationModal}
+                  ownerId={vehicle.owner_id}
+                  ownerName={`${owner?.first_name || ""} ${owner?.last_name || ""}`}
+                  ownerImage={owner?.profile_image}
+                />
               </div>
             </div>
 
