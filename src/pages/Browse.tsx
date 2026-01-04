@@ -124,8 +124,16 @@ const Browse = () => {
                 const primaryImage = vehicle.vehicle_images?.find(img => img.is_primary) || vehicle.vehicle_images?.[0];
                 const location = vehicle.city && vehicle.state ? `${vehicle.city}, ${vehicle.state}, BR` : "Localização não informada";
                 
+                // Build link with date params
+                const carLinkParams = new URLSearchParams();
+                if (filters.fromDate) carLinkParams.set("from", filters.fromDate);
+                if (filters.untilDate) carLinkParams.set("until", filters.untilDate);
+                if (filters.fromTime) carLinkParams.set("fromTime", filters.fromTime);
+                if (filters.untilTime) carLinkParams.set("untilTime", filters.untilTime);
+                const carLink = `/cars/${vehicle.id}${carLinkParams.toString() ? `?${carLinkParams.toString()}` : ""}`;
+                
                 return (
-                  <Link key={vehicle.id} to={`/cars/${vehicle.id}`}>
+                  <Link key={vehicle.id} to={carLink}>
                     <Card className="overflow-hidden group hover:shadow-xl transition-smooth border-2 hover:border-primary h-full">
                       <div className="relative h-56 overflow-hidden">
                         <img

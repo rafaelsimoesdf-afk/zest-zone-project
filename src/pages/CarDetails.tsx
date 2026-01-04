@@ -63,22 +63,22 @@ const CarDetails = () => {
 
   // Pre-fill dates from search params
   useEffect(() => {
-    const fromDate = searchParams.get("fromDate");
-    const untilDate = searchParams.get("untilDate");
-    const fromTime = searchParams.get("fromTime");
-    const untilTime = searchParams.get("untilTime");
+    const fromDateParam = searchParams.get("from");
+    const untilDateParam = searchParams.get("until");
+    const fromTimeParam = searchParams.get("fromTime");
+    const untilTimeParam = searchParams.get("untilTime");
 
-    if (fromDate) {
-      setStartDate(parseISO(fromDate));
+    if (fromDateParam) {
+      setStartDate(new Date(fromDateParam + "T00:00:00"));
     }
-    if (untilDate) {
-      setEndDate(parseISO(untilDate));
+    if (untilDateParam) {
+      setEndDate(new Date(untilDateParam + "T00:00:00"));
     }
-    if (fromTime) {
-      setStartTime(fromTime);
+    if (fromTimeParam) {
+      setStartTime(fromTimeParam);
     }
-    if (untilTime) {
-      setEndTime(untilTime);
+    if (untilTimeParam) {
+      setEndTime(untilTimeParam);
     }
   }, [searchParams]);
 
