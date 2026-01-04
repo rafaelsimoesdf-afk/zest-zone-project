@@ -205,6 +205,9 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
   useEffect(() => {
     if (vehicle) {
+      console.log('EditVehicleModal - vehicle data:', vehicle);
+      console.log('EditVehicleModal - document_url:', vehicle.document_url);
+      
       const brandId = vehicle.brand_id || "";
       setSelectedBrandId(brandId);
       
@@ -212,6 +215,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
       setDocumentFile(null);
       setDocumentPreview(null);
       setExistingDocumentUrl(vehicle.document_url || null);
+      console.log('EditVehicleModal - existingDocumentUrl set to:', vehicle.document_url || null);
       
       setFormData({
         brand_id: brandId,
