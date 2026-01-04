@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyVehicles, useDeleteVehicle } from "@/hooks/useVehicles";
 import Navbar from "@/components/Navbar";
@@ -9,11 +10,20 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Car, Plus, Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatCurrencyBRL } from "@/lib/validators";
+import EditVehicleModal from "@/components/admin/EditVehicleModal";
+import { Vehicle } from "@/hooks/useVehicles";
 
 const MyVehicles = () => {
   const { user } = useAuth();
   const { data: vehicles, isLoading } = useMyVehicles();
   const deleteVehicle = useDeleteVehicle();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
+  const handleEditVehicle = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setEditModalOpen(true);
+  };
 
   const handleDelete = (vehicleId: string) => {
     deleteVehicle.mutate(vehicleId);
@@ -110,7 +120,12 @@ const MyVehicles = () => {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="flex-1" disabled>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => handleEditVehicle(vehicle)}
+                          >
                             <Edit className="w-4 h-4 mr-2" />
                             Editar
                           </Button>
@@ -149,6 +164,12 @@ const MyVehicles = () => {
         </div>
       </main>
       <Footer />
+      
+      <EditVehicleModal
+        vehicle={selectedVehicle}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+      />
     </div>
   );
 };
