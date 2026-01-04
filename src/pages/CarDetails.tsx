@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useVehicle } from "@/hooks/useVehicles";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   ArrowLeft,
@@ -18,6 +18,14 @@ import {
   Share2,
   CheckCircle2,
   CalendarDays,
+  Gauge,
+  Car,
+  Palette,
+  FileText,
+  ShieldCheck,
+  Thermometer,
+  Radio,
+  Cog,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -36,6 +44,7 @@ import { formatCurrencyBRL } from "@/lib/validators";
 const CarDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [mainImage, setMainImage] = useState(0);
   const [startDate, setStartDate] = useState<Date | undefined>();
@@ -51,6 +60,27 @@ const CarDetails = () => {
       timeOptions.push(`${hour.toString().padStart(2, '0')}:30`);
     }
   }
+
+  // Pre-fill dates from search params
+  useEffect(() => {
+    const fromDate = searchParams.get("fromDate");
+    const untilDate = searchParams.get("untilDate");
+    const fromTime = searchParams.get("fromTime");
+    const untilTime = searchParams.get("untilTime");
+
+    if (fromDate) {
+      setStartDate(parseISO(fromDate));
+    }
+    if (untilDate) {
+      setEndDate(parseISO(untilDate));
+    }
+    if (fromTime) {
+      setStartTime(fromTime);
+    }
+    if (untilTime) {
+      setEndTime(untilTime);
+    }
+  }, [searchParams]);
 
   const { data: vehicle, isLoading } = useVehicle(id || "");
   const { data: vehicleBookings } = useVehicleBookings(id || "");
@@ -203,13 +233,31 @@ const CarDetails = () => {
                 <div>
                   <h2 className="font-bold text-xl mb-4">Especificações</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
                       <CalendarIcon className="w-5 h-5 text-primary" />
                       <div>
                         <div className="text-sm text-muted-foreground">Ano</div>
-                        <div className="font-semibold">{vehicle.year}</div>
+                        <div className="font-semibold">{vehicle.ano_modelo || vehicle.year}</div>
                       </div>
                     </div>
+                    {vehicle.ano_fabricacao && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                        <CalendarIcon className="w-5 h-5 text-primary" />
+                        <div>
+                          <div className="text-sm text-muted-foreground">Fabricação</div>
+                          <div className="font-semibold">{vehicle.ano_fabricacao}</div>
+                        </div>
+                      </div>
+                    )}
+                    {vehicle.versao && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                        <Car className="w-5 h-5 text-primary" />
+                        <div>
+                          <div className="text-sm text-muted-foreground">Versão</div>
+                          <div className="font-semibold">{vehicle.versao}</div>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
                       <Settings className="w-5 h-5 text-primary" />
                       <div>
@@ -231,8 +279,68 @@ const CarDetails = () => {
                         <div className="font-semibold">{vehicle.seats}</div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                      <Car className="w-5 h-5 text-primary" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">Portas</div>
+                        <div className="font-semibold">{vehicle.doors}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                      <Palette className="w-5 h-5 text-primary" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">Cor</div>
+                        <div className="font-semibold capitalize">{vehicle.color}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                      <Gauge className="w-5 h-5 text-primary" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">Quilometragem</div>
+                        <div className="font-semibold">{vehicle.mileage?.toLocaleString('pt-BR')} km</div>
+                      </div>
+                    </div>
+                    {vehicle.motor && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                        <Cog className="w-5 h-5 text-primary" />
+                        <div>
+                          <div className="text-sm text-muted-foreground">Motor</div>
+                          <div className="font-semibold">{vehicle.motor}</div>
+                        </div>
+                      </div>
+                    )}
+                    {vehicle.direcao && (
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                        <Settings className="w-5 h-5 text-primary" />
+                        <div>
+                          <div className="text-sm text-muted-foreground">Direção</div>
+                          <div className="font-semibold capitalize">{vehicle.direcao}</div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                      <Car className="w-5 h-5 text-primary" />
+                      <div>
+                        <div className="text-sm text-muted-foreground">Tipo</div>
+                        <div className="font-semibold capitalize">{vehicle.vehicle_type}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Caução */}
+                {vehicle.caucao && vehicle.caucao > 0 && (
+                  <>
+                    <Separator className="my-6" />
+                    <div>
+                      <h2 className="font-bold text-xl mb-4">Caução</h2>
+                      <div className="p-4 rounded-xl bg-muted/50">
+                        <span className="text-lg font-semibold text-primary">{formatCurrencyBRL(vehicle.caucao)}</span>
+                        <p className="text-sm text-muted-foreground mt-1">Valor de caução requerido pelo proprietário</p>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <Separator className="my-6" />
 
@@ -244,11 +352,87 @@ const CarDetails = () => {
                   </p>
                 </div>
 
+                {/* Rules */}
+                {vehicle.regras && (
+                  <>
+                    <Separator className="my-6" />
+                    <div>
+                      <h2 className="font-bold text-xl mb-4">Regras de Uso</h2>
+                      <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {vehicle.regras}
+                      </p>
+                    </div>
+                  </>
+                )}
+
                 <Separator className="my-6" />
 
-                {/* Features */}
+                {/* Safety Accessories */}
                 <div>
-                  <h2 className="font-bold text-xl mb-4">Recursos e Acessórios</h2>
+                  <h2 className="font-bold text-xl mb-4 flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-primary" />
+                    Segurança
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {vehicle.airbag_frontal && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Airbag Frontal</span>
+                      </div>
+                    )}
+                    {vehicle.airbag_lateral && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Airbag Lateral</span>
+                      </div>
+                    )}
+                    {vehicle.freios_abs && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Freios ABS</span>
+                      </div>
+                    )}
+                    {vehicle.controle_tracao && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Controle de Tração</span>
+                      </div>
+                    )}
+                    {vehicle.controle_estabilidade && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Controle de Estabilidade</span>
+                      </div>
+                    )}
+                    {vehicle.camera_re && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Câmera de Ré</span>
+                      </div>
+                    )}
+                    {vehicle.sensor_estacionamento && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Sensor de Estacionamento</span>
+                      </div>
+                    )}
+                    {vehicle.alarme && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Alarme</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                {/* Comfort Accessories */}
+                <div>
+                  <h2 className="font-bold text-xl mb-4 flex items-center gap-2">
+                    <Thermometer className="w-5 h-5 text-primary" />
+                    Conforto
+                  </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {vehicle.has_air_conditioning && (
                       <div className="flex items-center gap-2 text-sm">
@@ -256,14 +440,198 @@ const CarDetails = () => {
                         <span>Ar-condicionado</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2 text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-secondary" />
-                      <span>{vehicle.doors} portas</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-secondary" />
-                      <span>Cor: {vehicle.color}</span>
-                    </div>
+                    {vehicle.ar_digital && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Ar-condicionado Digital</span>
+                      </div>
+                    )}
+                    {vehicle.direcao_hidraulica && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Direção Hidráulica</span>
+                      </div>
+                    )}
+                    {vehicle.direcao_eletrica && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Direção Elétrica</span>
+                      </div>
+                    )}
+                    {vehicle.vidros_eletricos && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Vidros Elétricos</span>
+                      </div>
+                    )}
+                    {vehicle.retrovisores_eletricos && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Retrovisores Elétricos</span>
+                      </div>
+                    )}
+                    {vehicle.banco_couro && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Banco de Couro</span>
+                      </div>
+                    )}
+                    {vehicle.banco_eletrico && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Banco Elétrico</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                {/* Technology Accessories */}
+                <div>
+                  <h2 className="font-bold text-xl mb-4 flex items-center gap-2">
+                    <Radio className="w-5 h-5 text-primary" />
+                    Tecnologia
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {vehicle.multimidia && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Multimídia</span>
+                      </div>
+                    )}
+                    {vehicle.bluetooth && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Bluetooth</span>
+                      </div>
+                    )}
+                    {vehicle.android_auto && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Android Auto</span>
+                      </div>
+                    )}
+                    {vehicle.apple_carplay && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Apple CarPlay</span>
+                      </div>
+                    )}
+                    {vehicle.gps && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>GPS</span>
+                      </div>
+                    )}
+                    {vehicle.wifi && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Wi-Fi</span>
+                      </div>
+                    )}
+                    {vehicle.entrada_usb && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Entrada USB</span>
+                      </div>
+                    )}
+                    {vehicle.carregador_inducao && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Carregador por Indução</span>
+                      </div>
+                    )}
+                    {vehicle.piloto_automatico && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Piloto Automático</span>
+                      </div>
+                    )}
+                    {vehicle.start_stop && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Start/Stop</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                {/* Exterior Accessories */}
+                <div>
+                  <h2 className="font-bold text-xl mb-4 flex items-center gap-2">
+                    <Car className="w-5 h-5 text-primary" />
+                    Exterior
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {vehicle.rodas_liga_leve && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Rodas de Liga Leve</span>
+                      </div>
+                    )}
+                    {vehicle.farol_led && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Farol LED</span>
+                      </div>
+                    )}
+                    {vehicle.farol_milha && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Farol de Milha</span>
+                      </div>
+                    )}
+                    {vehicle.rack_teto && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Rack de Teto</span>
+                      </div>
+                    )}
+                    {vehicle.engate && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Engate</span>
+                      </div>
+                    )}
+                    {vehicle.sensor_chuva && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Sensor de Chuva</span>
+                      </div>
+                    )}
+                    {vehicle.sensor_crepuscular && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Sensor Crepuscular</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator className="my-6" />
+
+                {/* Other Accessories */}
+                <div>
+                  <h2 className="font-bold text-xl mb-4 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary" />
+                    Outros
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {vehicle.chave_reserva && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Chave Reserva</span>
+                      </div>
+                    )}
+                    {vehicle.manual_veiculo && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="w-4 h-4 text-secondary" />
+                        <span>Manual do Veículo</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
