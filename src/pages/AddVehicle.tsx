@@ -293,28 +293,40 @@ const AddVehicle = () => {
       // Upload vehicle document if provided
       let documentUrl = null;
       if (documentFile) {
+        console.log('Uploading vehicle document...', documentFile.name);
         const fileExt = documentFile.name.split('.').pop();
         const documentFileName = `${user.id}/${vehicle.id}/document-${Date.now()}.${fileExt}`;
         
+        console.log('Document path:', documentFileName);
         const { error: docUploadError } = await supabase.storage
           .from('vehicle-images')
           .upload(documentFileName, documentFile);
 
         if (docUploadError) {
           console.error('Document upload error:', docUploadError);
+          toast.error('Erro ao enviar documento do veículo');
         } else {
           const { data: { publicUrl } } = supabase.storage
             .from('vehicle-images')
             .getPublicUrl(documentFileName);
           
           documentUrl = publicUrl;
+          console.log('Document uploaded successfully:', documentUrl);
           
           // Update vehicle with document URL
-          await supabase
+          const { error: updateError } = await supabase
             .from("vehicles")
             .update({ document_url: documentUrl })
             .eq("id", vehicle.id);
+          
+          if (updateError) {
+            console.error('Error updating vehicle with document URL:', updateError);
+          } else {
+            console.log('Vehicle updated with document URL');
+          }
         }
+      } else {
+        console.log('No document file to upload');
       }
 
       // Upload images to Supabase Storage
