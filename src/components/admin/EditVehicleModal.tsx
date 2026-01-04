@@ -14,7 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Shield, Sofa, Cpu, Car, Package, FileText, Upload, X, ExternalLink } from "lucide-react";
 import { useBrands, useModels } from "@/hooks/useBrands";
 import { brazilianStates, getCitiesForState } from "@/hooks/useBrazilLocations";
-import { maskCurrency, parseCurrency } from "@/lib/validators";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface Vehicle {
@@ -743,36 +743,20 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="daily_price">Preço por Dia *</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
-                      <Input
-                        id="daily_price"
-                        required
-                        value={formData.daily_price ? maskCurrency(formData.daily_price) : ''}
-                        onChange={(e) => {
-                          const value = parseCurrency(e.target.value);
-                          setFormData({ ...formData, daily_price: value });
-                        }}
-                        placeholder="150,00"
-                        className="pl-10"
-                      />
-                    </div>
+                    <CurrencyInput
+                      id="daily_price"
+                      required
+                      value={formData.daily_price}
+                      onChange={(value) => setFormData({ ...formData, daily_price: value })}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="caucao">Caução</Label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
-                      <Input
-                        id="caucao"
-                        value={formData.caucao ? maskCurrency(formData.caucao) : ''}
-                        onChange={(e) => {
-                          const value = parseCurrency(e.target.value);
-                          setFormData({ ...formData, caucao: value });
-                        }}
-                        placeholder="500,00"
-                        className="pl-10"
-                      />
-                    </div>
+                    <CurrencyInput
+                      id="caucao"
+                      value={formData.caucao}
+                      onChange={(value) => setFormData({ ...formData, caucao: value })}
+                    />
                   </div>
                 </div>
               </CardContent>
