@@ -18,10 +18,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 const BecomeOwner = () => {
   const [dailyPrice, setDailyPrice] = useState(150);
-  const [dailyPriceInput, setDailyPriceInput] = useState("R$ 150");
   const [availableDays, setAvailableDays] = useState(20);
   const [availableDaysInput, setAvailableDaysInput] = useState("20");
   
@@ -38,27 +38,6 @@ const BecomeOwner = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
-  };
-
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    const numericValue = parseInt(rawValue) || 0;
-    setDailyPrice(numericValue);
-    setDailyPriceInput(numericValue > 0 ? formatCurrency(numericValue) : '');
-  };
-
-  const handlePriceFocus = () => {
-    if (dailyPrice > 0) {
-      setDailyPriceInput(dailyPrice.toString());
-    }
-  };
-
-  const handlePriceBlur = () => {
-    if (dailyPrice > 0) {
-      setDailyPriceInput(formatCurrency(dailyPrice));
-    } else {
-      setDailyPriceInput('');
-    }
   };
 
   const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -183,14 +162,10 @@ const BecomeOwner = () => {
                     <label className="text-sm font-medium mb-2 block text-left">
                       Preço da diária
                     </label>
-                    <Input
-                      type="text"
-                      placeholder="R$ 0"
+                    <CurrencyInput
                       className="h-12"
-                      value={dailyPriceInput}
-                      onChange={handlePriceChange}
-                      onFocus={handlePriceFocus}
-                      onBlur={handlePriceBlur}
+                      value={dailyPrice}
+                      onChange={setDailyPrice}
                     />
                   </div>
                   <div>
