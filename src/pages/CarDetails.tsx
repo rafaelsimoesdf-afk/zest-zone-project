@@ -14,7 +14,7 @@ import {
   Settings,
   Calendar as CalendarIcon,
   Shield,
-  MessageSquare,
+  
   Share2,
   CheckCircle2,
   CalendarDays,
@@ -662,9 +662,9 @@ const CarDetails = () => {
                             <span>0 viagens</span>
                           </div>
                         </div>
-                        <Button variant="outline">
-                          <MessageSquare className="w-4 h-4 mr-2" />
-                          Conversar
+                        <Button variant="outline" onClick={() => toast.info("Funcionalidade de avaliações em breve!")}>
+                          <Star className="w-4 h-4 mr-2" />
+                          Ver Reputação
                         </Button>
                       </div>
                     </CardContent>
