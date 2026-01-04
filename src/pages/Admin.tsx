@@ -679,6 +679,7 @@ const Admin = () => {
         vehicle={selectedVehicle}
         open={editVehicleModalOpen}
         onOpenChange={setEditVehicleModalOpen}
+        isAdmin={true}
       />
     </div>
   );
