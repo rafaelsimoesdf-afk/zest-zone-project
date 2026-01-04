@@ -6,8 +6,14 @@ export interface Vehicle {
   id: string;
   brand: string;
   model: string;
+  brand_id?: string | null;
+  model_id?: string | null;
   year: number;
+  ano_fabricacao?: number | null;
+  ano_modelo?: number | null;
+  versao?: string | null;
   daily_price: number;
+  caucao?: number | null;
   vehicle_type: string;
   transmission_type: string;
   fuel_type: string;
@@ -15,15 +21,61 @@ export interface Vehicle {
   doors: number;
   color: string;
   mileage: number;
+  motor?: string | null;
+  direcao?: string | null;
   description: string | null;
+  regras?: string | null;
   has_air_conditioning: boolean;
   license_plate: string;
+  chassi_mascarado?: string | null;
+  situacao_veiculo?: string | null;
+  document_url?: string | null;
+  document_verified?: boolean | null;
   status: string;
   owner_id: string;
   address_id: string | null;
   city: string | null;
   state: string | null;
   created_at: string;
+  // Security accessories
+  airbag_frontal?: boolean | null;
+  airbag_lateral?: boolean | null;
+  freios_abs?: boolean | null;
+  controle_tracao?: boolean | null;
+  controle_estabilidade?: boolean | null;
+  camera_re?: boolean | null;
+  sensor_estacionamento?: boolean | null;
+  alarme?: boolean | null;
+  // Comfort accessories
+  ar_digital?: boolean | null;
+  direcao_hidraulica?: boolean | null;
+  direcao_eletrica?: boolean | null;
+  vidros_eletricos?: boolean | null;
+  retrovisores_eletricos?: boolean | null;
+  banco_couro?: boolean | null;
+  banco_eletrico?: boolean | null;
+  // Technology accessories
+  multimidia?: boolean | null;
+  bluetooth?: boolean | null;
+  android_auto?: boolean | null;
+  apple_carplay?: boolean | null;
+  gps?: boolean | null;
+  wifi?: boolean | null;
+  entrada_usb?: boolean | null;
+  carregador_inducao?: boolean | null;
+  piloto_automatico?: boolean | null;
+  start_stop?: boolean | null;
+  // Exterior accessories
+  rodas_liga_leve?: boolean | null;
+  farol_led?: boolean | null;
+  farol_milha?: boolean | null;
+  rack_teto?: boolean | null;
+  engate?: boolean | null;
+  // Other accessories
+  chave_reserva?: boolean | null;
+  manual_veiculo?: boolean | null;
+  sensor_chuva?: boolean | null;
+  sensor_crepuscular?: boolean | null;
   vehicle_images?: Array<{
     id: string;
     image_url: string;
