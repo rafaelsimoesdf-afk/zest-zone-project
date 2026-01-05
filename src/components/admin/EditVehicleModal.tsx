@@ -439,24 +439,24 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editar Veículo</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader className="pb-2 sm:pb-4">
+            <DialogTitle className="text-base sm:text-lg">Editar Veículo</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
               Edite as informações do veículo {vehicle?.brand} {vehicle?.model}
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSaveClick} className="space-y-6">
+          <form onSubmit={handleSaveClick} className="space-y-4 sm:space-y-6">
             {/* Basic Info */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Informações Básicas</CardTitle>
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg">Informações Básicas</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="brand">Marca *</Label>
+              <CardContent className="p-3 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="brand" className="text-xs sm:text-sm">Marca *</Label>
                     <Select
                       value={formData.brand_id}
                       onValueChange={(value) => {
@@ -464,7 +464,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                         setSelectedBrandId(value);
                       }}
                     >
-                      <SelectTrigger id="brand">
+                      <SelectTrigger id="brand" className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue placeholder="Selecione a marca" />
                       </SelectTrigger>
                       <SelectContent>
@@ -476,14 +476,14 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="model">Modelo *</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="model" className="text-xs sm:text-sm">Modelo *</Label>
                     <Select
                       value={formData.model_id}
                       onValueChange={(value) => setFormData({ ...formData, model_id: value })}
                       disabled={!selectedBrandId}
                     >
-                      <SelectTrigger id="model">
+                      <SelectTrigger id="model" className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue placeholder={selectedBrandId ? "Selecione o modelo" : "Selecione a marca primeiro"} />
                       </SelectTrigger>
                       <SelectContent>
@@ -497,20 +497,22 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="versao">Versão</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="versao" className="text-xs sm:text-sm">Versão</Label>
                     <Input
                       id="versao"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       value={formData.versao}
                       onChange={(e) => setFormData({ ...formData, versao: e.target.value })}
                       placeholder="Ex: LTZ, Premier, Limited"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="license_plate">Placa *</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="license_plate" className="text-xs sm:text-sm">Placa *</Label>
                     <Input
                       id="license_plate"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       required
                       value={formData.license_plate}
                       onChange={(e) => setFormData({ ...formData, license_plate: e.target.value.toUpperCase() })}
@@ -520,11 +522,12 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="ano_fabricacao">Ano de Fabricação *</Label>
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="ano_fabricacao" className="text-xs sm:text-sm">Ano Fabricação *</Label>
                     <Input
                       id="ano_fabricacao"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
                       required
                       min="1900"
@@ -533,10 +536,11 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       onChange={(e) => setFormData({ ...formData, ano_fabricacao: parseInt(e.target.value) })}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="ano_modelo">Ano do Modelo *</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="ano_modelo" className="text-xs sm:text-sm">Ano Modelo *</Label>
                     <Input
                       id="ano_modelo"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
                       required
                       min="1900"
@@ -547,24 +551,25 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="color">Cor *</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="color" className="text-xs sm:text-sm">Cor *</Label>
                     <Input
                       id="color"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       required
                       value={formData.color}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      placeholder="Ex: Preto, Prata"
+                      placeholder="Ex: Preto"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="vehicle_type">Categoria *</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="vehicle_type" className="text-xs sm:text-sm">Categoria *</Label>
                     <Select
                       value={formData.vehicle_type}
                       onValueChange={(value) => setFormData({ ...formData, vehicle_type: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -579,25 +584,26 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="motor">Motor</Label>
+                  <div className="space-y-1.5 sm:space-y-2 col-span-2 sm:col-span-1">
+                    <Label htmlFor="motor" className="text-xs sm:text-sm">Motor</Label>
                     <Input
                       id="motor"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       value={formData.motor}
                       onChange={(e) => setFormData({ ...formData, motor: e.target.value })}
-                      placeholder="Ex: 1.0, 1.6, 2.0 Turbo"
+                      placeholder="Ex: 1.0, 2.0 Turbo"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fuel_type">Combustível *</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="fuel_type" className="text-xs sm:text-sm">Combustível *</Label>
                     <Select
                       value={formData.fuel_type}
                       onValueChange={(value) => setFormData({ ...formData, fuel_type: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -610,13 +616,13 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="transmission_type">Câmbio *</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="transmission_type" className="text-xs sm:text-sm">Câmbio *</Label>
                     <Select
                       value={formData.transmission_type}
                       onValueChange={(value) => setFormData({ ...formData, transmission_type: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -626,13 +632,13 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="direcao">Direção *</Label>
+                  <div className="space-y-1.5 sm:space-y-2 col-span-2 sm:col-span-1">
+                    <Label htmlFor="direcao" className="text-xs sm:text-sm">Direção *</Label>
                     <Select
                       value={formData.direcao}
                       onValueChange={(value) => setFormData({ ...formData, direcao: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -645,11 +651,12 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="doors">Portas *</Label>
+                <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="doors" className="text-xs sm:text-sm">Portas *</Label>
                     <Input
                       id="doors"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
                       required
                       min="2"
@@ -658,10 +665,11 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       onChange={(e) => setFormData({ ...formData, doors: parseInt(e.target.value) })}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="seats">Assentos *</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="seats" className="text-xs sm:text-sm">Assentos *</Label>
                     <Input
                       id="seats"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
                       required
                       min="2"
@@ -670,10 +678,11 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       onChange={(e) => setFormData({ ...formData, seats: parseInt(e.target.value) })}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="mileage">Quilometragem *</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="mileage" className="text-xs sm:text-sm">KM *</Label>
                     <Input
                       id="mileage"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
                       required
                       min="0"
@@ -688,18 +697,18 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Location */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Localização do Veículo</CardTitle>
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg">Localização do Veículo</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="state">Estado *</Label>
+              <CardContent className="p-3 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="state" className="text-xs sm:text-sm">Estado *</Label>
                     <Select
                       value={formData.state}
                       onValueChange={(value) => setFormData({ ...formData, state: value, city: "" })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue placeholder="Selecione o estado" />
                       </SelectTrigger>
                       <SelectContent>
@@ -711,14 +720,14 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Cidade *</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="city" className="text-xs sm:text-sm">Cidade *</Label>
                     <Select
                       value={formData.city}
                       onValueChange={(value) => setFormData({ ...formData, city: value })}
                       disabled={!formData.state}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue placeholder={formData.state ? "Selecione a cidade" : "Selecione o estado primeiro"} />
                       </SelectTrigger>
                       <SelectContent>
@@ -736,24 +745,26 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Financial */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Finanças</CardTitle>
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg">Finanças</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="daily_price">Preço por Dia *</Label>
+              <CardContent className="p-3 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="daily_price" className="text-xs sm:text-sm">Preço/Dia *</Label>
                     <CurrencyInput
                       id="daily_price"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       required
                       value={formData.daily_price}
                       onChange={(value) => setFormData({ ...formData, daily_price: value })}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="caucao">Caução</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="caucao" className="text-xs sm:text-sm">Caução</Label>
                     <CurrencyInput
                       id="caucao"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       value={formData.caucao}
                       onChange={(value) => setFormData({ ...formData, caucao: value })}
                     />
@@ -764,27 +775,28 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Documentation */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Documentação / Status</CardTitle>
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg">Documentação / Status</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="chassi_mascarado">Chassi (Mascarado)</Label>
+              <CardContent className="p-3 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="chassi_mascarado" className="text-xs sm:text-sm">Chassi (Mascarado)</Label>
                     <Input
                       id="chassi_mascarado"
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                       value={formData.chassi_mascarado}
                       onChange={(e) => setFormData({ ...formData, chassi_mascarado: e.target.value.toUpperCase() })}
-                      placeholder="Ex: 9BW***********1234"
+                      placeholder="Ex: 9BW***1234"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="situacao_veiculo">Situação do Veículo</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="situacao_veiculo" className="text-xs sm:text-sm">Situação</Label>
                     <Select
                       value={formData.situacao_veiculo}
                       onValueChange={(value) => setFormData({ ...formData, situacao_veiculo: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -798,13 +810,13 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                 </div>
 
                 {isAdmin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Status do Anúncio</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="status" className="text-xs sm:text-sm">Status do Anúncio</Label>
                     <Select
                       value={formData.status}
                       onValueChange={(value) => setFormData({ ...formData, status: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -822,36 +834,37 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Vehicle Document Upload */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                   Documento do Veículo
                 </CardTitle>
-                <CardDescription>
-                  Envie o CRLV (Certificado de Registro e Licenciamento de Veículo) ou documento equivalente
+                <CardDescription className="text-xs sm:text-sm">
+                  Envie o CRLV ou documento equivalente
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-3 sm:space-y-4">
                   {/* Existing document */}
                   {existingDocumentUrl && !documentFile && (
-                    <div className="border rounded-lg p-4 bg-muted/50">
-                      <div className="flex items-center gap-4">
-                        <FileText className="w-12 h-12 text-primary" />
-                        <div className="flex-1">
-                          <p className="font-medium">Documento enviado anteriormente</p>
-                          <p className="text-sm text-muted-foreground">
-                            Você pode enviar um novo documento para substituir
+                    <div className="border rounded-lg p-3 sm:p-4 bg-muted/50">
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        <FileText className="w-8 h-8 sm:w-12 sm:h-12 text-primary shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-xs sm:text-sm">Documento enviado</p>
+                          <p className="text-[10px] sm:text-sm text-muted-foreground truncate">
+                            Envie um novo para substituir
                           </p>
                         </div>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
+                          className="text-xs h-7 sm:h-8 px-2 sm:px-3"
                           onClick={() => window.open(existingDocumentUrl, '_blank')}
                         >
-                          <ExternalLink className="h-4 w-4 mr-1" />
-                          Ver
+                          <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Ver</span>
                         </Button>
                       </div>
                     </div>
@@ -859,12 +872,12 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
                   {/* New document preview */}
                   {documentPreview ? (
-                    <div className="relative border rounded-lg p-4 bg-muted/50">
-                      <div className="flex items-center gap-4">
-                        <FileText className="w-12 h-12 text-primary" />
-                        <div className="flex-1">
-                          <p className="font-medium">{documentFile?.name}</p>
-                          <p className="text-sm text-muted-foreground">
+                    <div className="relative border rounded-lg p-3 sm:p-4 bg-muted/50">
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        <FileText className="w-8 h-8 sm:w-12 sm:h-12 text-primary shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-xs sm:text-sm truncate">{documentFile?.name}</p>
+                          <p className="text-[10px] sm:text-sm text-muted-foreground">
                             {documentFile ? `${(documentFile.size / 1024 / 1024).toFixed(2)} MB` : ''}
                           </p>
                         </div>
@@ -872,27 +885,28 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                           type="button"
                           variant="destructive"
                           size="sm"
+                          className="text-xs h-7 sm:h-8 px-2 sm:px-3"
                           onClick={removeDocument}
                         >
-                          <X className="h-4 w-4 mr-1" />
-                          Remover
+                          <X className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Remover</span>
                         </Button>
                       </div>
                       {documentPreview && documentFile?.type.startsWith('image/') && (
-                        <div className="mt-4">
+                        <div className="mt-3 sm:mt-4">
                           <img 
                             src={documentPreview} 
                             alt="Preview do documento" 
-                            className="max-h-48 rounded-lg object-contain"
+                            className="max-h-32 sm:max-h-48 rounded-lg object-contain"
                           />
                         </div>
                       )}
                     </div>
                   ) : (
-                    <label className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
-                      <Upload className="w-10 h-10 text-muted-foreground mb-3" />
-                      <span className="font-medium">Clique para enviar {existingDocumentUrl ? 'um novo ' : 'o '}documento</span>
-                      <span className="text-sm text-muted-foreground mt-1">
+                    <label className="border-2 border-dashed rounded-lg p-4 sm:p-8 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                      <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground mb-2 sm:mb-3" />
+                      <span className="font-medium text-xs sm:text-base text-center">Clique para enviar documento</span>
+                      <span className="text-[10px] sm:text-sm text-muted-foreground mt-1">
                         PDF, JPG ou PNG (máx. 10MB)
                       </span>
                       <input
@@ -903,8 +917,8 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       />
                     </label>
                   )}
-                  <p className="text-sm text-muted-foreground">
-                    O documento será analisado pela nossa equipe antes da aprovação do veículo.
+                  <p className="text-[10px] sm:text-sm text-muted-foreground">
+                    O documento será analisado antes da aprovação.
                   </p>
                 </div>
               </CardContent>
@@ -912,31 +926,31 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Security Accessories */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
                   Segurança
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
                     { id: "airbag_frontal", label: "Airbag Frontal" },
                     { id: "airbag_lateral", label: "Airbag Lateral" },
                     { id: "freios_abs", label: "Freios ABS" },
-                    { id: "controle_tracao", label: "Controle de Tração" },
-                    { id: "controle_estabilidade", label: "Controle de Estabilidade" },
+                    { id: "controle_tracao", label: "Controle Tração" },
+                    { id: "controle_estabilidade", label: "Estabilidade" },
                     { id: "camera_re", label: "Câmera de Ré" },
-                    { id: "sensor_estacionamento", label: "Sensor de Estacionamento" },
+                    { id: "sensor_estacionamento", label: "Sensor Estac." },
                     { id: "alarme", label: "Alarme" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-[10px] sm:text-sm leading-tight">
                         {item.label}
                       </Label>
                     </div>
@@ -947,31 +961,31 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Comfort Accessories */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Sofa className="w-5 h-5" />
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                  <Sofa className="w-4 h-4 sm:w-5 sm:h-5" />
                   Conforto
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
-                    { id: "has_air_conditioning", label: "Ar Condicionado" },
+                    { id: "has_air_conditioning", label: "Ar Cond." },
                     { id: "ar_digital", label: "Ar Digital" },
-                    { id: "direcao_hidraulica", label: "Direção Hidráulica" },
-                    { id: "direcao_eletrica", label: "Direção Elétrica" },
-                    { id: "vidros_eletricos", label: "Vidros Elétricos" },
-                    { id: "retrovisores_eletricos", label: "Retrovisores Elétricos" },
-                    { id: "banco_couro", label: "Banco de Couro" },
+                    { id: "direcao_hidraulica", label: "Dir. Hidráulica" },
+                    { id: "direcao_eletrica", label: "Dir. Elétrica" },
+                    { id: "vidros_eletricos", label: "Vidros Elét." },
+                    { id: "retrovisores_eletricos", label: "Retrov. Elét." },
+                    { id: "banco_couro", label: "Banco Couro" },
                     { id: "banco_eletrico", label: "Banco Elétrico" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-[10px] sm:text-sm leading-tight">
                         {item.label}
                       </Label>
                     </div>
@@ -982,14 +996,14 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Technology Accessories */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Cpu className="w-5 h-5" />
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                  <Cpu className="w-4 h-4 sm:w-5 sm:h-5" />
                   Tecnologia
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
                     { id: "multimidia", label: "Multimídia" },
                     { id: "bluetooth", label: "Bluetooth" },
@@ -998,17 +1012,17 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                     { id: "gps", label: "GPS" },
                     { id: "wifi", label: "Wi-Fi" },
                     { id: "entrada_usb", label: "Entrada USB" },
-                    { id: "carregador_inducao", label: "Carregador por Indução" },
-                    { id: "piloto_automatico", label: "Piloto Automático" },
+                    { id: "carregador_inducao", label: "Carreg. Indução" },
+                    { id: "piloto_automatico", label: "Piloto Autom." },
                     { id: "start_stop", label: "Start/Stop" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-[10px] sm:text-sm leading-tight">
                         {item.label}
                       </Label>
                     </div>
@@ -1019,28 +1033,28 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Exterior Accessories */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Car className="w-5 h-5" />
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                  <Car className="w-4 h-4 sm:w-5 sm:h-5" />
                   Exterior
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
-                    { id: "rodas_liga_leve", label: "Rodas de Liga Leve" },
+                    { id: "rodas_liga_leve", label: "Rodas Liga Leve" },
                     { id: "farol_led", label: "Farol LED" },
-                    { id: "farol_milha", label: "Farol de Milha" },
-                    { id: "rack_teto", label: "Rack de Teto" },
+                    { id: "farol_milha", label: "Farol Milha" },
+                    { id: "rack_teto", label: "Rack Teto" },
                     { id: "engate", label: "Engate" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-[10px] sm:text-sm leading-tight">
                         {item.label}
                       </Label>
                     </div>
@@ -1051,27 +1065,27 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Other Accessories */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Package className="w-5 h-5" />
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5" />
                   Outros
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
                     { id: "chave_reserva", label: "Chave Reserva" },
-                    { id: "manual_veiculo", label: "Manual do Veículo" },
-                    { id: "sensor_chuva", label: "Sensor de Chuva" },
-                    { id: "sensor_crepuscular", label: "Sensor Crepuscular" },
+                    { id: "manual_veiculo", label: "Manual Veículo" },
+                    { id: "sensor_chuva", label: "Sensor Chuva" },
+                    { id: "sensor_crepuscular", label: "Sensor Crep." },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-[10px] sm:text-sm leading-tight">
                         {item.label}
                       </Label>
                     </div>
@@ -1082,18 +1096,19 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Description */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Descrição</CardTitle>
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg">Descrição</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Descrição do Veículo</Label>
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="description" className="text-xs sm:text-sm">Descrição do Veículo</Label>
                   <Textarea
                     id="description"
+                    className="text-xs sm:text-sm min-h-[80px] sm:min-h-[100px]"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Descreva seu veículo, seu estado de conservação, manutenções recentes, diferenciais, etc."
-                    rows={4}
+                    placeholder="Descreva seu veículo, estado de conservação, manutenções, etc."
+                    rows={3}
                   />
                 </div>
               </CardContent>
@@ -1101,29 +1116,30 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
             {/* Owner Rules */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Regras do Proprietário</CardTitle>
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg">Regras do Proprietário</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Label htmlFor="regras">Regras</Label>
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="regras" className="text-xs sm:text-sm">Regras</Label>
                   <Textarea
                     id="regras"
+                    className="text-xs sm:text-sm min-h-[80px] sm:min-h-[100px]"
                     value={formData.regras}
                     onChange={(e) => setFormData({ ...formData, regras: e.target.value })}
-                    placeholder="Ex: Proibido fumar no veículo, devolução com tanque cheio, limite de quilometragem diária, etc."
-                    rows={4}
+                    placeholder="Ex: Proibido fumar, devolução com tanque cheio, etc."
+                    rows={3}
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="text-xs sm:text-sm h-9 sm:h-10">
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={isLoading} className="text-xs sm:text-sm h-9 sm:h-10">
+                {isLoading && <Loader2 className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />}
                 Salvar Alterações
               </Button>
             </DialogFooter>
@@ -1133,26 +1149,26 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
 
       {/* Confirmation Dialog for non-admin users */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[90vw] sm:max-w-lg p-4 sm:p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar Alterações</AlertDialogTitle>
-            <AlertDialogDescription className="space-y-2">
+            <AlertDialogTitle className="text-base sm:text-lg">Confirmar Alterações</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2 text-xs sm:text-sm">
               <p>
-                Ao salvar as alterações, seu veículo ficará <strong>pendente de validação</strong> por um administrador.
+                Ao salvar, seu veículo ficará <strong>pendente de validação</strong> por um administrador.
               </p>
               <p>
-                Durante este período, o veículo <strong>não ficará visível</strong> para outros usuários até que a validação seja concluída.
+                O veículo <strong>não ficará visível</strong> até a validação ser concluída.
               </p>
               <p className="text-muted-foreground">
-                O processo de validação pode demorar até <strong>24 horas</strong>.
+                Validação em até <strong>24 horas</strong>.
               </p>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSubmit} disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Confirmar mesmo assim
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <AlertDialogCancel className="text-xs sm:text-sm h-9 sm:h-10">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSubmit} disabled={isLoading} className="text-xs sm:text-sm h-9 sm:h-10">
+              {isLoading && <Loader2 className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />}
+              Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
