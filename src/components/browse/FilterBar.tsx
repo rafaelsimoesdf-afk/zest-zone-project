@@ -182,221 +182,231 @@ export const FilterBar = ({
   };
 
   const getFilterButtonClass = (isActive: boolean) =>
-    `h-10 px-4 rounded-full border-2 gap-1 ${
+    `h-8 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm rounded-full border-2 gap-1 ${
       isActive
         ? "border-primary bg-primary/10 text-primary"
         : "border-border hover:border-primary/50"
     }`;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 p-4 bg-card border rounded-xl mb-6">
-      <div className="flex items-center gap-1 text-muted-foreground mr-2">
+    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 p-3 sm:p-4 bg-card border rounded-xl mb-4 sm:mb-6">
+      {/* Filter icon - hidden on mobile for more space */}
+      <div className="hidden sm:flex items-center gap-1 text-muted-foreground mr-2">
         <SlidersHorizontal className="w-4 h-4" />
       </div>
 
-      {/* Price Filter */}
-      <Popover
-        open={openPopover === "price"}
-        onOpenChange={(open) => setOpenPopover(open ? "price" : null)}
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={getFilterButtonClass(!!(filters.minPrice || filters.maxPrice))}
-          >
-            {getPriceLabel()}
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80 p-4" align="start">
-          <PriceFilter
-            minPrice={filters.minPrice || 10}
-            maxPrice={filters.maxPrice || 500}
-            onChange={handlePriceChange}
-            onReset={() => resetFilter("price")}
-            onApply={() => setOpenPopover(null)}
-            getPreviewCount={getPreviewCountForPrice}
-          />
-        </PopoverContent>
-      </Popover>
+      {/* Filters grid for mobile, flex wrap for desktop */}
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 flex-1">
+        {/* Price Filter */}
+        <Popover
+          open={openPopover === "price"}
+          onOpenChange={(open) => setOpenPopover(open ? "price" : null)}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={getFilterButtonClass(!!(filters.minPrice || filters.maxPrice))}
+            >
+              <span className="truncate">{getPriceLabel()}</span>
+              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 p-4" align="start">
+            <PriceFilter
+              minPrice={filters.minPrice || 10}
+              maxPrice={filters.maxPrice || 500}
+              onChange={handlePriceChange}
+              onReset={() => resetFilter("price")}
+              onApply={() => setOpenPopover(null)}
+              getPreviewCount={getPreviewCountForPrice}
+            />
+          </PopoverContent>
+        </Popover>
 
-      {/* Vehicle Type Filter */}
-      <Popover
-        open={openPopover === "vehicleType"}
-        onOpenChange={(open) => setOpenPopover(open ? "vehicleType" : null)}
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={getFilterButtonClass(filters.vehicleType !== "all")}
-          >
-            {getVehicleTypeLabel()}
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[400px] p-4" align="start">
-          <VehicleTypeFilter
-            selectedTypes={filters.vehicleType !== "all" ? [filters.vehicleType] : []}
-            onChange={handleVehicleTypeChange}
-            onReset={() => resetFilter("vehicleType")}
-            onApply={() => setOpenPopover(null)}
-            getPreviewCount={getPreviewCountForType}
-          />
-        </PopoverContent>
-      </Popover>
+        {/* Vehicle Type Filter */}
+        <Popover
+          open={openPopover === "vehicleType"}
+          onOpenChange={(open) => setOpenPopover(open ? "vehicleType" : null)}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={getFilterButtonClass(filters.vehicleType !== "all")}
+            >
+              <span className="truncate">{getVehicleTypeLabel()}</span>
+              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-4" align="start">
+            <VehicleTypeFilter
+              selectedTypes={filters.vehicleType !== "all" ? [filters.vehicleType] : []}
+              onChange={handleVehicleTypeChange}
+              onReset={() => resetFilter("vehicleType")}
+              onApply={() => setOpenPopover(null)}
+              getPreviewCount={getPreviewCountForType}
+            />
+          </PopoverContent>
+        </Popover>
 
-      {/* Brand & Model Filter */}
-      <Popover
-        open={openPopover === "brand"}
-        onOpenChange={(open) => setOpenPopover(open ? "brand" : null)}
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={getFilterButtonClass(filters.brandId !== "all")}
-          >
-            {filters.brandId !== "all"
-              ? brands?.find((b) => b.id === filters.brandId)?.name || "Marca"
-              : "Marca & Modelo"}
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-72 p-4" align="start">
-          <BrandModelFilter
-            brandId={filters.brandId}
-            modelId={filters.modelId}
-            brands={brands}
-            models={models}
-            onBrandChange={onBrandChange}
-            onChange={handleBrandModelChange}
-            onReset={() => resetFilter("brandModel")}
-            onApply={() => setOpenPopover(null)}
-            getPreviewCount={getPreviewCountForBrandModel}
-          />
-        </PopoverContent>
-      </Popover>
+        {/* Brand & Model Filter */}
+        <Popover
+          open={openPopover === "brand"}
+          onOpenChange={(open) => setOpenPopover(open ? "brand" : null)}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={getFilterButtonClass(filters.brandId !== "all")}
+            >
+              <span className="truncate">
+                {filters.brandId !== "all"
+                  ? brands?.find((b) => b.id === filters.brandId)?.name || "Marca"
+                  : "Marca & Modelo"}
+              </span>
+              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-72 p-4" align="start">
+            <BrandModelFilter
+              brandId={filters.brandId}
+              modelId={filters.modelId}
+              brands={brands}
+              models={models}
+              onBrandChange={onBrandChange}
+              onChange={handleBrandModelChange}
+              onReset={() => resetFilter("brandModel")}
+              onApply={() => setOpenPopover(null)}
+              getPreviewCount={getPreviewCountForBrandModel}
+            />
+          </PopoverContent>
+        </Popover>
 
-      {/* Year Filter */}
-      <Popover
-        open={openPopover === "year"}
-        onOpenChange={(open) => setOpenPopover(open ? "year" : null)}
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={getFilterButtonClass(!!(filters.minYear || filters.maxYear))}
-          >
-            {getYearLabel()}
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80 p-4" align="start">
-          <YearFilter
-            minYear={filters.minYear || 2000}
-            maxYear={filters.maxYear || new Date().getFullYear()}
-            onChange={handleYearChange}
-            onReset={() => resetFilter("year")}
-            onApply={() => setOpenPopover(null)}
-            getPreviewCount={getPreviewCountForYear}
-          />
-        </PopoverContent>
-      </Popover>
+        {/* Year Filter */}
+        <Popover
+          open={openPopover === "year"}
+          onOpenChange={(open) => setOpenPopover(open ? "year" : null)}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={getFilterButtonClass(!!(filters.minYear || filters.maxYear))}
+            >
+              <span className="truncate">{getYearLabel()}</span>
+              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 p-4" align="start">
+            <YearFilter
+              minYear={filters.minYear || 2000}
+              maxYear={filters.maxYear || new Date().getFullYear()}
+              onChange={handleYearChange}
+              onReset={() => resetFilter("year")}
+              onApply={() => setOpenPopover(null)}
+              getPreviewCount={getPreviewCountForYear}
+            />
+          </PopoverContent>
+        </Popover>
 
-      {/* Transmission Filter */}
-      <Popover
-        open={openPopover === "transmission"}
-        onOpenChange={(open) => setOpenPopover(open ? "transmission" : null)}
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={getFilterButtonClass(filters.transmission !== "all")}
-          >
-            {filters.transmission === "all"
-              ? "Transmissão"
-              : filters.transmission === "manual"
-              ? "Manual"
-              : "Automático"}
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-48 p-2" align="start">
-          <div className="space-y-1">
-            {[
-              { value: "all", label: "Todas" },
-              { value: "manual", label: "Manual" },
-              { value: "automatic", label: "Automático" },
-            ].map((option) => (
-              <Button
-                key={option.value}
-                variant={filters.transmission === option.value ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => {
-                  onFiltersChange({ ...filters, transmission: option.value });
-                  setOpenPopover(null);
-                }}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+        {/* Transmission Filter */}
+        <Popover
+          open={openPopover === "transmission"}
+          onOpenChange={(open) => setOpenPopover(open ? "transmission" : null)}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={getFilterButtonClass(filters.transmission !== "all")}
+            >
+              <span className="truncate">
+                {filters.transmission === "all"
+                  ? "Transmissão"
+                  : filters.transmission === "manual"
+                  ? "Manual"
+                  : "Automático"}
+              </span>
+              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2" align="start">
+            <div className="space-y-1">
+              {[
+                { value: "all", label: "Todas" },
+                { value: "manual", label: "Manual" },
+                { value: "automatic", label: "Automático" },
+              ].map((option) => (
+                <Button
+                  key={option.value}
+                  variant={filters.transmission === option.value ? "secondary" : "ghost"}
+                  className="w-full justify-start text-sm"
+                  onClick={() => {
+                    onFiltersChange({ ...filters, transmission: option.value });
+                    setOpenPopover(null);
+                  }}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
-      {/* Fuel Filter */}
-      <Popover
-        open={openPopover === "fuel"}
-        onOpenChange={(open) => setOpenPopover(open ? "fuel" : null)}
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={getFilterButtonClass(filters.fuel !== "all")}
-          >
-            {filters.fuel === "all"
-              ? "Combustível"
-              : filters.fuel === "flex"
-              ? "Flex"
-              : filters.fuel === "gasoline"
-              ? "Gasolina"
-              : filters.fuel === "diesel"
-              ? "Diesel"
-              : filters.fuel === "electric"
-              ? "Elétrico"
-              : "Híbrido"}
-            <ChevronDown className="w-4 h-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-48 p-2" align="start">
-          <div className="space-y-1">
-            {[
-              { value: "all", label: "Todos" },
-              { value: "flex", label: "Flex" },
-              { value: "gasoline", label: "Gasolina" },
-              { value: "diesel", label: "Diesel" },
-              { value: "electric", label: "Elétrico" },
-              { value: "hybrid", label: "Híbrido" },
-            ].map((option) => (
-              <Button
-                key={option.value}
-                variant={filters.fuel === option.value ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => {
-                  onFiltersChange({ ...filters, fuel: option.value });
-                  setOpenPopover(null);
-                }}
-              >
-                {option.label}
-              </Button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+        {/* Fuel Filter */}
+        <Popover
+          open={openPopover === "fuel"}
+          onOpenChange={(open) => setOpenPopover(open ? "fuel" : null)}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={getFilterButtonClass(filters.fuel !== "all")}
+            >
+              <span className="truncate">
+                {filters.fuel === "all"
+                  ? "Combustível"
+                  : filters.fuel === "flex"
+                  ? "Flex"
+                  : filters.fuel === "gasoline"
+                  ? "Gasolina"
+                  : filters.fuel === "diesel"
+                  ? "Diesel"
+                  : filters.fuel === "electric"
+                  ? "Elétrico"
+                  : "Híbrido"}
+              </span>
+              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-48 p-2" align="start">
+            <div className="space-y-1">
+              {[
+                { value: "all", label: "Todos" },
+                { value: "flex", label: "Flex" },
+                { value: "gasoline", label: "Gasolina" },
+                { value: "diesel", label: "Diesel" },
+                { value: "electric", label: "Elétrico" },
+                { value: "hybrid", label: "Híbrido" },
+              ].map((option) => (
+                <Button
+                  key={option.value}
+                  variant={filters.fuel === option.value ? "secondary" : "ghost"}
+                  className="w-full justify-start text-sm"
+                  onClick={() => {
+                    onFiltersChange({ ...filters, fuel: option.value });
+                    setOpenPopover(null);
+                  }}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
 
-      {/* Sort */}
-      <div className="ml-auto">
+      {/* Sort - full width on mobile */}
+      <div className="sm:ml-auto">
         <Select value={sortBy} onValueChange={onSortChange}>
-          <SelectTrigger className="h-10 w-40 rounded-full border-2">
+          <SelectTrigger className="h-8 sm:h-10 w-full sm:w-40 rounded-full border-2 text-xs sm:text-sm">
             <SelectValue placeholder="Ordenar" />
           </SelectTrigger>
           <SelectContent>
