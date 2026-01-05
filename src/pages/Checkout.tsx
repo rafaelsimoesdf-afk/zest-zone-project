@@ -282,21 +282,21 @@ const Checkout = () => {
 
           <div className="grid lg:grid-cols-5 gap-6 lg:gap-12">
             {/* Left Column - Form */}
-            <div className="lg:col-span-3 space-y-8">
+            <div className="lg:col-span-3 space-y-6 sm:space-y-8">
               {/* Trip Details */}
               <section>
-                <h2 className="font-bold text-xl mb-4">Sua reserva</h2>
-                <div className="space-y-4">
+                <h2 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4">Sua reserva</h2>
+                <div className="space-y-3 sm:space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium">Datas</p>
-                      <p className="text-muted-foreground">
+                      <p className="font-medium text-sm sm:text-base">Datas</p>
+                      <p className="text-muted-foreground text-xs sm:text-base">
                         {formatDate(startDate)} – {formatDate(endDate)}
                       </p>
                     </div>
                     <Button
                       variant="link"
-                      className="text-foreground underline p-0 h-auto"
+                      className="text-foreground underline p-0 h-auto text-xs sm:text-sm"
                       onClick={() => navigate(-1)}
                     >
                       Editar
@@ -304,8 +304,8 @@ const Checkout = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium">Duração</p>
-                      <p className="text-muted-foreground">
+                      <p className="font-medium text-sm sm:text-base">Duração</p>
+                      <p className="text-muted-foreground text-xs sm:text-base">
                         {days} {days === 1 ? "dia" : "dias"}
                       </p>
                     </div>
@@ -317,60 +317,60 @@ const Checkout = () => {
 
               {/* Payment Method */}
               <section>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-bold text-xl">Pagar com</h2>
-                  <div className="flex items-center gap-2">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" className="h-5" />
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-5" />
-                    <Smartphone className="w-5 h-5 text-muted-foreground" />
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <h2 className="font-bold text-lg sm:text-xl">Pagar com</h2>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" className="h-4 sm:h-5" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-4 sm:h-5" />
+                    <Smartphone className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                   </div>
                 </div>
 
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
-                  <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2 sm:space-y-3">
+                  <div className="flex items-center space-x-2 sm:space-x-3 border rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="pix" id="pix" />
-                    <Label htmlFor="pix" className="flex items-center gap-3 cursor-pointer flex-1">
-                      <div className="w-8 h-8 bg-[#32BCAD] rounded flex items-center justify-center">
-                        <span className="text-white font-bold text-xs">PIX</span>
+                    <Label htmlFor="pix" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#32BCAD] rounded flex items-center justify-center">
+                        <span className="text-white font-bold text-[10px] sm:text-xs">PIX</span>
                       </div>
-                      <span className="font-medium">Pix</span>
+                      <span className="font-medium text-sm sm:text-base">Pix</span>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center space-x-2 sm:space-x-3 border rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="credit_card" id="credit_card" />
-                    <Label htmlFor="credit_card" className="flex items-center gap-3 cursor-pointer flex-1">
-                      <CreditCard className="w-8 h-8 text-muted-foreground" />
-                      <span className="font-medium">Cartão de crédito</span>
+                    <Label htmlFor="credit_card" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
+                      <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
+                      <span className="font-medium text-sm sm:text-base">Cartão de crédito</span>
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center space-x-2 sm:space-x-3 border rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="debit_card" id="debit_card" />
-                    <Label htmlFor="debit_card" className="flex items-center gap-3 cursor-pointer flex-1">
-                      <CreditCard className="w-8 h-8 text-muted-foreground" />
-                      <span className="font-medium">Cartão de débito</span>
+                    <Label htmlFor="debit_card" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
+                      <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
+                      <span className="font-medium text-sm sm:text-base">Cartão de débito</span>
                     </Label>
                   </div>
                 </RadioGroup>
 
-                <div className="mt-4 space-y-3">
+                <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
                   <Input
                     placeholder="Nome"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="h-12"
+                    className="h-10 sm:h-12 text-sm sm:text-base"
                   />
                   <Input
                     placeholder="Sobrenome"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="h-12"
+                    className="h-10 sm:h-12 text-sm sm:text-base"
                   />
                   <Input
                     placeholder="000.000.000-00"
                     value={cpf}
                     onChange={(e) => setCpf(maskCPF(e.target.value))}
                     maxLength={14}
-                    className="h-12"
+                    className="h-10 sm:h-12 text-sm sm:text-base"
                   />
                 </div>
               </section>
@@ -379,23 +379,23 @@ const Checkout = () => {
 
               {/* Message to Owner */}
               <section>
-                <h2 className="font-bold text-xl mb-2">Fale com o proprietário</h2>
-                <p className="text-muted-foreground text-sm mb-4">
+                <h2 className="font-bold text-lg sm:text-xl mb-2">Fale com o proprietário</h2>
+                <p className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4">
                   Conte sobre sua viagem, motivo do aluguel e outras informações importantes.
                 </p>
 
-                <Card className="mb-4">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-12 h-12">
+                <Card className="mb-3 sm:mb-4">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <Avatar className="w-10 h-10 sm:w-12 sm:h-12">
                         <AvatarImage src={owner?.profile_image || undefined} />
-                        <AvatarFallback>
+                        <AvatarFallback className="text-sm">
                           {owner?.first_name?.charAt(0) || "?"}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-semibold">{owner?.first_name}</p>
-                        <p className="text-sm text-muted-foreground">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm sm:text-base truncate">{owner?.first_name}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Membro desde {owner?.created_at ? new Date(owner.created_at).getFullYear() : "2024"}
                         </p>
                       </div>
@@ -407,7 +407,7 @@ const Checkout = () => {
                   placeholder={`Olá, ${owner?.first_name}! Estarei alugando seu veículo para...`}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="min-h-[120px] resize-none"
+                  className="min-h-[100px] sm:min-h-[120px] resize-none text-sm sm:text-base"
                 />
               </section>
 
@@ -415,10 +415,10 @@ const Checkout = () => {
 
               {/* Cancellation Policy */}
               <section>
-                <h2 className="font-bold text-xl mb-2">Política de cancelamento</h2>
-                <p className="text-muted-foreground">
+                <h2 className="font-bold text-lg sm:text-xl mb-2">Política de cancelamento</h2>
+                <p className="text-muted-foreground text-xs sm:text-base">
                   Esta reserva não é reembolsável.{" "}
-                  <Button variant="link" className="p-0 h-auto text-foreground underline">
+                  <Button variant="link" className="p-0 h-auto text-foreground underline text-xs sm:text-base">
                     Saiba mais
                   </Button>
                 </p>
@@ -428,11 +428,11 @@ const Checkout = () => {
 
               {/* Basic Rules */}
               <section>
-                <h2 className="font-bold text-xl mb-2">Regras básicas</h2>
-                <p className="text-muted-foreground mb-4">
+                <h2 className="font-bold text-lg sm:text-xl mb-2">Regras básicas</h2>
+                <p className="text-muted-foreground text-xs sm:text-base mb-3 sm:mb-4">
                   Pedimos a todos os locatários que se lembrem de alguns pequenos detalhes que contribuem para uma boa experiência.
                 </p>
-                <ul className="space-y-2 text-muted-foreground">
+                <ul className="space-y-1.5 sm:space-y-2 text-muted-foreground text-xs sm:text-base">
                   <li className="flex items-start gap-2">
                     <span>•</span>
                     <span>Siga as regras estabelecidas pelo proprietário</span>
@@ -452,77 +452,82 @@ const Checkout = () => {
 
               {/* Terms - Checkboxes */}
               <section>
-                <h2 className="font-bold text-xl mb-4">Termos e Políticas</h2>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h2 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4">Termos e Políticas</h2>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                   Para continuar, você precisa ler e aceitar os termos abaixo:
                 </p>
 
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
                     <Checkbox
                       id="ownerRules"
                       checked={acceptOwnerRules}
                       onCheckedChange={(checked) => setAcceptOwnerRules(checked === true)}
+                      className="mt-0.5"
                     />
-                    <Label htmlFor="ownerRules" className="text-sm leading-relaxed cursor-pointer">
+                    <Label htmlFor="ownerRules" className="text-xs sm:text-sm leading-relaxed cursor-pointer">
                       Li e aceito as{" "}
-                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
-                        Regras estabelecidas pelo proprietário
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-xs sm:text-sm">
+                        Regras do proprietário
                       </Button>
                     </Label>
                   </div>
 
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
                     <Checkbox
                       id="basicRules"
                       checked={acceptBasicRules}
                       onCheckedChange={(checked) => setAcceptBasicRules(checked === true)}
+                      className="mt-0.5"
                     />
-                    <Label htmlFor="basicRules" className="text-sm leading-relaxed cursor-pointer">
+                    <Label htmlFor="basicRules" className="text-xs sm:text-sm leading-relaxed cursor-pointer">
                       Li e aceito as{" "}
-                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
-                        Regras básicas para locatários
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-xs sm:text-sm">
+                        Regras básicas
                       </Button>
                     </Label>
                   </div>
 
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
                     <Checkbox
                       id="cancellationPolicy"
                       checked={acceptCancellationPolicy}
                       onCheckedChange={(checked) => setAcceptCancellationPolicy(checked === true)}
+                      className="mt-0.5"
                     />
-                    <Label htmlFor="cancellationPolicy" className="text-sm leading-relaxed cursor-pointer">
+                    <Label htmlFor="cancellationPolicy" className="text-xs sm:text-sm leading-relaxed cursor-pointer">
                       Li e aceito a{" "}
-                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
-                        Política de Reembolso e Cancelamento
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-xs sm:text-sm">
+                        Política de Cancelamento
                       </Button>
                     </Label>
                   </div>
 
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
                     <Checkbox
                       id="termsOfService"
                       checked={acceptTermsOfService}
                       onCheckedChange={(checked) => setAcceptTermsOfService(checked === true)}
+                      className="mt-0.5"
                     />
-                    <Label htmlFor="termsOfService" className="text-sm leading-relaxed cursor-pointer">
+                    <Label htmlFor="termsOfService" className="text-xs sm:text-sm leading-relaxed cursor-pointer">
                       Li e aceito os{" "}
-                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-xs sm:text-sm">
                         Termos de Serviço
                       </Button>
                     </Label>
                   </div>
 
-                  <div className="flex items-start space-x-3">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
                     <Checkbox
                       id="privacyPolicy"
                       checked={acceptPrivacyPolicy}
                       onCheckedChange={(checked) => setAcceptPrivacyPolicy(checked === true)}
+                      className="mt-0.5"
                     />
-                    <Label htmlFor="privacyPolicy" className="text-sm leading-relaxed cursor-pointer">
+                    <Label htmlFor="privacyPolicy" className="text-xs sm:text-sm leading-relaxed cursor-pointer">
                       Li e aceito a{" "}
-                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-xs sm:text-sm">
                         Política de Privacidade
                       </Button>
                     </Label>
@@ -530,18 +535,18 @@ const Checkout = () => {
                 </div>
 
                 {!allAccepted && (
-                  <p className="text-sm text-destructive mt-4">
+                  <p className="text-xs sm:text-sm text-destructive mt-3 sm:mt-4">
                     * Todos os itens acima são obrigatórios
                   </p>
                 )}
 
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto gradient-accent text-accent-foreground hover:opacity-90 transition-smooth px-8"
+                  className="w-full gradient-accent text-accent-foreground hover:opacity-90 transition-smooth px-6 sm:px-8 mt-4 sm:mt-6 text-sm sm:text-base"
                   onClick={handleConfirmBooking}
                   disabled={isProcessing}
                 >
-                  {isProcessing ? "Redirecionando para pagamento..." : "Confirmar e pagar"}
+                  {isProcessing ? "Redirecionando..." : "Confirmar e pagar"}
                 </Button>
               </section>
             </div>
