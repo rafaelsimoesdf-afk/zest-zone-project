@@ -350,10 +350,14 @@ export const useUpdateOwnerBookingStatus = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Verify ownership
+      // Verify ownership and get booking details
       const { data: booking } = await supabase
         .from("bookings")
-        .select("owner_id")
+        .select(`
+          owner_id,
+          customer_id,
+          vehicles (brand, model)
+        `)
         .eq("id", bookingId)
         .single();
 
@@ -377,6 +381,20 @@ export const useUpdateOwnerBookingStatus = () => {
         .single();
 
       if (error) throw error;
+
+      // Create notification for customer when booking is completed
+      if (status === "completed" && booking.customer_id) {
+        const vehicleInfo = booking.vehicles as { brand: string; model: string } | null;
+        const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
+        
+        await supabase.from("notifications").insert({
+          user_id: booking.customer_id,
+          notification_type: "booking",
+          title: "Reserva finalizada!",
+          message: `Sua reserva do ${vehicleName} foi finalizada. Avalie sua experiência com o proprietário!`,
+        });
+      }
+
       return data;
     },
     onSuccess: (_, { status }) => {
