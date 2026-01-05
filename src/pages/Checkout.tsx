@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { useVehicle } from "@/hooks/useVehicles";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,10 +45,19 @@ const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const [paymentMethod, setPaymentMethod] = useState("pix");
-  const [firstName, setFirstName] = useState(profile?.first_name || "");
-  const [lastName, setLastName] = useState(profile?.last_name || "");
-  const [cpf, setCpf] = useState(profile?.cpf || "");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [cpf, setCpf] = useState("");
   const [message, setMessage] = useState("");
+
+  // Pre-fill form with user profile data when it loads
+  useEffect(() => {
+    if (profile) {
+      setFirstName(profile.first_name || "");
+      setLastName(profile.last_name || "");
+      setCpf(profile.cpf ? maskCPF(profile.cpf) : "");
+    }
+  }, [profile]);
 
   // Helper function to parse date string (yyyy-MM-dd) without timezone issues
   const parseDateString = (dateStr: string): Date => {
