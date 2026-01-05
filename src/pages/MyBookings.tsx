@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyBookings } from "@/hooks/useBookings";
 import Navbar from "@/components/Navbar";
@@ -12,6 +12,7 @@ import { formatCurrencyBRL } from "@/lib/validators";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 
 const MyBookings = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: bookings, isLoading } = useMyBookings();
   const [reviewBooking, setReviewBooking] = useState<{
@@ -99,8 +100,12 @@ const MyBookings = () => {
                         </div>
                       )}
                       <div className="flex gap-2 flex-wrap">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link to={`/booking/${booking.id}`}>Ver Detalhes</Link>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/booking/${booking.id}`)}
+                        >
+                          Ver Detalhes
                         </Button>
                         {booking.status === 'completed' && user?.id === booking.customer_id && (
                           <Button 

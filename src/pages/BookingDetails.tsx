@@ -29,10 +29,22 @@ const statusVariants: Record<string, "default" | "secondary" | "destructive" | "
 
 const BookingDetails = () => {
   const { id } = useParams();
+  const bookingId = id || "";
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { data: booking, isLoading } = useBooking(id || "");
+  const { data: booking, isLoading } = useBooking(bookingId);
   const [showReviewModal, setShowReviewModal] = useState(false);
+
+  const isOwner = !!user && !!booking && user.id === booking.owner_id;
+  const isCustomer = !!user && !!booking && user.id === booking.customer_id;
+
+  // Check if customer already reviewed the owner (hooks must be unconditional)
+  const { data: existingReview } = useExistingReview(
+    booking?.status === "completed" && isCustomer ? bookingId : "",
+    booking?.status === "completed" && isCustomer ? user?.id || "" : ""
+  );
+
+  const canReview = isCustomer && booking?.status === "completed" && !existingReview;
 
   if (isLoading) {
     return (
@@ -90,17 +102,6 @@ const BookingDetails = () => {
   const startDate = new Date(booking.start_date);
   const endDate = new Date(booking.end_date);
   const createdAt = new Date(booking.created_at);
-  
-  const isOwner = user?.id === booking.owner_id;
-  const isCustomer = user?.id === booking.customer_id;
-  
-  // Check if customer already reviewed the owner
-  const { data: existingReview } = useExistingReview(
-    booking.status === "completed" ? booking.id : "",
-    isCustomer ? user?.id || "" : ""
-  );
-  
-  const canReview = isCustomer && booking.status === "completed" && !existingReview;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
