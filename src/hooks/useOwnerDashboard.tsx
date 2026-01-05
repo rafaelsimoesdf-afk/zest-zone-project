@@ -382,17 +382,39 @@ export const useUpdateOwnerBookingStatus = () => {
 
       if (error) throw error;
 
-      // Create notification for customer when booking is completed
-      if (status === "completed" && booking.customer_id) {
+      // Create notification for customer based on status change
+      if (booking.customer_id) {
         const vehicleInfo = booking.vehicles as { brand: string; model: string } | null;
         const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
         
-        await supabase.from("notifications").insert({
-          user_id: booking.customer_id,
-          notification_type: "booking",
-          title: "Reserva finalizada!",
-          message: `Sua reserva do ${vehicleName} foi finalizada. Avalie sua experiência com o proprietário!`,
-        });
+        let notificationTitle = "";
+        let notificationMessage = "";
+        
+        switch (status) {
+          case "confirmed":
+            notificationTitle = "Reserva aprovada!";
+            notificationMessage = `Sua reserva do ${vehicleName} foi aprovada pelo proprietário. Prepare-se para sua viagem!`;
+            break;
+          case "cancelled":
+            notificationTitle = "Reserva cancelada";
+            notificationMessage = reason 
+              ? `Sua reserva do ${vehicleName} foi cancelada. Motivo: ${reason}`
+              : `Sua reserva do ${vehicleName} foi cancelada pelo proprietário.`;
+            break;
+          case "completed":
+            notificationTitle = "Reserva finalizada!";
+            notificationMessage = `Sua reserva do ${vehicleName} foi finalizada. Avalie sua experiência com o proprietário!`;
+            break;
+        }
+        
+        if (notificationTitle) {
+          await supabase.from("notifications").insert({
+            user_id: booking.customer_id,
+            notification_type: "booking",
+            title: notificationTitle,
+            message: notificationMessage,
+          });
+        }
       }
 
       return data;
