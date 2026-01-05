@@ -24,7 +24,7 @@ export interface CustomerStats {
   reviews: CustomerReview[];
 }
 
-// Fetch reviews for a specific customer (renter)
+// Fetch reviews for a specific customer (renter) - ONLY reviews received as a renter
 export const useCustomerReviews = (customerId: string) => {
   return useQuery({
     queryKey: ["customer-reviews", customerId],
@@ -45,9 +45,22 @@ export const useCustomerReviews = (customerId: string) => {
         throw error;
       }
 
-      // Fetch reviewer profiles separately
-      const reviewsWithProfiles = await Promise.all(
+      // Filter reviews to only include those where the user was the customer (renter)
+      const reviewsAsCustomer = await Promise.all(
         (reviews || []).map(async (review) => {
+          // Get booking to check if reviewed user was the customer
+          const { data: booking } = await supabase
+            .from("bookings")
+            .select("customer_id")
+            .eq("id", review.booking_id)
+            .single();
+
+          // Only include if the reviewed user was the customer (renter)
+          if (booking?.customer_id !== customerId) {
+            return null;
+          }
+
+          // Fetch reviewer profile
           const { data: reviewer } = await supabase
             .from("profiles")
             .select("first_name, last_name, profile_image")
@@ -58,6 +71,11 @@ export const useCustomerReviews = (customerId: string) => {
         })
       );
 
+      // Filter out null values (reviews where user was owner, not customer)
+      const filteredReviews = reviewsAsCustomer.filter(
+        (r): r is CustomerReview & { reviewer: { first_name: string; last_name: string; profile_image: string | null } } => r !== null
+      );
+
       // Count completed trips as a customer
       const { count: totalTrips } = await supabase
         .from("bookings")
@@ -65,16 +83,16 @@ export const useCustomerReviews = (customerId: string) => {
         .eq("customer_id", customerId)
         .eq("status", "completed");
 
-      const totalReviews = reviewsWithProfiles.length;
+      const totalReviews = filteredReviews.length;
       const averageRating = totalReviews > 0
-        ? reviewsWithProfiles.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+        ? filteredReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
         : 0;
 
       return {
         average_rating: averageRating,
         total_reviews: totalReviews,
         total_trips: totalTrips || 0,
-        reviews: reviewsWithProfiles as CustomerReview[],
+        reviews: filteredReviews as CustomerReview[],
       };
     },
     enabled: !!customerId,
