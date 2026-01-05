@@ -32,13 +32,13 @@ const MyVehicles = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-24">
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-4xl font-display font-bold text-primary">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-4xl font-display font-bold text-primary">
               Meus Veículos
             </h1>
-            <Button asChild>
+            <Button asChild size="sm" className="w-fit sm:w-auto">
               <Link to="/become-owner">
                 <Plus className="w-4 h-4 mr-2" />
                 Adicionar Veículo
@@ -48,19 +48,19 @@ const MyVehicles = () => {
 
           {isLoading ? (
             <Card>
-              <CardContent className="flex flex-col items-center justify-center py-16">
-                <p className="text-muted-foreground">Carregando seus veículos...</p>
+              <CardContent className="flex flex-col items-center justify-center py-10 sm:py-16">
+                <p className="text-muted-foreground text-sm sm:text-base">Carregando seus veículos...</p>
               </CardContent>
             </Card>
           ) : !vehicles || vehicles.length === 0 ? (
             <Card>
-              <CardContent className="flex flex-col items-center justify-center py-16">
-                <Car className="w-16 h-16 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Nenhum veículo cadastrado</h3>
-                <p className="text-muted-foreground mb-6 text-center">
+              <CardContent className="flex flex-col items-center justify-center py-10 sm:py-16 px-4">
+                <Car className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mb-3 sm:mb-4" />
+                <h3 className="text-base sm:text-xl font-semibold mb-2 text-center">Nenhum veículo cadastrado</h3>
+                <p className="text-muted-foreground mb-4 sm:mb-6 text-center text-sm sm:text-base">
                   Comece a ganhar dinheiro alugando seu carro!
                 </p>
-                <Button asChild>
+                <Button asChild size="sm">
                   <Link to="/become-owner">
                     <Plus className="w-4 h-4 mr-2" />
                     Cadastrar Primeiro Veículo
@@ -69,84 +69,84 @@ const MyVehicles = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
               {vehicles.map((vehicle) => {
                 const primaryImage = vehicle.vehicle_images?.find(img => img.is_primary) || vehicle.vehicle_images?.[0];
                 
                 return (
                   <Card key={vehicle.id}>
                     {primaryImage && (
-                      <div className="relative h-48 overflow-hidden">
+                      <div className="relative h-36 sm:h-48 overflow-hidden">
                         <img
                           src={primaryImage.image_url}
                           alt={`${vehicle.brand} ${vehicle.model}`}
                           className="w-full h-full object-cover"
                         />
-                        <Badge className="absolute top-4 right-4 capitalize">{vehicle.status}</Badge>
+                        <Badge className="absolute top-2 right-2 sm:top-4 sm:right-4 capitalize text-xs">{vehicle.status}</Badge>
                       </div>
                     )}
-                    <CardHeader>
+                    <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <CardTitle>{vehicle.brand} {vehicle.model}</CardTitle>
-                          <CardDescription>{vehicle.year} • {vehicle.color}</CardDescription>
+                          <CardTitle className="text-base sm:text-lg">{vehicle.brand} {vehicle.model}</CardTitle>
+                          <CardDescription className="text-xs sm:text-sm">{vehicle.year} • {vehicle.color}</CardDescription>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-2 text-sm">
+                    <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                      <div className="space-y-3 sm:space-y-4">
+                        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-xs sm:text-sm">
                           <div>
                             <span className="text-muted-foreground">Tipo:</span>
-                            <span className="ml-2 capitalize">{vehicle.vehicle_type}</span>
+                            <span className="ml-1 sm:ml-2 capitalize">{vehicle.vehicle_type}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Câmbio:</span>
-                            <span className="ml-2 capitalize">{vehicle.transmission_type}</span>
+                            <span className="ml-1 sm:ml-2 capitalize">{vehicle.transmission_type}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Combustível:</span>
-                            <span className="ml-2 capitalize">{vehicle.fuel_type}</span>
+                            <span className="ml-1 sm:ml-2 capitalize">{vehicle.fuel_type}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Passageiros:</span>
-                            <span className="ml-2">{vehicle.seats}</span>
+                            <span className="ml-1 sm:ml-2">{vehicle.seats}</span>
                           </div>
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t">
                           <div>
-                            <span className="text-muted-foreground text-sm">Diária:</span>
-                            <span className="font-semibold text-lg ml-2">{formatCurrencyBRL(vehicle.daily_price)}</span>
+                            <span className="text-muted-foreground text-xs sm:text-sm">Diária:</span>
+                            <span className="font-semibold text-sm sm:text-lg ml-1 sm:ml-2">{formatCurrencyBRL(vehicle.daily_price)}</span>
                           </div>
                         </div>
                         <div className="flex gap-2">
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="flex-1"
+                            className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
                             onClick={() => handleEditVehicle(vehicle)}
                           >
-                            <Edit className="w-4 h-4 mr-2" />
+                            <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                             Editar
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="sm" disabled={deleteVehicle.isPending}>
-                                <Trash2 className="w-4 h-4" />
+                              <Button variant="ghost" size="sm" disabled={deleteVehicle.isPending} className="h-8 sm:h-9 w-8 sm:w-9 p-0">
+                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent>
+                            <AlertDialogContent className="max-w-[90vw] sm:max-w-lg">
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                                <AlertDialogDescription>
+                                <AlertDialogTitle className="text-base sm:text-lg">Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription className="text-xs sm:text-sm">
                                   Tem certeza que deseja excluir este veículo? Esta ação não pode ser desfeita.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+                                <AlertDialogCancel className="text-xs sm:text-sm">Cancelar</AlertDialogCancel>
                                 <AlertDialogAction 
                                   onClick={() => handleDelete(vehicle.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90 text-xs sm:text-sm"
                                 >
                                   Excluir
                                 </AlertDialogAction>
