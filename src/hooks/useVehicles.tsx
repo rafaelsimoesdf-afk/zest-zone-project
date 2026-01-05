@@ -82,6 +82,8 @@ export interface Vehicle {
     is_primary: boolean;
     display_order: number;
   }>;
+  average_rating?: number | null;
+  total_reviews?: number;
 }
 
 export const useVehicles = (filters?: {
@@ -164,6 +166,37 @@ export const useVehicles = (filters?: {
       if (error) throw error;
       
       let vehicles = data as Vehicle[];
+
+      // Buscar as avaliações médias de cada veículo (baseado no owner_id)
+      const ownerIds = [...new Set(vehicles.map(v => v.owner_id))];
+      
+      if (ownerIds.length > 0) {
+        const { data: reviews } = await supabase
+          .from("reviews")
+          .select("reviewed_id, rating")
+          .in("reviewed_id", ownerIds);
+
+        if (reviews) {
+          // Calcular média por owner
+          const ownerRatings: Record<string, { sum: number; count: number }> = {};
+          reviews.forEach(review => {
+            if (!ownerRatings[review.reviewed_id]) {
+              ownerRatings[review.reviewed_id] = { sum: 0, count: 0 };
+            }
+            ownerRatings[review.reviewed_id].sum += review.rating;
+            ownerRatings[review.reviewed_id].count += 1;
+          });
+
+          // Adicionar rating aos veículos
+          vehicles = vehicles.map(vehicle => ({
+            ...vehicle,
+            average_rating: ownerRatings[vehicle.owner_id] 
+              ? Math.round((ownerRatings[vehicle.owner_id].sum / ownerRatings[vehicle.owner_id].count) * 10) / 10
+              : null,
+            total_reviews: ownerRatings[vehicle.owner_id]?.count || 0,
+          }));
+        }
+      }
 
       // Filtrar por disponibilidade se datas foram fornecidas
       if (filters?.fromDate && filters?.untilDate) {
