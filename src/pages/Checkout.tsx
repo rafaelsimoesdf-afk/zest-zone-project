@@ -370,6 +370,7 @@ const Checkout = () => {
                     value={cpf}
                     onChange={(e) => setCpf(maskCPF(e.target.value))}
                     maxLength={14}
+                    inputMode="numeric"
                     className="h-10 sm:h-12 text-sm sm:text-base"
                   />
                 </div>

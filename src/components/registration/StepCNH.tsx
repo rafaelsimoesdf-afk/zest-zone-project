@@ -117,6 +117,7 @@ export const StepCNH = ({ data, onChange, errors }: StepCNHProps) => {
             onChange={(e) => onChange({ ...data, cnh_number: e.target.value })}
             placeholder="00000000000"
             maxLength={11}
+            inputMode="numeric"
             className={errors.cnh_number ? 'border-destructive' : ''}
           />
           {errors.cnh_number && (

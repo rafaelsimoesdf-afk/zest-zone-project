@@ -178,6 +178,7 @@ const Profile = () => {
                       <Input
                         id="email"
                         type="email"
+                        inputMode="email"
                         value={profile?.email || ""}
                         disabled
                         className="bg-muted"
@@ -222,6 +223,7 @@ const Profile = () => {
                       <Input
                         id="phone"
                         type="tel"
+                        inputMode="tel"
                         placeholder="(00) 00000-0000"
                         disabled={!isEditing}
                         value={formData.phone_number}

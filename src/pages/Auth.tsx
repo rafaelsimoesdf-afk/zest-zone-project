@@ -100,6 +100,7 @@ const Auth = () => {
                   <Input
                     id="login-email"
                     type="email"
+                    inputMode="email"
                     placeholder="seu@email.com"
                     {...loginForm.register('email')}
                   />
@@ -206,6 +207,7 @@ const Auth = () => {
                   <Input
                     id="signup-email"
                     type="email"
+                    inputMode="email"
                     placeholder="seu@email.com"
                     {...signupForm.register('email')}
                   />
