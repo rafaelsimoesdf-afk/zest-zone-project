@@ -54,6 +54,35 @@ const CarDetails = () => {
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [endTime, setEndTime] = useState("10:00");
   const [showReputationModal, setShowReputationModal] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (imagesLength: number) => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && imagesLength > 1) {
+      setMainImage(prev => prev === imagesLength - 1 ? 0 : prev + 1);
+    }
+    if (isRightSwipe && imagesLength > 1) {
+      setMainImage(prev => prev === 0 ? imagesLength - 1 : prev - 1);
+    }
+  };
 
   // Generate time options from 06:00 to 22:00 in 30-minute intervals
   const timeOptions = [];
@@ -170,12 +199,39 @@ const CarDetails = () => {
             <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               {/* Images Gallery */}
               <div className="space-y-3 sm:space-y-4">
-                <div className="relative h-[280px] sm:h-[400px] lg:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden">
+                <div 
+                  className="relative h-[280px] sm:h-[400px] lg:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={() => handleTouchEnd(images.length)}
+                >
                   <img
                     src={images[mainImage] || "https://images.unsplash.com/photo-1590362891991-f776e747a588"}
                     alt={`${vehicle.brand} ${vehicle.model}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-opacity duration-300"
                   />
+                  
+                  {/* Dots Indicator for mobile */}
+                  {images.length > 1 && (
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 sm:hidden">
+                      {images.slice(0, 6).map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setMainImage(index)}
+                          className={`w-2 h-2 rounded-full transition-all ${
+                            index === mainImage 
+                              ? 'bg-white w-4' 
+                              : 'bg-white/60'
+                          }`}
+                          aria-label={`Ir para foto ${index + 1}`}
+                        />
+                      ))}
+                      {images.length > 6 && (
+                        <span className="text-white text-xs font-medium ml-1">+{images.length - 6}</span>
+                      )}
+                    </div>
+                  )}
+                  
                   <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-2">
                     <Button
                       size="icon"
