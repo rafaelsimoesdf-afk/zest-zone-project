@@ -145,6 +145,26 @@ export const useCreateReview = () => {
 
       if (error) throw error;
 
+      // Get booking info to determine roles and vehicle name
+      const { data: booking } = await supabase
+        .from("bookings")
+        .select("customer_id, owner_id, vehicle_id")
+        .eq("id", bookingId)
+        .single();
+
+      // Get vehicle name
+      let vehicleName = "veículo";
+      if (booking?.vehicle_id) {
+        const { data: vehicle } = await supabase
+          .from("vehicles")
+          .select("brand, model")
+          .eq("id", booking.vehicle_id)
+          .single();
+        if (vehicle) {
+          vehicleName = `${vehicle.brand} ${vehicle.model}`;
+        }
+      }
+
       // Get reviewer name for notification
       const { data: reviewerProfile } = await supabase
         .from("profiles")
@@ -156,12 +176,29 @@ export const useCreateReview = () => {
         ? `${reviewerProfile.first_name} ${reviewerProfile.last_name}` 
         : "Um usuário";
 
+      // Determine if reviewer is owner or customer
+      const isReviewerOwner = booking?.owner_id === reviewerId;
+      
+      // Create appropriate notification message
+      let notificationTitle: string;
+      let notificationMessage: string;
+
+      if (isReviewerOwner) {
+        // Owner reviewed the customer
+        notificationTitle = "Você recebeu uma avaliação do proprietário!";
+        notificationMessage = `O proprietário do ${vehicleName} avaliou você com ${rating} estrela${rating > 1 ? "s" : ""}${comment ? `: "${comment}"` : ""}. Clique para ver suas avaliações como locatário.`;
+      } else {
+        // Customer reviewed the owner
+        notificationTitle = "Você recebeu uma avaliação do locatário!";
+        notificationMessage = `${reviewerName} avaliou sua experiência com o ${vehicleName} com ${rating} estrela${rating > 1 ? "s" : ""}${comment ? `: "${comment}"` : ""}. Clique para ver suas avaliações como proprietário.`;
+      }
+
       // Create notification for the reviewed person
       await supabase.from("notifications").insert({
         user_id: reviewedId,
         notification_type: "booking",
-        title: "Você recebeu uma nova avaliação!",
-        message: `${reviewerName} avaliou você com ${rating} estrela${rating > 1 ? "s" : ""}${comment ? `: "${comment}"` : ". Confira no seu perfil!"}`,
+        title: notificationTitle,
+        message: notificationMessage,
         action_url: "/profile?tab=reviews",
       });
 
@@ -171,6 +208,7 @@ export const useCreateReview = () => {
       toast.success("Avaliação enviada com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["owner-reviews", data.reviewed_id] });
       queryClient.invalidateQueries({ queryKey: ["customer-reviews", data.reviewed_id] });
+      queryClient.invalidateQueries({ queryKey: ["all-user-reviews", data.reviewed_id] });
       queryClient.invalidateQueries({ queryKey: ["existing-review"] });
     },
     onError: (error) => {
