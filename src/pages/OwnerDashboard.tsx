@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleBookingsChart } from "@/components/owner/VehicleBookingsChart";
+import { CustomerReputationModal } from "@/components/reviews/CustomerReputationModal";
 import { 
   useOwnerDashboardStats, 
   useOwnerVehicleStats, 
@@ -35,7 +36,8 @@ import {
   Phone,
   Mail,
   MapPin,
-  Eye
+  Eye,
+  Star
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -62,6 +64,7 @@ const OwnerDashboard = () => {
   const [selectedBooking, setSelectedBooking] = useState<OwnerBooking | null>(null);
   const [actionDialog, setActionDialog] = useState<{ type: "reject" | "cancel" | null; booking: OwnerBooking | null }>({ type: null, booking: null });
   const [actionReason, setActionReason] = useState("");
+  const [customerReputationModal, setCustomerReputationModal] = useState<{ open: boolean; customer: OwnerBooking["customer"] | null }>({ open: false, customer: null });
 
   const { data: hasVehicles, isLoading: checkingVehicles } = useHasVehicles();
   const { data: stats, isLoading: loadingStats } = useOwnerDashboardStats();
@@ -348,10 +351,16 @@ const OwnerDashboard = () => {
                                   </div>
 
                                   <div className="flex items-center gap-4 text-sm">
-                                    <div className="flex items-center gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="flex items-center gap-2 p-0 h-auto hover:bg-transparent"
+                                      onClick={() => setCustomerReputationModal({ open: true, customer })}
+                                    >
                                       <User className="w-4 h-4 text-muted-foreground" />
-                                      <span>{customer?.first_name} {customer?.last_name}</span>
-                                    </div>
+                                      <span className="hover:underline">{customer?.first_name} {customer?.last_name}</span>
+                                      <Star className="w-3 h-3 text-accent" />
+                                    </Button>
                                     {customer?.phone_number && (
                                       <div className="flex items-center gap-2">
                                         <Phone className="w-4 h-4 text-muted-foreground" />
@@ -793,6 +802,17 @@ const OwnerDashboard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Customer Reputation Modal */}
+      {customerReputationModal.customer && (
+        <CustomerReputationModal
+          open={customerReputationModal.open}
+          onOpenChange={(open) => setCustomerReputationModal({ ...customerReputationModal, open })}
+          customerId={customerReputationModal.customer.id}
+          customerName={`${customerReputationModal.customer.first_name} ${customerReputationModal.customer.last_name}`}
+          customerImage={customerReputationModal.customer.profile_image}
+        />
+      )}
 
       <Footer />
     </div>
