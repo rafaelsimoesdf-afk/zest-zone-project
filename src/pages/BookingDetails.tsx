@@ -3,13 +3,14 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBooking } from "@/hooks/useBookings";
 import { useExistingReview } from "@/hooks/useReviews";
+import { useUpdateOwnerBookingStatus } from "@/hooks/useOwnerDashboard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard, MessageSquare, Star } from "lucide-react";
+import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard, MessageSquare, Star, CheckCircle } from "lucide-react";
 import { formatCurrencyBRL } from "@/lib/validators";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 
@@ -25,6 +26,25 @@ const statusVariants: Record<string, "default" | "secondary" | "destructive" | "
   confirmed: "default",
   cancelled: "destructive",
   completed: "outline",
+};
+
+const OwnerCompleteButton = ({ bookingId }: { bookingId: string }) => {
+  const updateStatus = useUpdateOwnerBookingStatus();
+  
+  const handleComplete = () => {
+    updateStatus.mutate({ bookingId, status: "completed" });
+  };
+
+  return (
+    <Button 
+      className="w-full bg-blue-600 hover:bg-blue-700" 
+      onClick={handleComplete}
+      disabled={updateStatus.isPending}
+    >
+      <CheckCircle className="w-4 h-4 mr-2" />
+      {updateStatus.isPending ? "Finalizando..." : "Finalizar Reserva"}
+    </Button>
+  );
 };
 
 const BookingDetails = () => {
@@ -426,6 +446,9 @@ const BookingDetails = () => {
                     <Button className="w-full">Confirmar Reserva</Button>
                     <Button variant="destructive" className="w-full">Recusar Reserva</Button>
                   </>
+                )}
+                {booking.status === 'confirmed' && isOwner && (
+                  <OwnerCompleteButton bookingId={booking.id} />
                 )}
                 <Button variant="outline" className="w-full" asChild>
                   <Link to="/my-bookings">Voltar para Minhas Reservas</Link>
