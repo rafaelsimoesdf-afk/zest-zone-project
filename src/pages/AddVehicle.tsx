@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsUserApproved } from "@/hooks/useProfile";
 import { useCreateAddress } from "@/hooks/useAddresses";
 import { useBrands, useModels } from "@/hooks/useBrands";
+import { useUserRoles, useAddUserRole } from "@/hooks/useUserRoles";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ const AddVehicle = () => {
   const { user } = useAuth();
   const { isApproved, verificationStatus, isLoading: isLoadingVerification } = useIsUserApproved();
   const createAddress = useCreateAddress();
+  const { data: userRoles } = useUserRoles(user?.id);
+  const addUserRole = useAddUserRole();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -358,6 +361,12 @@ const AddVehicle = () => {
       });
 
       await Promise.all(imagePromises);
+
+      // Add 'owner' role if user doesn't have it yet
+      const hasOwnerRole = userRoles?.some(r => r.role === 'owner');
+      if (!hasOwnerRole && user) {
+        await addUserRole.mutateAsync({ userId: user.id, role: 'owner' });
+      }
 
       toast.success("Veículo cadastrado com sucesso! Aguarde aprovação.");
       navigate("/my-vehicles");
