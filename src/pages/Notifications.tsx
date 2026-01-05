@@ -162,27 +162,22 @@ const Notifications = () => {
               {notifications.map((notification) => (
                 <Card 
                   key={notification.id}
-                  className={`transition-all hover:shadow-md cursor-pointer ${
+                  className={`transition-all hover:shadow-md ${
                     !notification.read 
                       ? "border-primary/30 bg-primary/5" 
-                      : "opacity-75 hover:opacity-100"
+                      : "opacity-80 hover:opacity-100"
                   }`}
-                  onClick={() => {
-                    if (!notification.read) {
-                      markAsRead.mutate(notification.id);
-                    }
-                  }}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       {/* Icon */}
-                      <div className={`p-3 rounded-full border ${getNotificationColor(notification.notification_type)}`}>
+                      <div className={`p-3 rounded-full border shrink-0 ${getNotificationColor(notification.notification_type)}`}>
                         {getNotificationIcon(notification.notification_type)}
                       </div>
                       
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="font-semibold text-foreground">
@@ -192,9 +187,6 @@ const Notifications = () => {
                                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {notification.message}
-                            </p>
                           </div>
                           <Badge 
                             variant="outline" 
@@ -204,16 +196,34 @@ const Notifications = () => {
                           </Badge>
                         </div>
                         
-                        <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                          <span>
+                        {/* Full message - always visible */}
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {notification.message}
+                        </p>
+                        
+                        <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-border/50">
+                          <span className="text-xs text-muted-foreground">
                             {format(new Date(notification.created_at), "d 'de' MMMM 'às' HH:mm", { locale: ptBR })}
                           </span>
-                          {notification.read && notification.read_at && (
-                            <span className="flex items-center gap-1 text-green-600">
-                              <CheckCircle className="h-3 w-3" />
-                              Lida
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {notification.read ? (
+                              <span className="flex items-center gap-1 text-xs text-green-600">
+                                <CheckCircle className="h-3 w-3" />
+                                Lida
+                              </span>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={() => markAsRead.mutate(notification.id)}
+                                disabled={markAsRead.isPending}
+                              >
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Marcar como lida
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
