@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useHasVehicles } from "@/hooks/useOwnerDashboard";
 import { useUnreadMessagesCount } from "@/hooks/useMessages";
+import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useUserRoles } from "@/hooks/useUserRoles";
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { data: hasVehicles } = useHasVehicles();
   const { data: unreadCount } = useUnreadMessagesCount();
+  const { data: unreadNotifications } = useUnreadNotificationsCount();
   const { data: userRoles } = useUserRoles(user?.id);
   
   const isAdmin = userRoles?.some(role => role.role === 'admin') ?? false;
@@ -92,6 +94,17 @@ const Navbar = () => {
                       {unreadCount && unreadCount > 0 ? (
                         <Badge variant="destructive" className="ml-auto text-xs px-1.5 py-0">
                           {unreadCount}
+                        </Badge>
+                      ) : null}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/notifications" className="cursor-pointer flex items-center">
+                      <Bell className="mr-2 h-4 w-4" />
+                      Notificações
+                      {unreadNotifications && unreadNotifications > 0 ? (
+                        <Badge variant="destructive" className="ml-auto text-xs px-1.5 py-0">
+                          {unreadNotifications}
                         </Badge>
                       ) : null}
                     </Link>
@@ -211,6 +224,17 @@ const Navbar = () => {
                       {unreadCount && unreadCount > 0 ? (
                         <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs px-1.5 py-0">
                           {unreadCount}
+                        </Badge>
+                      ) : null}
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full relative" size="sm" asChild>
+                    <Link to="/notifications" onClick={() => setIsMenuOpen(false)}>
+                      <Bell className="w-4 h-4 mr-2" />
+                      Notificações
+                      {unreadNotifications && unreadNotifications > 0 ? (
+                        <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs px-1.5 py-0">
+                          {unreadNotifications}
                         </Badge>
                       ) : null}
                     </Link>

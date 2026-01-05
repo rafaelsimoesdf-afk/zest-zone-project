@@ -22,6 +22,7 @@ import Admin from "./pages/Admin";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
+import Notifications from "./pages/Notifications";
 import SelfieUpload from "./pages/SelfieUpload";
 import NotFound from "./pages/NotFound";
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/owner-dashboard" element={<OwnerDashboard />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/selfie-upload/:sessionToken" element={<SelfieUpload />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
