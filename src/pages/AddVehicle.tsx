@@ -427,29 +427,29 @@ const AddVehicle = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-24">
-        <Button variant="ghost" className="mb-6" asChild>
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
+        <Button variant="ghost" className="mb-4 sm:mb-6 text-xs sm:text-sm" size="sm" asChild>
           <Link to="/become-owner">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             Voltar
           </Link>
         </Button>
 
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-display font-bold mb-8 text-primary">
+          <h1 className="text-2xl sm:text-4xl font-display font-bold mb-6 sm:mb-8 text-primary">
             Cadastrar Veículo
           </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-8">
             {/* Images */}
             <Card>
-              <CardHeader>
-                <CardTitle>Fotos do Veículo</CardTitle>
-                <CardDescription>Adicione até 10 fotos do seu veículo. A primeira será a foto principal.</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Fotos do Veículo</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Adicione até 10 fotos do seu veículo. A primeira será a foto principal.</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-4">
                     {imagePreviews.map((preview, index) => (
                       <div key={index} className="relative aspect-square">
                         <img
@@ -461,13 +461,13 @@ const AddVehicle = () => {
                           type="button"
                           variant="destructive"
                           size="icon"
-                          className="absolute top-2 right-2 h-6 w-6"
+                          className="absolute top-1 right-1 sm:top-2 sm:right-2 h-5 w-5 sm:h-6 sm:w-6"
                           onClick={() => removeImage(index)}
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                         {index === 0 && (
-                          <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                          <div className="absolute bottom-1 left-1 sm:bottom-2 sm:left-2 bg-primary text-primary-foreground text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
                             Principal
                           </div>
                         )}
@@ -475,8 +475,8 @@ const AddVehicle = () => {
                     ))}
                     {images.length < 10 && (
                       <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
-                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                        <span className="text-sm text-muted-foreground">Adicionar Foto</span>
+                        <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground mb-1 sm:mb-2" />
+                        <span className="text-[10px] sm:text-sm text-muted-foreground text-center px-1">Adicionar</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -493,11 +493,11 @@ const AddVehicle = () => {
 
             {/* Basic Info */}
             <Card>
-              <CardHeader>
-                <CardTitle>Informações Básicas</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Informações Básicas</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="brand">Marca *</Label>
                     <Select
@@ -542,8 +542,8 @@ const AddVehicle = () => {
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5 sm:space-y-2">
                     <Label htmlFor="versao">Versão</Label>
                     <Input
                       id="versao"
@@ -733,12 +733,12 @@ const AddVehicle = () => {
 
             {/* Location */}
             <Card>
-              <CardHeader>
-                <CardTitle>Localização do Veículo</CardTitle>
-                <CardDescription>Onde o veículo está disponível para retirada</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Localização do Veículo</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Onde o veículo está disponível para retirada</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="state">Estado *</Label>
                     <Select
@@ -782,11 +782,11 @@ const AddVehicle = () => {
 
             {/* Financial */}
             <Card>
-              <CardHeader>
-                <CardTitle>Finanças</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Finanças</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="daily_price">Preço por Dia *</Label>
                     <CurrencyInput
@@ -816,11 +816,11 @@ const AddVehicle = () => {
 
             {/* Documentation/Status */}
             <Card>
-              <CardHeader>
-                <CardTitle>Documentação / Status</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Documentação / Status</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="chassi_mascarado">Chassi (Mascarado)</Label>
                     <Input
@@ -853,16 +853,16 @@ const AddVehicle = () => {
 
             {/* Vehicle Document Upload */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                   Documento do Veículo
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Envie o CRLV (Certificado de Registro e Licenciamento de Veículo) ou documento equivalente
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0">
                 <div className="space-y-4">
                   {documentPreview ? (
                     <div className="relative border rounded-lg p-4 bg-muted/50">
@@ -918,14 +918,14 @@ const AddVehicle = () => {
 
             {/* Accessories - Security */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
                   Segurança
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
                     { id: "airbag_frontal", label: "Airbag Frontal" },
                     { id: "airbag_lateral", label: "Airbag Lateral" },
@@ -936,13 +936,14 @@ const AddVehicle = () => {
                     { id: "sensor_estacionamento", label: "Sensor de Estacionamento" },
                     { id: "alarme", label: "Alarme" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-xs sm:text-sm">
                         {item.label}
                       </Label>
                     </div>
@@ -953,14 +954,14 @@ const AddVehicle = () => {
 
             {/* Accessories - Comfort */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sofa className="w-5 h-5" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Sofa className="w-4 h-4 sm:w-5 sm:h-5" />
                   Conforto
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
                     { id: "has_air_conditioning", label: "Ar Condicionado" },
                     { id: "ar_digital", label: "Ar Digital" },
@@ -971,13 +972,14 @@ const AddVehicle = () => {
                     { id: "banco_couro", label: "Banco de Couro" },
                     { id: "banco_eletrico", label: "Banco Elétrico" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-xs sm:text-sm">
                         {item.label}
                       </Label>
                     </div>
@@ -988,14 +990,14 @@ const AddVehicle = () => {
 
             {/* Accessories - Technology */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Cpu className="w-5 h-5" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Cpu className="w-4 h-4 sm:w-5 sm:h-5" />
                   Tecnologia
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
                     { id: "multimidia", label: "Multimídia" },
                     { id: "bluetooth", label: "Bluetooth" },
@@ -1008,13 +1010,14 @@ const AddVehicle = () => {
                     { id: "piloto_automatico", label: "Piloto Automático" },
                     { id: "start_stop", label: "Start/Stop" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-xs sm:text-sm">
                         {item.label}
                       </Label>
                     </div>
@@ -1025,14 +1028,14 @@ const AddVehicle = () => {
 
             {/* Accessories - Exterior */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Car className="w-5 h-5" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Car className="w-4 h-4 sm:w-5 sm:h-5" />
                   Exterior
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
                     { id: "rodas_liga_leve", label: "Rodas de Liga Leve" },
                     { id: "farol_led", label: "Farol LED" },
@@ -1040,13 +1043,14 @@ const AddVehicle = () => {
                     { id: "rack_teto", label: "Rack de Teto" },
                     { id: "engate", label: "Engate" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-xs sm:text-sm">
                         {item.label}
                       </Label>
                     </div>
@@ -1057,27 +1061,28 @@ const AddVehicle = () => {
 
             {/* Accessories - Other */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <Package className="w-4 h-4 sm:w-5 sm:h-5" />
                   Outros
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                   {[
                     { id: "chave_reserva", label: "Chave Reserva" },
                     { id: "manual_veiculo", label: "Manual do Veículo" },
                     { id: "sensor_chuva", label: "Sensor de Chuva" },
                     { id: "sensor_crepuscular", label: "Sensor Crepuscular" },
                   ].map((item) => (
-                    <div key={item.id} className="flex items-center space-x-2">
+                    <div key={item.id} className="flex items-center space-x-1.5 sm:space-x-2">
                       <Checkbox
                         id={item.id}
                         checked={formData[item.id as keyof typeof formData] as boolean}
                         onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                        className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                       />
-                      <Label htmlFor={item.id} className="cursor-pointer text-sm">
+                      <Label htmlFor={item.id} className="cursor-pointer text-xs sm:text-sm">
                         {item.label}
                       </Label>
                     </div>
@@ -1088,18 +1093,19 @@ const AddVehicle = () => {
 
             {/* Description */}
             <Card>
-              <CardHeader>
-                <CardTitle>Descrição</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Descrição</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Descrição do Veículo</Label>
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="description" className="text-xs sm:text-sm">Descrição do Veículo</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Descreva seu veículo, seu estado de conservação, manutenções recentes, diferenciais, etc."
-                    rows={5}
+                    rows={4}
+                    className="text-sm"
                   />
                 </div>
               </CardContent>
@@ -1107,30 +1113,31 @@ const AddVehicle = () => {
 
             {/* Owner Rules */}
             <Card>
-              <CardHeader>
-                <CardTitle>Regras do Proprietário</CardTitle>
-                <CardDescription>Defina as regras e condições para aluguel do seu veículo</CardDescription>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-base sm:text-lg">Regras do Proprietário</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Defina as regras e condições para aluguel do seu veículo</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Label htmlFor="regras">Regras</Label>
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="space-y-1.5 sm:space-y-2">
+                  <Label htmlFor="regras" className="text-xs sm:text-sm">Regras</Label>
                   <Textarea
                     id="regras"
                     value={formData.regras}
                     onChange={(e) => setFormData({ ...formData, regras: e.target.value })}
                     placeholder="Ex: Proibido fumar no veículo, devolução com tanque cheio, limite de quilometragem diária, idade mínima do condutor, etc."
-                    rows={5}
+                    rows={4}
+                    className="text-sm"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button
                 type="submit"
                 size="lg"
                 disabled={isSubmitting}
-                className="flex-1 gradient-accent text-accent-foreground"
+                className="flex-1 gradient-accent text-accent-foreground text-sm sm:text-base h-10 sm:h-12"
               >
                 {isSubmitting ? "Cadastrando..." : "Cadastrar Veículo"}
               </Button>
@@ -1139,6 +1146,7 @@ const AddVehicle = () => {
                 variant="outline"
                 size="lg"
                 onClick={() => navigate("/become-owner")}
+                className="text-sm sm:text-base h-10 sm:h-12"
               >
                 Cancelar
               </Button>
