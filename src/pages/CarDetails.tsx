@@ -223,8 +223,14 @@ const CarDetails = () => {
                     <div className="flex items-center gap-4 text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Star className="w-5 h-5 fill-accent text-accent" />
-                        <span className="font-semibold text-foreground">4.9</span>
-                        <span>(0 avaliações)</span>
+                        <span className="font-semibold text-foreground">
+                          {ownerStats?.total_reviews && ownerStats.total_reviews > 0 
+                            ? ownerStats.average_rating.toFixed(1) 
+                            : "Novo"}
+                        </span>
+                        <span>
+                          ({ownerStats?.total_reviews || 0} {ownerStats?.total_reviews === 1 ? "avaliação" : "avaliações"})
+                        </span>
                       </div>
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
