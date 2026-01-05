@@ -234,7 +234,13 @@ const CarDetails = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
-                        <span>{address ? `${address.neighborhood}, ${address.city} - ${address.state}` : "Localização não informada"}</span>
+                        <span>
+                          {address 
+                            ? `${address.neighborhood}, ${address.city} - ${address.state}` 
+                            : (vehicle.city && vehicle.state 
+                                ? `${vehicle.city} - ${vehicle.state}` 
+                                : "Localização não informada")}
+                        </span>
                       </div>
                     </div>
                   </div>
