@@ -95,6 +95,8 @@ export const useAllUserReviews = (userId: string) => {
           }
 
           // Determine if this review is for the user as customer or owner
+          // If the reviewed user is the customer_id of the booking, they received this review AS A CUSTOMER (renter)
+          // If the reviewed user is the owner_id of the booking, they received this review AS AN OWNER
           const isAsCustomer = bookingResult.data?.customer_id === userId;
           const reviewType = isAsCustomer ? "as_customer" : "as_owner";
 

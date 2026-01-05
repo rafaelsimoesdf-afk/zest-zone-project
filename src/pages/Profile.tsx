@@ -392,8 +392,8 @@ const Profile = () => {
                   </CardContent>
                 </Card>
 
-                {/* Avaliações como Proprietário - só mostra se o usuário for owner */}
-                {isOwner && (
+                {/* Avaliações como Proprietário - mostra se o usuário for owner OU tiver avaliações como proprietário */}
+                {(isOwner || (reviewsStats && reviewsStats.as_owner.total_reviews > 0)) && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
