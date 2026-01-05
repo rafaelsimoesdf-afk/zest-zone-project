@@ -160,7 +160,7 @@ export const useCreateBooking = () => {
       if (error) throw error;
 
       // Create notification for the vehicle owner
-      if (bookingData.owner_id) {
+      if (bookingData.owner_id && data) {
         const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
         const customerName = customerProfile ? `${customerProfile.first_name} ${customerProfile.last_name}` : "Um usuário";
         
@@ -168,7 +168,8 @@ export const useCreateBooking = () => {
           user_id: bookingData.owner_id,
           notification_type: "booking",
           title: "Nova solicitação de reserva!",
-          message: `${customerName} solicitou uma reserva do seu ${vehicleName} de ${new Date(bookingData.start_date).toLocaleDateString('pt-BR')} a ${new Date(bookingData.end_date).toLocaleDateString('pt-BR')}.`,
+          message: `${customerName} quer alugar seu ${vehicleName} de ${new Date(bookingData.start_date).toLocaleDateString('pt-BR')} a ${new Date(bookingData.end_date).toLocaleDateString('pt-BR')}. Clique para revisar e aprovar!`,
+          action_url: `/owner-dashboard`,
         });
       }
 
