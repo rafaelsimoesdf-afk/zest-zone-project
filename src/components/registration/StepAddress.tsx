@@ -81,6 +81,7 @@ export const StepAddress = ({ data, onChange, errors }: StepAddressProps) => {
             onChange={(e) => handleCEPChange(e.target.value)}
             placeholder="00000-000"
             maxLength={9}
+            inputMode="numeric"
             className={errors.zip_code ? 'border-destructive' : ''}
           />
           {loadingCEP && (

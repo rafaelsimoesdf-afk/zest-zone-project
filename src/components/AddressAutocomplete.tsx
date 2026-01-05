@@ -227,6 +227,7 @@ export const AddressAutocomplete = ({ value, onChange, disabled }: AddressAutoco
               onChange={(e) => onChange({ ...value, zip_code: e.target.value })}
               disabled={disabled}
               required
+              inputMode="numeric"
               placeholder="00000-000"
             />
           </div>

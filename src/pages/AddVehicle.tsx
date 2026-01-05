@@ -571,6 +571,7 @@ const AddVehicle = () => {
                     <Input
                       id="ano_fabricacao"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="1900"
                       max={new Date().getFullYear() + 1}
@@ -583,6 +584,7 @@ const AddVehicle = () => {
                     <Input
                       id="ano_modelo"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="1900"
                       max={new Date().getFullYear() + 2}
@@ -696,6 +698,7 @@ const AddVehicle = () => {
                     <Input
                       id="doors"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="2"
                       max="5"
@@ -708,6 +711,7 @@ const AddVehicle = () => {
                     <Input
                       id="seats"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="2"
                       max="9"
@@ -720,6 +724,7 @@ const AddVehicle = () => {
                     <Input
                       id="mileage"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="0"
                       value={formData.mileage}

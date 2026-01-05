@@ -100,6 +100,7 @@ export const StepPersonalData = ({ data, onChange, errors }: StepPersonalDataPro
           onChange={(e) => handleChange('cpf', e.target.value)}
           placeholder="000.000.000-00"
           maxLength={14}
+          inputMode="numeric"
           className={errors.cpf ? 'border-destructive' : ''}
         />
         {errors.cpf && (
@@ -118,6 +119,7 @@ export const StepPersonalData = ({ data, onChange, errors }: StepPersonalDataPro
           onChange={(e) => handleChange('phone_number', e.target.value)}
           placeholder="(00) 00000-0000"
           maxLength={15}
+          inputMode="tel"
           className={errors.phone_number ? 'border-destructive' : ''}
         />
         {errors.phone_number && (

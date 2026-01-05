@@ -529,6 +529,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       id="ano_fabricacao"
                       className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="1900"
                       max={new Date().getFullYear() + 1}
@@ -542,6 +543,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       id="ano_modelo"
                       className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="1900"
                       max={new Date().getFullYear() + 2}
@@ -658,6 +660,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       id="doors"
                       className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="2"
                       max="5"
@@ -671,6 +674,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       id="seats"
                       className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="2"
                       max="9"
@@ -684,6 +688,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                       id="mileage"
                       className="h-9 sm:h-10 text-xs sm:text-sm"
                       type="number"
+                      inputMode="numeric"
                       required
                       min="0"
                       value={formData.mileage}
