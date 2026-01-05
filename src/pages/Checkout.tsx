@@ -263,24 +263,24 @@ const Checkout = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 pt-20 sm:pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(-1)}
-              className="rounded-full"
+              className="rounded-full w-8 h-8 sm:w-10 sm:h-10"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold">
+            <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold">
               Confirmar e pagar
             </h1>
           </div>
 
-          <div className="grid lg:grid-cols-5 gap-8 lg:gap-12">
+          <div className="grid lg:grid-cols-5 gap-6 lg:gap-12">
             {/* Left Column - Form */}
             <div className="lg:col-span-3 space-y-8">
               {/* Trip Details */}
@@ -547,12 +547,12 @@ const Checkout = () => {
             </div>
 
             {/* Right Column - Summary */}
-            <div className="lg:col-span-2">
-              <Card className="sticky top-24 border shadow-lg">
-                <CardContent className="p-6">
+            <div className="lg:col-span-2 order-first lg:order-none">
+              <Card className="lg:sticky lg:top-24 border shadow-lg">
+                <CardContent className="p-4 sm:p-6">
                   {/* Vehicle Preview */}
-                  <div className="flex gap-4 mb-6">
-                    <div className="w-28 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                  <div className="flex gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div className="w-20 h-16 sm:w-28 sm:h-24 rounded-lg overflow-hidden flex-shrink-0">
                       <img
                         src={images[0] || "https://images.unsplash.com/photo-1590362891991-f776e747a588"}
                         alt={`${vehicle.brand} ${vehicle.model}`}
@@ -560,27 +560,27 @@ const Checkout = () => {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">
+                      <p className="font-semibold text-sm sm:text-base truncate">
                         {vehicle.brand} {vehicle.model} {vehicle.year}
                       </p>
-                      <p className="text-sm text-muted-foreground capitalize">
+                      <p className="text-xs sm:text-sm text-muted-foreground capitalize">
                         {vehicle.vehicle_type}
                       </p>
                       <div className="flex items-center gap-1 mt-1">
-                        <Star className="w-4 h-4 fill-accent text-accent" />
-                        <span className="text-sm font-medium">5,00</span>
-                        <span className="text-sm text-muted-foreground">(0 avaliações)</span>
+                        <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-accent text-accent" />
+                        <span className="text-xs sm:text-sm font-medium">5,00</span>
+                        <span className="text-xs sm:text-sm text-muted-foreground">(0)</span>
                       </div>
                     </div>
                   </div>
 
-                  <Separator className="mb-6" />
+                  <Separator className="mb-4 sm:mb-6" />
 
                   {/* Price Summary */}
                   <div>
-                    <h3 className="font-bold text-lg mb-4">Resumo do Pagamento</h3>
+                    <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">Resumo do Pagamento</h3>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3 text-sm sm:text-base">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">
                           Diária ({formatCurrencyBRL(vehicle.daily_price)} × {days})
@@ -606,7 +606,7 @@ const Checkout = () => {
 
                       <div className="flex justify-between items-center">
                         <span className="font-bold">Total</span>
-                        <span className="font-bold text-lg text-primary">{formatCurrencyBRL(totalPrice)}</span>
+                        <span className="font-bold text-base sm:text-lg text-primary">{formatCurrencyBRL(totalPrice)}</span>
                       </div>
                     </div>
                   </div>

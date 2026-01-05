@@ -150,36 +150,37 @@ const CarDetails = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 pt-20 sm:pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <Button
             variant="ghost"
-            className="mb-6"
+            className="mb-4 sm:mb-6 -ml-2"
+            size="sm"
             asChild
           >
             <Link to="/browse">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar para busca
+              <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="text-sm">Voltar</span>
             </Link>
           </Button>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-6 sm:space-y-8">
               {/* Images Gallery */}
-              <div className="space-y-4">
-                <div className="relative h-[400px] sm:h-[500px] rounded-2xl overflow-hidden">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="relative h-[280px] sm:h-[400px] lg:h-[500px] rounded-xl sm:rounded-2xl overflow-hidden">
                   <img
                     src={images[mainImage] || "https://images.unsplash.com/photo-1590362891991-f776e747a588"}
                     alt={`${vehicle.brand} ${vehicle.model}`}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-4 right-4 flex gap-2">
+                  <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-2">
                     <Button
                       size="icon"
                       variant="secondary"
-                      className="backdrop-blur-sm bg-background/80"
+                      className="backdrop-blur-sm bg-background/80 w-8 h-8 sm:w-10 sm:h-10"
                     >
                       <Share2 className="w-4 h-4" />
                     </Button>
@@ -191,12 +192,12 @@ const CarDetails = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-2 sm:gap-3">
                   {images.slice(0, 4).map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setMainImage(index)}
-                      className={`relative h-24 rounded-lg overflow-hidden border-2 transition-all ${
+                      className={`relative h-16 sm:h-24 rounded-lg overflow-hidden border-2 transition-all ${
                         mainImage === index
                           ? "border-primary ring-2 ring-primary/20"
                           : "border-border hover:border-primary/50"
@@ -214,134 +215,132 @@ const CarDetails = () => {
 
               {/* Car Info */}
               <div>
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <Badge className="mb-3 capitalize">{vehicle.vehicle_type}</Badge>
-                    <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">
-                      {vehicle.brand} {vehicle.model} {vehicle.year}
-                    </h1>
-                    <div className="flex items-center gap-4 text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-5 h-5 fill-accent text-accent" />
-                        <span className="font-semibold text-foreground">
-                          {ownerStats?.total_reviews && ownerStats.total_reviews > 0 
-                            ? ownerStats.average_rating.toFixed(1) 
-                            : "Novo"}
-                        </span>
-                        <span>
-                          ({ownerStats?.total_reviews || 0} {ownerStats?.total_reviews === 1 ? "avaliação" : "avaliações"})
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        <span>
-                          {address 
-                            ? `${address.neighborhood}, ${address.city} - ${address.state}` 
-                            : (vehicle.city && vehicle.state 
-                                ? `${vehicle.city} - ${vehicle.state}` 
-                                : "Localização não informada")}
-                        </span>
-                      </div>
+                <div className="mb-4">
+                  <Badge className="mb-2 sm:mb-3 capitalize text-xs">{vehicle.vehicle_type}</Badge>
+                  <h1 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold mb-2">
+                    {vehicle.brand} {vehicle.model} {vehicle.year}
+                  </h1>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground text-sm">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-accent text-accent" />
+                      <span className="font-semibold text-foreground">
+                        {ownerStats?.total_reviews && ownerStats.total_reviews > 0 
+                          ? ownerStats.average_rating.toFixed(1) 
+                          : "Novo"}
+                      </span>
+                      <span className="text-xs sm:text-sm">
+                        ({ownerStats?.total_reviews || 0} {ownerStats?.total_reviews === 1 ? "avaliação" : "avaliações"})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span className="text-xs sm:text-sm truncate">
+                        {address 
+                          ? `${address.neighborhood}, ${address.city} - ${address.state}` 
+                          : (vehicle.city && vehicle.state 
+                              ? `${vehicle.city} - ${vehicle.state}` 
+                              : "Localização não informada")}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <Separator className="my-6" />
+                <Separator className="my-4 sm:my-6" />
 
                 {/* Specs */}
                 <div>
-                  <h2 className="font-bold text-xl mb-4">Especificações</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <CalendarIcon className="w-5 h-5 text-primary" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Ano</div>
-                        <div className="font-semibold">{vehicle.ano_modelo || vehicle.year}</div>
+                  <h2 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4">Especificações</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4">
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                      <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground">Ano</div>
+                        <div className="font-semibold text-sm sm:text-base">{vehicle.ano_modelo || vehicle.year}</div>
                       </div>
                     </div>
                     {vehicle.ano_fabricacao && (
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                        <CalendarIcon className="w-5 h-5 text-primary" />
-                        <div>
-                          <div className="text-sm text-muted-foreground">Fabricação</div>
-                          <div className="font-semibold">{vehicle.ano_fabricacao}</div>
+                      <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                        <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-xs sm:text-sm text-muted-foreground">Fabricação</div>
+                          <div className="font-semibold text-sm sm:text-base">{vehicle.ano_fabricacao}</div>
                         </div>
                       </div>
                     )}
                     {vehicle.versao && (
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                        <Car className="w-5 h-5 text-primary" />
-                        <div>
-                          <div className="text-sm text-muted-foreground">Versão</div>
-                          <div className="font-semibold">{vehicle.versao}</div>
+                      <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                        <Car className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-xs sm:text-sm text-muted-foreground">Versão</div>
+                          <div className="font-semibold text-sm sm:text-base truncate">{vehicle.versao}</div>
                         </div>
                       </div>
                     )}
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <Settings className="w-5 h-5 text-primary" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Câmbio</div>
-                        <div className="font-semibold capitalize">{vehicle.transmission_type}</div>
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                      <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground">Câmbio</div>
+                        <div className="font-semibold text-sm sm:text-base capitalize">{vehicle.transmission_type}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <Fuel className="w-5 h-5 text-primary" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Combustível</div>
-                        <div className="font-semibold capitalize">{vehicle.fuel_type}</div>
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                      <Fuel className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground">Combustível</div>
+                        <div className="font-semibold text-sm sm:text-base capitalize">{vehicle.fuel_type}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <Users className="w-5 h-5 text-primary" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Passageiros</div>
-                        <div className="font-semibold">{vehicle.seats}</div>
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                      <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground">Passageiros</div>
+                        <div className="font-semibold text-sm sm:text-base">{vehicle.seats}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <Car className="w-5 h-5 text-primary" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Portas</div>
-                        <div className="font-semibold">{vehicle.doors}</div>
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                      <Car className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground">Portas</div>
+                        <div className="font-semibold text-sm sm:text-base">{vehicle.doors}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <Palette className="w-5 h-5 text-primary" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Cor</div>
-                        <div className="font-semibold capitalize">{vehicle.color}</div>
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                      <Palette className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground">Cor</div>
+                        <div className="font-semibold text-sm sm:text-base capitalize">{vehicle.color}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <Gauge className="w-5 h-5 text-primary" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Quilometragem</div>
-                        <div className="font-semibold">{vehicle.mileage?.toLocaleString('pt-BR')} km</div>
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                      <Gauge className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground">KM</div>
+                        <div className="font-semibold text-sm sm:text-base">{vehicle.mileage?.toLocaleString('pt-BR')}</div>
                       </div>
                     </div>
                     {vehicle.motor && (
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                        <Cog className="w-5 h-5 text-primary" />
-                        <div>
-                          <div className="text-sm text-muted-foreground">Motor</div>
-                          <div className="font-semibold">{vehicle.motor}</div>
+                      <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                        <Cog className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-xs sm:text-sm text-muted-foreground">Motor</div>
+                          <div className="font-semibold text-sm sm:text-base">{vehicle.motor}</div>
                         </div>
                       </div>
                     )}
                     {vehicle.direcao && (
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                        <Settings className="w-5 h-5 text-primary" />
-                        <div>
-                          <div className="text-sm text-muted-foreground">Direção</div>
-                          <div className="font-semibold capitalize">{vehicle.direcao}</div>
+                      <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                        <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <div className="text-xs sm:text-sm text-muted-foreground">Direção</div>
+                          <div className="font-semibold text-sm sm:text-base capitalize">{vehicle.direcao}</div>
                         </div>
                       </div>
                     )}
-                    <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                      <Car className="w-5 h-5 text-primary" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Tipo</div>
-                        <div className="font-semibold capitalize">{vehicle.vehicle_type}</div>
+                    <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
+                      <Car className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-xs sm:text-sm text-muted-foreground">Tipo</div>
+                        <div className="font-semibold text-sm sm:text-base capitalize">{vehicle.vehicle_type}</div>
                       </div>
                     </div>
                   </div>
@@ -704,17 +703,17 @@ const CarDetails = () => {
             </div>
 
             {/* Booking Card - Sticky */}
-            <div className="lg:sticky lg:top-24 h-fit">
+            <div className="lg:sticky lg:top-24 h-fit order-first lg:order-none">
               <Card className="border-2 shadow-xl">
-                <CardContent className="p-6">
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-4xl font-display font-bold text-primary">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="mb-4 sm:mb-6">
+                    <div className="flex items-baseline gap-2 mb-1 sm:mb-2">
+                      <span className="text-2xl sm:text-4xl font-display font-bold text-primary">
                         {formatCurrencyBRL(vehicle.daily_price)}
                       </span>
-                      <span className="text-muted-foreground">/dia</span>
+                      <span className="text-muted-foreground text-sm sm:text-base">/dia</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       * Valor pode variar conforme o período
                     </p>
                   </div>
