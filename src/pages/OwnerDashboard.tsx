@@ -89,6 +89,10 @@ const OwnerDashboard = () => {
     updateStatus.mutate({ bookingId: booking.id, status: "confirmed" });
   };
 
+  const handleComplete = (booking: OwnerBooking) => {
+    updateStatus.mutate({ bookingId: booking.id, status: "completed" });
+  };
+
   const handleRejectOrCancel = () => {
     if (!actionDialog.booking || !actionDialog.type) return;
     
@@ -409,15 +413,26 @@ const OwnerDashboard = () => {
                                     )}
 
                                     {booking.status === "confirmed" && (
-                                      <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => setActionDialog({ type: "cancel", booking })}
-                                        disabled={updateStatus.isPending}
-                                      >
-                                        <XCircle className="w-4 h-4 mr-1" />
-                                        Cancelar
-                                      </Button>
+                                      <>
+                                        <Button
+                                          size="sm"
+                                          className="bg-blue-600 hover:bg-blue-700"
+                                          onClick={() => handleComplete(booking)}
+                                          disabled={updateStatus.isPending}
+                                        >
+                                          <CheckCircle className="w-4 h-4 mr-1" />
+                                          Finalizar
+                                        </Button>
+                                        <Button
+                                          variant="destructive"
+                                          size="sm"
+                                          onClick={() => setActionDialog({ type: "cancel", booking })}
+                                          disabled={updateStatus.isPending}
+                                        >
+                                          <XCircle className="w-4 h-4 mr-1" />
+                                          Cancelar
+                                        </Button>
+                                      </>
                                     )}
                                   </div>
                                 </div>
