@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyBookings } from "@/hooks/useBookings";
 import Navbar from "@/components/Navbar";
@@ -43,7 +44,7 @@ const MyBookings = () => {
                   Você ainda não fez nenhuma reserva. Explore nossos carros disponíveis!
                 </p>
                 <Button asChild>
-                  <a href="/browse">Buscar Carros</a>
+                  <Link to="/browse">Buscar Carros</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -99,7 +100,7 @@ const MyBookings = () => {
                       )}
                       <div className="flex gap-2 flex-wrap">
                         <Button variant="outline" size="sm" asChild>
-                          <a href={`/booking/${booking.id}`}>Ver Detalhes</a>
+                          <Link to={`/booking/${booking.id}`}>Ver Detalhes</Link>
                         </Button>
                         {booking.status === 'completed' && user?.id === booking.customer_id && (
                           <Button 
