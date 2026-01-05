@@ -154,10 +154,13 @@ const Browse = () => {
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-2">
                           <h3 className="font-bold text-xl">{vehicle.brand} {vehicle.model} {vehicle.year}</h3>
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 fill-accent text-accent" />
-                            <span className="font-semibold">4.9</span>
-                          </div>
+                          {vehicle.average_rating && (
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 fill-accent text-accent" />
+                              <span className="font-semibold">{vehicle.average_rating}</span>
+                              <span className="text-muted-foreground text-sm">({vehicle.total_reviews})</span>
+                            </div>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground mb-3">
                           📍 {location}
