@@ -34,6 +34,7 @@ export interface OwnerBooking {
     }>;
   };
   customer?: {
+    id: string;
     first_name: string;
     last_name: string;
     email: string;
@@ -297,6 +298,7 @@ export const useOwnerBookings = (status?: string) => {
             )
           ),
           customer:profiles!bookings_customer_id_fkey (
+            id,
             first_name,
             last_name,
             email,
