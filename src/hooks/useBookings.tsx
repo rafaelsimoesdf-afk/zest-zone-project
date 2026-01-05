@@ -134,6 +134,20 @@ export const useCreateBooking = () => {
         throw new Error("Você não pode reservar seu próprio veículo");
       }
 
+      // Get vehicle info for notification
+      const { data: vehicleInfo } = await supabase
+        .from("vehicles")
+        .select("brand, model")
+        .eq("id", bookingData.vehicle_id)
+        .single();
+
+      // Get customer name for notification
+      const { data: customerProfile } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", user.id)
+        .single();
+
       const { data, error } = await supabase
         .from("bookings")
         .insert({
@@ -144,6 +158,20 @@ export const useCreateBooking = () => {
         .single();
 
       if (error) throw error;
+
+      // Create notification for the vehicle owner
+      if (bookingData.owner_id) {
+        const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
+        const customerName = customerProfile ? `${customerProfile.first_name} ${customerProfile.last_name}` : "Um usuário";
+        
+        await supabase.from("notifications").insert({
+          user_id: bookingData.owner_id,
+          notification_type: "booking",
+          title: "Nova solicitação de reserva!",
+          message: `${customerName} solicitou uma reserva do seu ${vehicleName} de ${new Date(bookingData.start_date).toLocaleDateString('pt-BR')} a ${new Date(bookingData.end_date).toLocaleDateString('pt-BR')}.`,
+        });
+      }
+
       return data;
     },
     onSuccess: () => {
