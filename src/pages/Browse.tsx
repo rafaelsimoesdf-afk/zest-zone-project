@@ -113,7 +113,7 @@ const Browse = () => {
               <p className="text-muted-foreground">Nenhum veículo encontrado com os filtros selecionados.</p>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {sortedVehicles.map((vehicle) => {
                 // Build link params with dates
                 const carLinkParams = new URLSearchParams();
