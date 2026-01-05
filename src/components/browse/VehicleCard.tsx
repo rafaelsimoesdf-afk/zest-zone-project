@@ -75,7 +75,7 @@ export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
     <Link to={carLink}>
       <Card className="overflow-hidden group hover:shadow-xl transition-smooth border hover:border-primary h-full bg-card">
         {/* Image Carousel */}
-        <div className="relative h-32 sm:h-52 overflow-hidden">
+        <div className="relative h-48 sm:h-52 overflow-hidden">
           {/* Images */}
           <div className="relative w-full h-full">
             {imageUrls.map((url, index) => (
