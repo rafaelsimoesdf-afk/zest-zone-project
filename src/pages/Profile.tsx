@@ -133,25 +133,28 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-24">
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-20 sm:py-24">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-display font-bold mb-8 text-primary">
+          <h1 className="text-2xl sm:text-4xl font-display font-bold mb-4 sm:mb-8 text-primary">
             Meu Perfil
           </h1>
 
-          <Tabs defaultValue={defaultTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="verification" className="flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                Verificação
+          <Tabs defaultValue={defaultTab} className="space-y-4 sm:space-y-6">
+            <TabsList className="grid w-full grid-cols-3 h-auto">
+              <TabsTrigger value="verification" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-2.5 px-1 sm:px-3">
+                <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Verificação</span>
+                <span className="sm:hidden">Verif.</span>
               </TabsTrigger>
-              <TabsTrigger value="info" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Informações
+              <TabsTrigger value="info" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-2.5 px-1 sm:px-3">
+                <User className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Informações</span>
+                <span className="sm:hidden">Info</span>
               </TabsTrigger>
-              <TabsTrigger value="reviews" className="flex items-center gap-2">
-                <Star className="w-4 h-4" />
-                Avaliações
+              <TabsTrigger value="reviews" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-2.5 px-1 sm:px-3">
+                <Star className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Avaliações</span>
+                <span className="sm:hidden">Aval.</span>
               </TabsTrigger>
             </TabsList>
 
@@ -161,11 +164,11 @@ const Profile = () => {
 
             <TabsContent value="info">
               <Card>
-                <CardHeader>
-                  <CardTitle>Informações Pessoais</CardTitle>
-                  <CardDescription>Gerencie suas informações de perfil</CardDescription>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">Informações Pessoais</CardTitle>
+                  <CardDescription className="text-xs sm:text-sm">Gerencie suas informações de perfil</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0 space-y-4 sm:space-y-6">
                   <div className="space-y-4">
                     <div className="grid gap-2">
                       <Label htmlFor="email">
@@ -241,8 +244,8 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t">
-                    <h3 className="text-lg font-semibold mb-4">Endereço</h3>
+                  <div className="pt-4 sm:pt-6 border-t">
+                    <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Endereço</h3>
                     <AddressAutocomplete
                       value={addressData}
                       onChange={setAddressData}
@@ -250,7 +253,7 @@ const Profile = () => {
                     />
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-wrap gap-2 sm:gap-3 pt-3 sm:pt-4">
                     {!isEditing ? (
                       <Button onClick={() => setIsEditing(true)}>
                         Editar Perfil

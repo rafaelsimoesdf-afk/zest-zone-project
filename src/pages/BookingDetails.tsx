@@ -134,59 +134,59 @@ const BookingDetails = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-24">
+      <main className="flex-1 container mx-auto px-3 sm:px-4 py-20 sm:py-24">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/my-bookings")}>
-              <ArrowLeft className="w-5 h-5" />
+          <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-8">
+            <Button variant="ghost" size="icon" className="shrink-0 w-8 h-8 sm:w-10 sm:h-10" onClick={() => navigate("/my-bookings")}>
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            <div className="flex-1">
-              <h1 className="text-3xl font-display font-bold text-primary">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-3xl font-display font-bold text-primary truncate">
                 Detalhes da Reserva
               </h1>
-              <p className="text-muted-foreground">#{booking.id.slice(0, 8)}</p>
+              <p className="text-xs sm:text-base text-muted-foreground">#{booking.id.slice(0, 8)}</p>
             </div>
-            <Badge variant={statusVariants[booking.status] || "outline"} className="text-sm px-3 py-1">
+            <Badge variant={statusVariants[booking.status] || "outline"} className="text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 shrink-0">
               {statusLabels[booking.status] || booking.status}
             </Badge>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               {/* Vehicle Card */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Car className="w-5 h-5" />
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Car className="w-4 h-4 sm:w-5 sm:h-5" />
                     Veículo
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex gap-4">
+                <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                  <div className="flex gap-3 sm:gap-4">
                     {primaryImage ? (
                       <img 
                         src={primaryImage.image_url} 
                         alt={vehicleName}
-                        className="w-32 h-24 object-cover rounded-lg"
+                        className="w-20 h-16 sm:w-32 sm:h-24 object-cover rounded-lg shrink-0"
                       />
                     ) : (
-                      <div className="w-32 h-24 bg-muted rounded-lg flex items-center justify-center">
-                        <Car className="w-8 h-8 text-muted-foreground" />
+                      <div className="w-20 h-16 sm:w-32 sm:h-24 bg-muted rounded-lg flex items-center justify-center shrink-0">
+                        <Car className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold">{vehicleName}</h3>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-xl font-semibold truncate">{vehicleName}</h3>
                       {booking.vehicles && (
-                        <div className="text-sm text-muted-foreground mt-1 space-y-1">
+                        <div className="text-xs sm:text-sm text-muted-foreground mt-1 space-y-0.5 sm:space-y-1">
                           <p>Cor: {booking.vehicles.color}</p>
-                          <p>Placa: {booking.vehicles.license_plate}</p>
+                          <p className="truncate">Placa: {booking.vehicles.license_plate}</p>
                         </div>
                       )}
                       <Link 
                         to={`/cars/${booking.vehicle_id}`}
-                        className="text-primary text-sm hover:underline mt-2 inline-block"
+                        className="text-primary text-xs sm:text-sm hover:underline mt-1 sm:mt-2 inline-block"
                       >
                         Ver página do veículo →
                       </Link>
@@ -197,36 +197,36 @@ const BookingDetails = () => {
 
               {/* Dates Card */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                     Período da Reserva
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-1">Retirada</p>
-                      <p className="font-semibold">{startDate.toLocaleDateString('pt-BR', { 
-                        weekday: 'long', 
+                <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                  <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-1">Retirada</p>
+                      <p className="font-semibold text-xs sm:text-base">{startDate.toLocaleDateString('pt-BR', { 
+                        weekday: 'short', 
                         day: '2-digit', 
-                        month: 'long', 
+                        month: 'short', 
                         year: 'numeric' 
                       })}</p>
                     </div>
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-sm text-muted-foreground mb-1">Devolução</p>
-                      <p className="font-semibold">{endDate.toLocaleDateString('pt-BR', { 
-                        weekday: 'long', 
+                    <div className="p-3 sm:p-4 bg-muted/50 rounded-lg">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-1">Devolução</p>
+                      <p className="font-semibold text-xs sm:text-base">{endDate.toLocaleDateString('pt-BR', { 
+                        weekday: 'short', 
                         day: '2-digit', 
-                        month: 'long', 
+                        month: 'short', 
                         year: 'numeric' 
                       })}</p>
                     </div>
                   </div>
-                  <div className="mt-4 text-center">
-                    <span className="text-2xl font-bold text-primary">{booking.total_days}</span>
-                    <span className="text-muted-foreground ml-1">
+                  <div className="mt-3 sm:mt-4 text-center">
+                    <span className="text-xl sm:text-2xl font-bold text-primary">{booking.total_days}</span>
+                    <span className="text-muted-foreground text-sm sm:text-base ml-1">
                       {booking.total_days === 1 ? 'dia' : 'dias'}
                     </span>
                   </div>
@@ -236,23 +236,23 @@ const BookingDetails = () => {
               {/* Location Card */}
               {(booking.pickup_location || booking.return_location) && (
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5" />
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                      <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
                       Localização
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-3 sm:space-y-4">
                     {booking.pickup_location && (
                       <div>
-                        <p className="text-sm text-muted-foreground mb-1">Local de Retirada</p>
-                        <p className="font-medium">{booking.pickup_location}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-1">Local de Retirada</p>
+                        <p className="font-medium text-xs sm:text-base break-words">{booking.pickup_location}</p>
                       </div>
                     )}
                     {booking.return_location && (
                       <div>
-                        <p className="text-sm text-muted-foreground mb-1">Local de Devolução</p>
-                        <p className="font-medium">{booking.return_location}</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground mb-1">Local de Devolução</p>
+                        <p className="font-medium text-xs sm:text-base break-words">{booking.return_location}</p>
                       </div>
                     )}
                   </CardContent>
@@ -262,11 +262,11 @@ const BookingDetails = () => {
               {/* Notes Card */}
               {booking.notes && (
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Observações</CardTitle>
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="text-sm sm:text-base">Observações</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">{booking.notes}</p>
+                  <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                    <p className="text-muted-foreground text-xs sm:text-base">{booking.notes}</p>
                   </CardContent>
                 </Card>
               )}
@@ -274,27 +274,27 @@ const BookingDetails = () => {
               {/* Owner Info (visible to customer) */}
               {isCustomer && booking.owner && (
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="w-5 h-5" />
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                      <User className="w-4 h-4 sm:w-5 sm:h-5" />
                       Proprietário
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+                  <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden shrink-0">
                         {booking.owner.profile_image ? (
                           <img src={booking.owner.profile_image} alt={ownerName} className="w-full h-full object-cover" />
                         ) : (
-                          <User className="w-6 h-6 text-primary" />
+                          <User className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         )}
                       </div>
-                      <div>
-                        <p className="font-semibold">{ownerName}</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm sm:text-base truncate">{ownerName}</p>
                         {booking.owner.phone_number && (
-                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
-                            {booking.owner.phone_number}
+                          <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                            <Phone className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{booking.owner.phone_number}</span>
                           </p>
                         )}
                       </div>
@@ -306,33 +306,33 @@ const BookingDetails = () => {
               {/* Customer Info (visible to owner) */}
               {isOwner && booking.customer && (
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <User className="w-5 h-5" />
+                  <CardHeader className="p-3 sm:p-6">
+                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                      <User className="w-4 h-4 sm:w-5 sm:h-5" />
                       Locatário
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+                  <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden shrink-0">
                         {booking.customer.profile_image ? (
                           <img src={booking.customer.profile_image} alt={customerName} className="w-full h-full object-cover" />
                         ) : (
-                          <User className="w-6 h-6 text-primary" />
+                          <User className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         )}
                       </div>
-                      <div>
-                        <p className="font-semibold">{customerName}</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm sm:text-base truncate">{customerName}</p>
                         {booking.customer.email && (
-                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Mail className="w-3 h-3" />
-                            {booking.customer.email}
+                          <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                            <Mail className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{booking.customer.email}</span>
                           </p>
                         )}
                         {booking.customer.phone_number && (
-                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                            <Phone className="w-3 h-3" />
-                            {booking.customer.phone_number}
+                          <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                            <Phone className="w-3 h-3 shrink-0" />
+                            <span className="truncate">{booking.customer.phone_number}</span>
                           </p>
                         )}
                       </div>
@@ -343,43 +343,42 @@ const BookingDetails = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6 order-first lg:order-none">
               {/* Price Summary */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="w-5 h-5" />
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
                     Resumo do Pagamento
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-2 sm:space-y-3">
                   {(() => {
                     const dailySubtotal = booking.daily_rate * booking.total_days;
                     const insurance = booking.total_days * 20;
-                    // Use stored extra_hours_charge if available, otherwise calculate
                     const extraHoursCharge = Number((booking as any).extra_hours_charge) || 0;
                     const extraHours = Number((booking as any).extra_hours) || 0;
                     
                     return (
                       <>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between text-xs sm:text-sm">
                           <span className="text-muted-foreground">
                             Diária ({formatCurrencyBRL(booking.daily_rate)} × {booking.total_days})
                           </span>
                           <span>{formatCurrencyBRL(dailySubtotal)}</span>
                         </div>
                         {extraHoursCharge > 0.01 && (
-                          <div className="flex justify-between text-sm">
+                          <div className="flex justify-between text-xs sm:text-sm">
                             <span className="text-muted-foreground">Horas adicionais ({extraHours.toFixed(1)}h)</span>
                             <span>{formatCurrencyBRL(extraHoursCharge)}</span>
                           </div>
                         )}
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between text-xs sm:text-sm">
                           <span className="text-muted-foreground">Seguro</span>
                           <span>{formatCurrencyBRL(insurance)}</span>
                         </div>
                         <Separator />
-                        <div className="flex justify-between font-semibold text-lg">
+                        <div className="flex justify-between font-semibold text-base sm:text-lg">
                           <span>Total</span>
                           <span className="text-primary">{formatCurrencyBRL(booking.total_price)}</span>
                         </div>
@@ -391,18 +390,18 @@ const BookingDetails = () => {
 
               {/* Booking Info */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="w-5 h-5" />
+                <CardHeader className="p-3 sm:p-6">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
                     Informações
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3 text-sm">
+                <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-2 sm:space-y-3 text-xs sm:text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Criada em</span>
                     <span>{createdAt.toLocaleDateString('pt-BR')}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Status</span>
                     <Badge variant={statusVariants[booking.status] || "outline"} className="text-xs">
                       {statusLabels[booking.status] || booking.status}
