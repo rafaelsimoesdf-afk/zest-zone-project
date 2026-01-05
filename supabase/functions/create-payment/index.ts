@@ -60,7 +60,8 @@ serve(async (req) => {
       totalPrice,
       ownerId,
       pickupLocation,
-      notes
+      notes,
+      acceptances,
     } = body;
 
     logStep("Payment details received", { vehicleId, vehicleName, days, totalPrice, subtotal, insurance, extraHours, extraHoursCharge });
@@ -136,12 +137,14 @@ serve(async (req) => {
 
     // Create a one-time payment session
     // A taxa da plataforma será calculada internamente e deduzida do repasse ao proprietário
+    const acceptancesEncoded = acceptances ? encodeURIComponent(JSON.stringify(acceptances)) : '';
+    
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}&days=${days}&dailyRate=${dailyRate}&extraHours=${extraHours || 0}&extraHoursCharge=${extraHoursCharge || 0}&totalPrice=${totalPrice}&ownerId=${ownerId}&pickupLocation=${encodeURIComponent(pickupLocation || '')}&notes=${encodeURIComponent(notes || '')}`,
+      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}&days=${days}&dailyRate=${dailyRate}&extraHours=${extraHours || 0}&extraHoursCharge=${extraHoursCharge || 0}&totalPrice=${totalPrice}&ownerId=${ownerId}&pickupLocation=${encodeURIComponent(pickupLocation || '')}&notes=${encodeURIComponent(notes || '')}&acceptances=${acceptancesEncoded}`,
       cancel_url: `${req.headers.get("origin")}/checkout?vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}`,
       metadata: {
         vehicleId,
@@ -162,6 +165,7 @@ serve(async (req) => {
         userId: user.id,
         pickupLocation: pickupLocation || '',
         notes: notes || '',
+        acceptances: acceptances ? JSON.stringify(acceptances) : '',
       },
     });
 

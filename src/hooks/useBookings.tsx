@@ -104,6 +104,19 @@ export const useOwnerBookings = () => {
   });
 };
 
+export interface BookingAcceptances {
+  owner_rules_accepted: boolean;
+  owner_rules_accepted_at: string | null;
+  basic_rules_accepted: boolean;
+  basic_rules_accepted_at: string | null;
+  cancellation_policy_accepted: boolean;
+  cancellation_policy_accepted_at: string | null;
+  terms_of_service_accepted: boolean;
+  terms_of_service_accepted_at: string | null;
+  privacy_policy_accepted: boolean;
+  privacy_policy_accepted_at: string | null;
+}
+
 export interface CreateBookingData {
   vehicle_id: string;
   owner_id: string;
@@ -119,6 +132,7 @@ export interface CreateBookingData {
   pickup_location?: string | null;
   return_location?: string | null;
   notes?: string | null;
+  acceptances?: BookingAcceptances;
 }
 
 export const useCreateBooking = () => {
@@ -148,16 +162,45 @@ export const useCreateBooking = () => {
         .eq("id", user.id)
         .single();
 
+      // Separate acceptances from booking data
+      const { acceptances, ...bookingDataWithoutAcceptances } = bookingData;
+
       const { data, error } = await supabase
         .from("bookings")
         .insert({
-          ...bookingData,
+          ...bookingDataWithoutAcceptances,
           customer_id: user.id,
         })
         .select()
         .single();
 
       if (error) throw error;
+
+      // Save acceptances for legal compliance
+      if (acceptances && data) {
+        const { error: acceptanceError } = await supabase
+          .from("booking_acceptances")
+          .insert({
+            booking_id: data.id,
+            user_id: user.id,
+            owner_rules_accepted: acceptances.owner_rules_accepted,
+            owner_rules_accepted_at: acceptances.owner_rules_accepted_at,
+            basic_rules_accepted: acceptances.basic_rules_accepted,
+            basic_rules_accepted_at: acceptances.basic_rules_accepted_at,
+            cancellation_policy_accepted: acceptances.cancellation_policy_accepted,
+            cancellation_policy_accepted_at: acceptances.cancellation_policy_accepted_at,
+            terms_of_service_accepted: acceptances.terms_of_service_accepted,
+            terms_of_service_accepted_at: acceptances.terms_of_service_accepted_at,
+            privacy_policy_accepted: acceptances.privacy_policy_accepted,
+            privacy_policy_accepted_at: acceptances.privacy_policy_accepted_at,
+            user_agent: navigator.userAgent,
+          });
+
+        if (acceptanceError) {
+          console.error("Error saving acceptances:", acceptanceError);
+          // Don't throw - booking was created successfully
+        }
+      }
 
       // Create notification for the vehicle owner
       if (bookingData.owner_id && data) {

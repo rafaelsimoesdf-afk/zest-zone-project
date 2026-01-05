@@ -30,6 +30,10 @@ const PaymentSuccess = () => {
   const ownerId = searchParams.get("ownerId");
   const pickupLocation = searchParams.get("pickupLocation");
   const notes = searchParams.get("notes");
+  const acceptancesParam = searchParams.get("acceptances");
+
+  // Parse acceptances from URL
+  const acceptances = acceptancesParam ? JSON.parse(decodeURIComponent(acceptancesParam)) : null;
 
   useEffect(() => {
     const createBookingAfterPayment = async () => {
@@ -60,6 +64,7 @@ const PaymentSuccess = () => {
           end_time: endTime || null,
           extra_hours: parseFloat(extraHours || '0'),
           extra_hours_charge: parseFloat(extraHoursCharge || '0'),
+          acceptances: acceptances || undefined,
         });
 
         setBookingCreated(true);
@@ -71,7 +76,7 @@ const PaymentSuccess = () => {
     };
 
     createBookingAfterPayment();
-  }, [user, vehicleId, startDate, endDate, startTime, endTime, days, dailyRate, extraHours, extraHoursCharge, totalPrice, ownerId, pickupLocation, notes, bookingCreated, isCreating]);
+  }, [user, vehicleId, startDate, endDate, startTime, endTime, days, dailyRate, extraHours, extraHoursCharge, totalPrice, ownerId, pickupLocation, notes, acceptances, bookingCreated, isCreating]);
 
   if (!user) {
     navigate("/auth");

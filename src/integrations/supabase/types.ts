@@ -126,6 +126,81 @@ export type Database = {
           },
         ]
       }
+      booking_acceptances: {
+        Row: {
+          basic_rules_accepted: boolean
+          basic_rules_accepted_at: string | null
+          booking_id: string
+          cancellation_policy_accepted: boolean
+          cancellation_policy_accepted_at: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          owner_rules_accepted: boolean
+          owner_rules_accepted_at: string | null
+          privacy_policy_accepted: boolean
+          privacy_policy_accepted_at: string | null
+          terms_of_service_accepted: boolean
+          terms_of_service_accepted_at: string | null
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          basic_rules_accepted?: boolean
+          basic_rules_accepted_at?: string | null
+          booking_id: string
+          cancellation_policy_accepted?: boolean
+          cancellation_policy_accepted_at?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          owner_rules_accepted?: boolean
+          owner_rules_accepted_at?: string | null
+          privacy_policy_accepted?: boolean
+          privacy_policy_accepted_at?: string | null
+          terms_of_service_accepted?: boolean
+          terms_of_service_accepted_at?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          basic_rules_accepted?: boolean
+          basic_rules_accepted_at?: string | null
+          booking_id?: string
+          cancellation_policy_accepted?: boolean
+          cancellation_policy_accepted_at?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          owner_rules_accepted?: boolean
+          owner_rules_accepted_at?: string | null
+          privacy_policy_accepted?: boolean
+          privacy_policy_accepted_at?: string | null
+          terms_of_service_accepted?: boolean
+          terms_of_service_accepted_at?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_acceptances_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_acceptances_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           created_at: string

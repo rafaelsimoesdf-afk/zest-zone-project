@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { VerificationRequired } from "@/components/VerificationRequired";
 import { maskCPF, formatCurrencyBRL } from "@/lib/validators";
 
@@ -49,6 +50,15 @@ const Checkout = () => {
   const [lastName, setLastName] = useState("");
   const [cpf, setCpf] = useState("");
   const [message, setMessage] = useState("");
+
+  // Acceptance checkboxes state
+  const [acceptOwnerRules, setAcceptOwnerRules] = useState(false);
+  const [acceptBasicRules, setAcceptBasicRules] = useState(false);
+  const [acceptCancellationPolicy, setAcceptCancellationPolicy] = useState(false);
+  const [acceptTermsOfService, setAcceptTermsOfService] = useState(false);
+  const [acceptPrivacyPolicy, setAcceptPrivacyPolicy] = useState(false);
+
+  const allAccepted = acceptOwnerRules && acceptBasicRules && acceptCancellationPolicy && acceptTermsOfService && acceptPrivacyPolicy;
 
   // Pre-fill form with user profile data when it loads
   useEffect(() => {
@@ -178,12 +188,19 @@ const Checkout = () => {
       return;
     }
 
+    if (!allAccepted) {
+      toast.error("Você precisa aceitar todos os termos e políticas para continuar");
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
       const pickupLocationStr = address
         ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city} - ${address.state}`
         : '';
+
+      const acceptanceTimestamp = new Date().toISOString();
 
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: {
@@ -204,6 +221,19 @@ const Checkout = () => {
           ownerId: vehicle.owner_id,
           pickupLocation: pickupLocationStr,
           notes: message || '',
+          // Acceptance data for legal compliance
+          acceptances: {
+            owner_rules_accepted: acceptOwnerRules,
+            owner_rules_accepted_at: acceptOwnerRules ? acceptanceTimestamp : null,
+            basic_rules_accepted: acceptBasicRules,
+            basic_rules_accepted_at: acceptBasicRules ? acceptanceTimestamp : null,
+            cancellation_policy_accepted: acceptCancellationPolicy,
+            cancellation_policy_accepted_at: acceptCancellationPolicy ? acceptanceTimestamp : null,
+            terms_of_service_accepted: acceptTermsOfService,
+            terms_of_service_accepted_at: acceptTermsOfService ? acceptanceTimestamp : null,
+            privacy_policy_accepted: acceptPrivacyPolicy,
+            privacy_policy_accepted_at: acceptPrivacyPolicy ? acceptanceTimestamp : null,
+          },
         },
       });
 
@@ -420,31 +450,90 @@ const Checkout = () => {
 
               <Separator />
 
-              {/* Terms */}
+              {/* Terms - Checkboxes */}
               <section>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Ao clicar no botão abaixo, concordo com as seguintes políticas:{" "}
-                  <Button variant="link" className="p-0 h-auto text-foreground underline text-sm">
-                    Regras estabelecidas pelo proprietário
-                  </Button>
-                  ,{" "}
-                  <Button variant="link" className="p-0 h-auto text-foreground underline text-sm">
-                    Regras básicas para locatários
-                  </Button>
-                  ,{" "}
-                  <Button variant="link" className="p-0 h-auto text-foreground underline text-sm">
-                    Política de Reembolso e Cancelamento
-                  </Button>
-                  . Também concordo com os{" "}
-                  <Button variant="link" className="p-0 h-auto text-foreground underline text-sm">
-                    Termos de Serviço
-                  </Button>{" "}
-                  e confirmo que li a{" "}
-                  <Button variant="link" className="p-0 h-auto text-foreground underline text-sm">
-                    Política de Privacidade
-                  </Button>
-                  .
+                <h2 className="font-bold text-xl mb-4">Termos e Políticas</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Para continuar, você precisa ler e aceitar os termos abaixo:
                 </p>
+
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="ownerRules"
+                      checked={acceptOwnerRules}
+                      onCheckedChange={(checked) => setAcceptOwnerRules(checked === true)}
+                    />
+                    <Label htmlFor="ownerRules" className="text-sm leading-relaxed cursor-pointer">
+                      Li e aceito as{" "}
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
+                        Regras estabelecidas pelo proprietário
+                      </Button>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="basicRules"
+                      checked={acceptBasicRules}
+                      onCheckedChange={(checked) => setAcceptBasicRules(checked === true)}
+                    />
+                    <Label htmlFor="basicRules" className="text-sm leading-relaxed cursor-pointer">
+                      Li e aceito as{" "}
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
+                        Regras básicas para locatários
+                      </Button>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="cancellationPolicy"
+                      checked={acceptCancellationPolicy}
+                      onCheckedChange={(checked) => setAcceptCancellationPolicy(checked === true)}
+                    />
+                    <Label htmlFor="cancellationPolicy" className="text-sm leading-relaxed cursor-pointer">
+                      Li e aceito a{" "}
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
+                        Política de Reembolso e Cancelamento
+                      </Button>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="termsOfService"
+                      checked={acceptTermsOfService}
+                      onCheckedChange={(checked) => setAcceptTermsOfService(checked === true)}
+                    />
+                    <Label htmlFor="termsOfService" className="text-sm leading-relaxed cursor-pointer">
+                      Li e aceito os{" "}
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
+                        Termos de Serviço
+                      </Button>
+                    </Label>
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="privacyPolicy"
+                      checked={acceptPrivacyPolicy}
+                      onCheckedChange={(checked) => setAcceptPrivacyPolicy(checked === true)}
+                    />
+                    <Label htmlFor="privacyPolicy" className="text-sm leading-relaxed cursor-pointer">
+                      Li e aceito a{" "}
+                      <Button variant="link" className="p-0 h-auto text-primary underline text-sm">
+                        Política de Privacidade
+                      </Button>
+                    </Label>
+                  </div>
+                </div>
+
+                {!allAccepted && (
+                  <p className="text-sm text-destructive mt-4">
+                    * Todos os itens acima são obrigatórios
+                  </p>
+                )}
 
                 <Button
                   size="lg"
