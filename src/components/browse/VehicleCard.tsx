@@ -15,6 +15,8 @@ interface VehicleCardProps {
 
 export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   
   const images = vehicle.vehicle_images?.sort((a, b) => {
     if (a.is_primary) return -1;
@@ -31,6 +33,33 @@ export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
     : "Localização não informada";
 
   const carLink = `/cars/${vehicle.id}${linkParams ? `?${linkParams}` : ""}`;
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe && imageUrls.length > 1) {
+      setCurrentImageIndex(prev => prev === imageUrls.length - 1 ? 0 : prev + 1);
+    }
+    if (isRightSwipe && imageUrls.length > 1) {
+      setCurrentImageIndex(prev => prev === 0 ? imageUrls.length - 1 : prev - 1);
+    }
+  };
 
   const handlePrevImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -75,7 +104,12 @@ export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
     <Link to={carLink}>
       <Card className="overflow-hidden group hover:shadow-xl transition-smooth border hover:border-primary h-full bg-card">
         {/* Image Carousel */}
-        <div className="relative h-48 sm:h-52 overflow-hidden">
+        <div 
+          className="relative h-48 sm:h-52 overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Images */}
           <div className="relative w-full h-full">
             {imageUrls.map((url, index) => (
