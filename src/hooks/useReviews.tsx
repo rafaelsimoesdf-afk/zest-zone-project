@@ -144,11 +144,33 @@ export const useCreateReview = () => {
         .single();
 
       if (error) throw error;
+
+      // Get reviewer name for notification
+      const { data: reviewerProfile } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", reviewerId)
+        .single();
+
+      const reviewerName = reviewerProfile 
+        ? `${reviewerProfile.first_name} ${reviewerProfile.last_name}` 
+        : "Um usuário";
+
+      // Create notification for the reviewed person
+      await supabase.from("notifications").insert({
+        user_id: reviewedId,
+        notification_type: "booking",
+        title: "Você recebeu uma nova avaliação!",
+        message: `${reviewerName} avaliou você com ${rating} estrela${rating > 1 ? "s" : ""}${comment ? `: "${comment}"` : ". Confira no seu perfil!"}`,
+        action_url: "/profile?tab=reviews",
+      });
+
       return data;
     },
     onSuccess: (data) => {
       toast.success("Avaliação enviada com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["owner-reviews", data.reviewed_id] });
+      queryClient.invalidateQueries({ queryKey: ["customer-reviews", data.reviewed_id] });
       queryClient.invalidateQueries({ queryKey: ["existing-review"] });
     },
     onError: (error) => {

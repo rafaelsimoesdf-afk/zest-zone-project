@@ -12,7 +12,8 @@ import {
   ShieldCheck, 
   AlertCircle,
   Clock,
-  CheckCheck
+  CheckCheck,
+  ExternalLink
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -166,7 +167,15 @@ const Notifications = () => {
                     !notification.read 
                       ? "border-primary/30 bg-primary/5" 
                       : "opacity-80 hover:opacity-100"
-                  }`}
+                  } ${notification.action_url ? "cursor-pointer" : ""}`}
+                  onClick={() => {
+                    if (notification.action_url) {
+                      if (!notification.read) {
+                        markAsRead.mutate(notification.id);
+                      }
+                      navigate(notification.action_url);
+                    }
+                  }}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
@@ -200,6 +209,14 @@ const Notifications = () => {
                         <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                           {notification.message}
                         </p>
+
+                        {/* Action hint */}
+                        {notification.action_url && (
+                          <p className="text-xs text-primary mt-2 flex items-center gap-1">
+                            <ExternalLink className="h-3 w-3" />
+                            Clique para abrir
+                          </p>
+                        )}
                         
                         <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-border/50">
                           <span className="text-xs text-muted-foreground">
@@ -216,7 +233,10 @@ const Notifications = () => {
                                 variant="ghost"
                                 size="sm"
                                 className="h-7 text-xs"
-                                onClick={() => markAsRead.mutate(notification.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead.mutate(notification.id);
+                                }}
                                 disabled={markAsRead.isPending}
                               >
                                 <CheckCircle className="h-3 w-3 mr-1" />

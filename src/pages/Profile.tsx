@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
 import { useDefaultAddress, useCreateAddress, useUpdateAddress } from "@/hooks/useAddresses";
@@ -20,6 +21,8 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const Profile = () => {
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab");
   const { user } = useAuth();
   const { data: profile, isLoading } = useProfile();
   const { data: defaultAddress, isLoading: isLoadingAddress } = useDefaultAddress();
@@ -28,6 +31,11 @@ const Profile = () => {
   const createAddress = useCreateAddress();
   const updateAddress = useUpdateAddress();
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Determine default tab - prioritize URL param, fallback to verification
+  const defaultTab = tabFromUrl && ["verification", "info", "reviews"].includes(tabFromUrl) 
+    ? tabFromUrl 
+    : "verification";
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -128,7 +136,7 @@ const Profile = () => {
             Meu Perfil
           </h1>
 
-          <Tabs defaultValue="verification" className="space-y-6">
+          <Tabs defaultValue={defaultTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="verification" className="flex items-center gap-2">
                 <Shield className="w-4 h-4" />

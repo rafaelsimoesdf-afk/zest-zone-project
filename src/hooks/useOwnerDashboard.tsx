@@ -391,21 +391,22 @@ export const useUpdateOwnerBookingStatus = () => {
         
         let notificationTitle = "";
         let notificationMessage = "";
+        let actionUrl = `/booking/${bookingId}`;
         
         switch (status) {
           case "confirmed":
             notificationTitle = "Reserva aprovada!";
-            notificationMessage = `Sua reserva do ${vehicleName} foi aprovada pelo proprietário. Prepare-se para sua viagem!`;
+            notificationMessage = `Ótima notícia! Sua reserva do ${vehicleName} foi aceita pelo proprietário. Clique para ver os detalhes da reserva.`;
             break;
           case "cancelled":
             notificationTitle = "Reserva cancelada";
             notificationMessage = reason 
               ? `Sua reserva do ${vehicleName} foi cancelada. Motivo: ${reason}`
-              : `Sua reserva do ${vehicleName} foi cancelada pelo proprietário.`;
+              : `Infelizmente sua reserva do ${vehicleName} foi cancelada pelo proprietário. Clique para mais detalhes.`;
             break;
           case "completed":
             notificationTitle = "Reserva finalizada!";
-            notificationMessage = `Sua reserva do ${vehicleName} foi finalizada. Avalie sua experiência com o proprietário!`;
+            notificationMessage = `Sua viagem com o ${vehicleName} foi finalizada com sucesso! Que tal avaliar sua experiência com o proprietário?`;
             break;
         }
         
@@ -415,6 +416,7 @@ export const useUpdateOwnerBookingStatus = () => {
             notification_type: "booking",
             title: notificationTitle,
             message: notificationMessage,
+            action_url: actionUrl,
           });
         }
       }

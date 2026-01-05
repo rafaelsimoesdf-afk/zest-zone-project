@@ -245,12 +245,13 @@ export const useSendMessage = () => {
 
       if (error) throw error;
 
-      // Create notification for receiver
+      // Create notification for receiver with action URL
       await supabase.from("notifications").insert({
         user_id: receiverId,
-        title: "Nova mensagem",
-        message: `Você recebeu uma nova mensagem sobre sua reserva`,
-        notification_type: "booking",
+        title: "Nova mensagem recebida",
+        message: `Você recebeu uma nova mensagem sobre sua reserva. Clique aqui para ver a conversa!`,
+        notification_type: "support",
+        action_url: `/messages?booking=${bookingId}`,
       });
 
       return data;
