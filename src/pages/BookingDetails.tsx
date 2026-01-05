@@ -80,9 +80,12 @@ const BookingDetails = () => {
   const vehicleName = booking.vehicles 
     ? `${booking.vehicles.brand} ${booking.vehicles.model} ${booking.vehicles.year}` 
     : "Veículo";
-  const ownerName = booking.profiles 
-    ? `${booking.profiles.first_name} ${booking.profiles.last_name}` 
+  const ownerName = booking.owner 
+    ? `${booking.owner.first_name} ${booking.owner.last_name}` 
     : "Proprietário";
+  const customerName = booking.customer
+    ? `${booking.customer.first_name} ${booking.customer.last_name}`
+    : "Locatário";
   const primaryImage = booking.vehicles?.vehicle_images?.find(img => img.is_primary);
   const startDate = new Date(booking.start_date);
   const endDate = new Date(booking.end_date);
@@ -240,7 +243,7 @@ const BookingDetails = () => {
               )}
 
               {/* Owner Info (visible to customer) */}
-              {isCustomer && booking.profiles && (
+              {isCustomer && booking.owner && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -250,15 +253,57 @@ const BookingDetails = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <User className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+                        {booking.owner.profile_image ? (
+                          <img src={booking.owner.profile_image} alt={ownerName} className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-6 h-6 text-primary" />
+                        )}
                       </div>
                       <div>
                         <p className="font-semibold">{ownerName}</p>
-                        {booking.profiles.phone_number && (
+                        {booking.owner.phone_number && (
                           <p className="text-sm text-muted-foreground flex items-center gap-1">
                             <Phone className="w-3 h-3" />
-                            {booking.profiles.phone_number}
+                            {booking.owner.phone_number}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Customer Info (visible to owner) */}
+              {isOwner && booking.customer && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="w-5 h-5" />
+                      Locatário
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center overflow-hidden">
+                        {booking.customer.profile_image ? (
+                          <img src={booking.customer.profile_image} alt={customerName} className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-6 h-6 text-primary" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold">{customerName}</p>
+                        {booking.customer.email && (
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Mail className="w-3 h-3" />
+                            {booking.customer.email}
+                          </p>
+                        )}
+                        {booking.customer.phone_number && (
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            {booking.customer.phone_number}
                           </p>
                         )}
                       </div>

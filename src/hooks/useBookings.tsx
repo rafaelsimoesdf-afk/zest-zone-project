@@ -169,10 +169,18 @@ export interface BookingDetails extends Booking {
       is_primary: boolean;
     }>;
   };
-  profiles?: {
+  owner?: {
     first_name: string;
     last_name: string;
     phone_number: string | null;
+    profile_image: string | null;
+  };
+  customer?: {
+    first_name: string;
+    last_name: string;
+    phone_number: string | null;
+    email: string;
+    profile_image: string | null;
   };
 }
 
@@ -198,10 +206,18 @@ export const useBooking = (bookingId: string) => {
               is_primary
             )
           ),
-          profiles!bookings_owner_id_fkey (
+          owner:profiles!bookings_owner_id_fkey (
             first_name,
             last_name,
-            phone_number
+            phone_number,
+            profile_image
+          ),
+          customer:profiles!bookings_customer_id_fkey (
+            first_name,
+            last_name,
+            phone_number,
+            email,
+            profile_image
           )
         `)
         .eq("id", bookingId)
