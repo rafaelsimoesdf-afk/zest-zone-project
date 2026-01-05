@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,21 +33,19 @@ export const ReviewForm = ({
     bookingId,
     reviewerId
   );
-  
-  const [rating, setRating] = useState(existingReview?.rating || 0);
+
+  const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const [comment, setComment] = useState(existingReview?.comment || "");
+  const [comment, setComment] = useState("");
 
   const createReview = useCreateReview();
   const updateReview = useUpdateReview();
 
-  // Update form when existing review loads
-  useState(() => {
-    if (existingReview) {
-      setRating(existingReview.rating);
-      setComment(existingReview.comment || "");
-    }
-  });
+  useEffect(() => {
+    if (!open) return;
+    setRating(existingReview?.rating ?? 0);
+    setComment(existingReview?.comment ?? "");
+  }, [existingReview, open]);
 
   const handleSubmit = async () => {
     if (rating === 0) return;

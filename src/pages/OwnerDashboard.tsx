@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleBookingsChart } from "@/components/owner/VehicleBookingsChart";
 import { CustomerReputationModal } from "@/components/reviews/CustomerReputationModal";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
+import { useExistingReview } from "@/hooks/useReviews";
 import { 
   useOwnerDashboardStats, 
   useOwnerVehicleStats, 
@@ -62,6 +64,10 @@ const OwnerDashboard = () => {
   const { user, loading: authLoading } = useAuth();
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedBooking, setSelectedBooking] = useState<OwnerBooking | null>(null);
+  const [reviewDialog, setReviewDialog] = useState<{ open: boolean; booking: OwnerBooking | null }>({
+    open: false,
+    booking: null,
+  });
   const [actionDialog, setActionDialog] = useState<{ type: "reject" | "cancel" | null; booking: OwnerBooking | null }>({ type: null, booking: null });
   const [actionReason, setActionReason] = useState("");
   const [customerReputationModal, setCustomerReputationModal] = useState<{ open: boolean; customer: OwnerBooking["customer"] | null }>({ open: false, customer: null });
@@ -71,6 +77,8 @@ const OwnerDashboard = () => {
   const { data: vehicleStats, isLoading: loadingVehicleStats } = useOwnerVehicleStats();
   const { data: bookings, isLoading: loadingBookings } = useOwnerBookings(statusFilter);
   const updateStatus = useUpdateOwnerBookingStatus();
+
+  const { data: selectedBookingReview } = useExistingReview(selectedBooking?.id ?? "", user?.id ?? "");
 
   if (authLoading || checkingVehicles) {
     return (
@@ -397,6 +405,17 @@ const OwnerDashboard = () => {
                                       <Eye className="w-4 h-4 mr-1" />
                                       Detalhes
                                     </Button>
+
+                                    {booking.status === "completed" && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setReviewDialog({ open: true, booking })}
+                                      >
+                                        <Star className="w-4 h-4 mr-1" />
+                                        Avaliar locatário
+                                      </Button>
+                                    )}
 
                                     {booking.status === "pending" && (
                                       <>
@@ -735,10 +754,27 @@ const OwnerDashboard = () => {
                           <span>Você Recebe</span>
                           <span>{formatCurrency(ownerReceives)}</span>
                         </div>
-                      </div>
-                    );
-                  })()}
-                </div>
+                       </div>
+                     );
+                   })()}
+                 </div>
+
+                {selectedBooking.status === "completed" && selectedBooking.customer && (
+                  <div className="border-t pt-4">
+                    <Button
+                      className="w-full"
+                      variant={selectedBookingReview ? "outline" : "default"}
+                      onClick={() => setReviewDialog({ open: true, booking: selectedBooking })}
+                    >
+                      <Star className={
+                        selectedBookingReview
+                          ? "w-4 h-4 mr-2 fill-accent text-accent"
+                          : "w-4 h-4 mr-2"
+                      } />
+                      {selectedBookingReview ? "Editar avaliação do locatário" : "Avaliar locatário"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -802,6 +838,20 @@ const OwnerDashboard = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Review Modal (owner -> customer) */}
+      {reviewDialog.booking && reviewDialog.booking.customer && (
+        <ReviewForm
+          open={reviewDialog.open}
+          onOpenChange={(open) =>
+            setReviewDialog(open ? reviewDialog : { open: false, booking: null })
+          }
+          bookingId={reviewDialog.booking.id}
+          reviewerId={user?.id ?? ""}
+          reviewedId={reviewDialog.booking.customer_id}
+          reviewedName={`${reviewDialog.booking.customer.first_name} ${reviewDialog.booking.customer.last_name}`}
+        />
+      )}
 
       {/* Customer Reputation Modal */}
       {customerReputationModal.customer && (
