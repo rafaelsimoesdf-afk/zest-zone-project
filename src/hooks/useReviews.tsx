@@ -25,7 +25,7 @@ export interface OwnerStats {
   reviews: Review[];
 }
 
-// Fetch reviews for a specific user (owner)
+// Fetch reviews for a specific user (owner) - only reviews received AS AN OWNER
 export const useOwnerReviews = (ownerId: string) => {
   return useQuery({
     queryKey: ["owner-reviews", ownerId],
@@ -37,9 +37,7 @@ export const useOwnerReviews = (ownerId: string) => {
       // Fetch reviews where the owner is the reviewed person
       const { data: reviews, error } = await supabase
         .from("reviews")
-        .select(`
-          *
-        `)
+        .select("*")
         .eq("reviewed_id", ownerId)
         .order("created_at", { ascending: false });
 
@@ -48,23 +46,35 @@ export const useOwnerReviews = (ownerId: string) => {
         throw error;
       }
 
-      // Fetch reviewer profiles separately
-      const reviewsWithProfiles = await Promise.all(
+      // Fetch reviewer profiles and booking info, then filter to only include reviews
+      // where the user was the OWNER of the booking (not the customer)
+      const reviewsWithDetails = await Promise.all(
         (reviews || []).map(async (review) => {
-          const { data: reviewer } = await supabase
-            .from("profiles")
-            .select("first_name, last_name, profile_image")
-            .eq("id", review.reviewer_id)
-            .single();
+          const [reviewerResult, bookingResult] = await Promise.all([
+            supabase
+              .from("profiles")
+              .select("first_name, last_name, profile_image")
+              .eq("id", review.reviewer_id)
+              .single(),
+            supabase
+              .from("bookings")
+              .select("customer_id, owner_id")
+              .eq("id", review.booking_id)
+              .single(),
+          ]);
           
-          return { ...review, reviewer };
+          return { 
+            ...review, 
+            reviewer: reviewerResult.data,
+            booking: bookingResult.data,
+          };
         })
       );
 
-      if (error) {
-        console.error("Error fetching reviews:", error);
-        throw error;
-      }
+      // Filter to only include reviews where the user was the owner of the booking
+      const ownerReviews = reviewsWithDetails.filter(
+        (review) => review.booking?.owner_id === ownerId
+      );
 
       const { count: totalTrips } = await supabase
         .from("bookings")
@@ -72,16 +82,16 @@ export const useOwnerReviews = (ownerId: string) => {
         .eq("owner_id", ownerId)
         .eq("status", "completed");
 
-      const totalReviews = reviewsWithProfiles.length;
+      const totalReviews = ownerReviews.length;
       const averageRating = totalReviews > 0
-        ? reviewsWithProfiles.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+        ? ownerReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
         : 0;
 
       return {
         average_rating: averageRating,
         total_reviews: totalReviews,
         total_trips: totalTrips || 0,
-        reviews: reviewsWithProfiles as Review[],
+        reviews: ownerReviews as Review[],
       };
     },
     enabled: !!ownerId,
