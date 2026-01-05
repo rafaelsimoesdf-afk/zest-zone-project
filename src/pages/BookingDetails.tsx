@@ -54,17 +54,25 @@ const BookingDetails = () => {
   const { user } = useAuth();
   const { data: booking, isLoading } = useBooking(bookingId);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showOwnerReviewModal, setShowOwnerReviewModal] = useState(false);
 
   const isOwner = !!user && !!booking && user.id === booking.owner_id;
   const isCustomer = !!user && !!booking && user.id === booking.customer_id;
 
   // Check if customer already reviewed the owner (hooks must be unconditional)
-  const { data: existingReview } = useExistingReview(
+  const { data: existingCustomerReview } = useExistingReview(
     booking?.status === "completed" && isCustomer ? bookingId : "",
     booking?.status === "completed" && isCustomer ? user?.id || "" : ""
   );
 
-  const canReview = isCustomer && booking?.status === "completed" && !existingReview;
+  // Check if owner already reviewed the customer
+  const { data: existingOwnerReview } = useExistingReview(
+    booking?.status === "completed" && isOwner ? bookingId : "",
+    booking?.status === "completed" && isOwner ? user?.id || "" : ""
+  );
+
+  const canCustomerReview = isCustomer && booking?.status === "completed" && !existingCustomerReview;
+  const canOwnerReview = isOwner && booking?.status === "completed" && !existingOwnerReview;
 
   if (isLoading) {
     return (
@@ -406,7 +414,7 @@ const BookingDetails = () => {
               {/* Actions */}
               <div className="space-y-2">
                 {/* Review Button - Available for completed bookings for customers who haven't reviewed yet */}
-                {canReview && (
+                {canCustomerReview && (
                   <Button 
                     className="w-full" 
                     variant="default"
@@ -416,15 +424,37 @@ const BookingDetails = () => {
                     Avaliar Proprietário
                   </Button>
                 )}
-                {/* Show if already reviewed */}
-                {isCustomer && booking.status === 'completed' && existingReview && (
+                {/* Show if customer already reviewed */}
+                {isCustomer && booking.status === 'completed' && existingCustomerReview && (
                   <Button 
                     className="w-full" 
                     variant="outline"
                     onClick={() => setShowReviewModal(true)}
                   >
                     <Star className="w-4 h-4 mr-2 fill-accent text-accent" />
-                    Editar Avaliação
+                    Editar Avaliação do Proprietário
+                  </Button>
+                )}
+                {/* Owner Review Button - Available for completed bookings for owners who haven't reviewed yet */}
+                {canOwnerReview && (
+                  <Button 
+                    className="w-full" 
+                    variant="default"
+                    onClick={() => setShowOwnerReviewModal(true)}
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    Avaliar Locatário
+                  </Button>
+                )}
+                {/* Show if owner already reviewed */}
+                {isOwner && booking.status === 'completed' && existingOwnerReview && (
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => setShowOwnerReviewModal(true)}
+                  >
+                    <Star className="w-4 h-4 mr-2 fill-accent text-accent" />
+                    Editar Avaliação do Locatário
                   </Button>
                 )}
                 {/* Message Button - Available for confirmed, in_progress, and completed bookings */}
@@ -458,7 +488,7 @@ const BookingDetails = () => {
           </div>
         </div>
         
-        {/* Review Modal */}
+        {/* Customer Review Modal - for reviewing the owner */}
         {isCustomer && booking.status === 'completed' && (
           <ReviewForm
             open={showReviewModal}
@@ -467,6 +497,18 @@ const BookingDetails = () => {
             reviewerId={user?.id || ""}
             reviewedId={booking.owner_id}
             reviewedName={ownerName}
+          />
+        )}
+
+        {/* Owner Review Modal - for reviewing the customer */}
+        {isOwner && booking.status === 'completed' && (
+          <ReviewForm
+            open={showOwnerReviewModal}
+            onOpenChange={setShowOwnerReviewModal}
+            bookingId={booking.id}
+            reviewerId={user?.id || ""}
+            reviewedId={booking.customer_id}
+            reviewedName={customerName}
           />
         )}
       </main>
