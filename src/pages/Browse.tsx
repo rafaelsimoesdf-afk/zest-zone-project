@@ -1,18 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Star, Users, DoorOpen, Gauge, Snowflake, MapPin } from "lucide-react";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useBrands, useModels } from "@/hooks/useBrands";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
-import { FavoriteButton } from "@/components/FavoriteButton";
-import { formatCurrencyBRL } from "@/lib/validators";
 import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { FilterBar } from "@/components/browse/FilterBar";
+import { VehicleCard } from "@/components/browse/VehicleCard";
 
 const Browse = () => {
   const [searchParams] = useSearchParams();
@@ -121,107 +115,19 @@ const Browse = () => {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedVehicles.map((vehicle) => {
-                const primaryImage = vehicle.vehicle_images?.find(img => img.is_primary) || vehicle.vehicle_images?.[0];
-                const location = vehicle.city && vehicle.state ? `${vehicle.city}, ${vehicle.state}, BR` : "Localização não informada";
-                
-                // Build link with date params
+                // Build link params with dates
                 const carLinkParams = new URLSearchParams();
                 if (filters.fromDate) carLinkParams.set("from", filters.fromDate);
                 if (filters.untilDate) carLinkParams.set("until", filters.untilDate);
                 if (filters.fromTime) carLinkParams.set("fromTime", filters.fromTime);
                 if (filters.untilTime) carLinkParams.set("untilTime", filters.untilTime);
-                const carLink = `/cars/${vehicle.id}${carLinkParams.toString() ? `?${carLinkParams.toString()}` : ""}`;
                 
                 return (
-                  <Link key={vehicle.id} to={carLink}>
-                    <Card className="overflow-hidden group hover:shadow-xl transition-smooth border-2 hover:border-primary h-full">
-                      <div className="relative h-52 overflow-hidden">
-                        <img
-                          src={primaryImage?.image_url || "https://images.unsplash.com/photo-1590362891991-f776e747a588"}
-                          alt={`${vehicle.brand} ${vehicle.model}`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-smooth"
-                        />
-                        <Badge className="absolute top-3 left-3 bg-background/90 backdrop-blur capitalize text-xs font-medium">
-                          {vehicle.vehicle_type}
-                        </Badge>
-                        <FavoriteButton 
-                          vehicleId={vehicle.id} 
-                          size="sm" 
-                          variant="overlay"
-                          className="absolute top-3 right-3"
-                        />
-                      </div>
-                      <CardContent className="p-4">
-                        {/* Header: Title + Rating */}
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="font-bold text-lg leading-tight line-clamp-1">
-                            {vehicle.brand} {vehicle.model} {vehicle.year}
-                          </h3>
-                          {vehicle.average_rating && (
-                            <div className="flex items-center gap-1 shrink-0">
-                              <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                              <span className="font-semibold text-sm">{vehicle.average_rating}</span>
-                              <span className="text-muted-foreground text-xs">({vehicle.total_reviews})</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Location */}
-                        <div className="flex items-center gap-1 text-muted-foreground text-sm mb-3">
-                          <MapPin className="w-3.5 h-3.5 text-primary" />
-                          <span className="truncate">{location}</span>
-                        </div>
-
-                        {/* Vehicle specs */}
-                        <div className="grid grid-cols-4 gap-2 mb-3 py-2 border-y border-border/50">
-                          <div className="flex flex-col items-center text-center">
-                            <Users className="w-4 h-4 text-muted-foreground mb-1" />
-                            <span className="text-xs text-muted-foreground">{vehicle.seats}</span>
-                          </div>
-                          <div className="flex flex-col items-center text-center">
-                            <DoorOpen className="w-4 h-4 text-muted-foreground mb-1" />
-                            <span className="text-xs text-muted-foreground">{vehicle.doors}p</span>
-                          </div>
-                          <div className="flex flex-col items-center text-center">
-                            <Gauge className="w-4 h-4 text-muted-foreground mb-1" />
-                            <span className="text-xs text-muted-foreground">{(vehicle.mileage / 1000).toFixed(0)}k</span>
-                          </div>
-                          <div className="flex flex-col items-center text-center">
-                            <Snowflake className={`w-4 h-4 mb-1 ${vehicle.has_air_conditioning ? 'text-primary' : 'text-muted-foreground/40'}`} />
-                            <span className={`text-xs ${vehicle.has_air_conditioning ? 'text-muted-foreground' : 'text-muted-foreground/40'}`}>
-                              {vehicle.has_air_conditioning ? 'A/C' : 'S/AC'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Tags */}
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          <Badge variant="secondary" className="text-xs capitalize px-2 py-0.5">
-                            {vehicle.transmission_type === 'automatic' ? 'Automático' : vehicle.transmission_type === 'manual' ? 'Manual' : 'CVT'}
-                          </Badge>
-                          <Badge variant="secondary" className="text-xs capitalize px-2 py-0.5">
-                            {vehicle.fuel_type === 'flex' ? 'Flex' : vehicle.fuel_type === 'gasoline' ? 'Gasolina' : vehicle.fuel_type === 'ethanol' ? 'Etanol' : vehicle.fuel_type === 'diesel' ? 'Diesel' : vehicle.fuel_type === 'electric' ? 'Elétrico' : 'Híbrido'}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs capitalize px-2 py-0.5 border-muted-foreground/30">
-                            {vehicle.color}
-                          </Badge>
-                        </div>
-
-                        {/* Price + CTA */}
-                        <div className="flex items-center justify-between pt-2">
-                          <div>
-                            <span className="text-xl font-bold text-primary">
-                              {formatCurrencyBRL(vehicle.daily_price)}
-                            </span>
-                            <span className="text-muted-foreground text-sm">/dia</span>
-                          </div>
-                          <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 text-sm px-4">
-                            Ver Detalhes
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <VehicleCard 
+                    key={vehicle.id} 
+                    vehicle={vehicle} 
+                    linkParams={carLinkParams.toString()}
+                  />
                 );
               })}
             </div>
