@@ -430,9 +430,10 @@ export const useUpdateOwnerBookingStatus = () => {
       
       const messages: Record<string, string> = {
         confirmed: "Reserva aprovada com sucesso!",
-        rejected: "Reserva rejeitada.",
-        cancelled: "Reserva cancelada.",
+        cancelled: "Reserva cancelada/rejeitada.",
         completed: "Reserva finalizada! O locatário agora pode avaliar.",
+        in_progress: "Reserva em andamento!",
+        disputed: "Reserva marcada como em disputa.",
       };
       
       toast.success(messages[status] || "Status atualizado!");

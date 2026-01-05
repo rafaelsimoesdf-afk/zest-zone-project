@@ -47,17 +47,19 @@ import { ptBR } from "date-fns/locale";
 const statusLabels: Record<string, string> = {
   pending: "Pendente",
   confirmed: "Confirmada",
+  in_progress: "Em Andamento",
   completed: "Concluída",
   cancelled: "Cancelada",
-  rejected: "Rejeitada",
+  disputed: "Em Disputa",
 };
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
   confirmed: "bg-green-500/10 text-green-600 border-green-500/20",
-  completed: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  in_progress: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  completed: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   cancelled: "bg-red-500/10 text-red-600 border-red-500/20",
-  rejected: "bg-red-500/10 text-red-600 border-red-500/20",
+  disputed: "bg-orange-500/10 text-orange-600 border-orange-500/20",
 };
 
 const OwnerDashboard = () => {
@@ -107,7 +109,7 @@ const OwnerDashboard = () => {
   const handleRejectOrCancel = () => {
     if (!actionDialog.booking || !actionDialog.type) return;
     
-    const status = actionDialog.type === "reject" ? "rejected" : "cancelled";
+    const status = "cancelled";
     updateStatus.mutate({ 
       bookingId: actionDialog.booking.id, 
       status,
@@ -279,7 +281,8 @@ const OwnerDashboard = () => {
                     <SelectItem value="confirmed">Confirmadas</SelectItem>
                     <SelectItem value="completed">Concluídas</SelectItem>
                     <SelectItem value="cancelled">Canceladas</SelectItem>
-                    <SelectItem value="rejected">Rejeitadas</SelectItem>
+                    <SelectItem value="in_progress">Em Andamento</SelectItem>
+                    <SelectItem value="disputed">Em Disputa</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
