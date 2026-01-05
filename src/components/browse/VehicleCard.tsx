@@ -73,9 +73,9 @@ export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
 
   return (
     <Link to={carLink}>
-      <Card className="overflow-hidden group hover:shadow-xl transition-smooth border-2 hover:border-primary h-full">
+      <Card className="overflow-hidden group hover:shadow-xl transition-smooth border hover:border-primary h-full bg-card">
         {/* Image Carousel */}
-        <div className="relative h-40 sm:h-52 overflow-hidden">
+        <div className="relative h-32 sm:h-52 overflow-hidden">
           {/* Images */}
           <div className="relative w-full h-full">
             {imageUrls.map((url, index) => (
@@ -90,49 +90,49 @@ export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
             ))}
           </div>
 
-          {/* Navigation Arrows - only on desktop */}
+          {/* Navigation Arrows - only on desktop hover */}
           {imageUrls.length > 1 && (
             <>
               <button
                 onClick={handlePrevImage}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-md"
+                className="absolute left-1.5 sm:left-2 top-1/2 -translate-y-1/2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-md"
                 aria-label="Foto anterior"
               >
-                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={handleNextImage}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-md"
+                className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-md"
                 aria-label="Próxima foto"
               >
-                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
               </button>
             </>
           )}
 
           {/* Dots Indicator */}
           {imageUrls.length > 1 && (
-            <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5">
+            <div className="absolute bottom-1.5 sm:bottom-3 left-1/2 -translate-x-1/2 flex gap-1 sm:gap-1.5">
               {imageUrls.slice(0, 5).map((_, index) => (
                 <button
                   key={index}
                   onClick={(e) => handleDotClick(e, index)}
                   className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all ${
                     index === currentImageIndex 
-                      ? 'bg-white w-3 sm:w-4' 
+                      ? 'bg-white w-2.5 sm:w-4' 
                       : 'bg-white/60 hover:bg-white/80'
                   }`}
                   aria-label={`Ir para foto ${index + 1}`}
                 />
               ))}
               {imageUrls.length > 5 && (
-                <span className="text-white text-[10px] sm:text-xs font-medium ml-1">+{imageUrls.length - 5}</span>
+                <span className="text-white text-[9px] sm:text-xs font-medium ml-0.5 sm:ml-1">+{imageUrls.length - 5}</span>
               )}
             </div>
           )}
 
           {/* Vehicle Type Badge */}
-          <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-background/90 backdrop-blur capitalize text-[10px] sm:text-xs font-medium px-1.5 sm:px-2">
+          <Badge className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 bg-background/90 backdrop-blur capitalize text-[9px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5">
             {vehicle.vehicle_type}
           </Badge>
 
@@ -141,75 +141,75 @@ export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
             vehicleId={vehicle.id} 
             size="sm" 
             variant="overlay"
-            className="absolute top-2 right-2 sm:top-3 sm:right-3"
+            className="absolute top-1.5 right-1.5 sm:top-3 sm:right-3"
           />
         </div>
 
-        <CardContent className="p-3 sm:p-4">
+        <CardContent className="p-2 sm:p-4">
           {/* Header: Title + Rating */}
-          <div className="flex items-start justify-between gap-1 sm:gap-2 mb-1.5 sm:mb-2">
-            <h3 className="font-bold text-sm sm:text-lg leading-tight line-clamp-1">
-              {vehicle.brand} {vehicle.model} {vehicle.year}
+          <div className="flex items-start justify-between gap-1 mb-1 sm:mb-2">
+            <h3 className="font-bold text-xs sm:text-lg leading-tight line-clamp-1">
+              {vehicle.brand} {vehicle.model}
             </h3>
             {vehicle.average_rating && (
-              <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+              <div className="flex items-center gap-0.5 shrink-0">
                 <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-500 text-yellow-500" />
-                <span className="font-semibold text-xs sm:text-sm">{vehicle.average_rating}</span>
-                <span className="text-muted-foreground text-[10px] sm:text-xs">({vehicle.total_reviews})</span>
+                <span className="font-semibold text-[10px] sm:text-sm">{vehicle.average_rating}</span>
+                <span className="text-muted-foreground text-[9px] sm:text-xs">({vehicle.total_reviews})</span>
               </div>
             )}
           </div>
           
           {/* Location */}
-          <div className="flex items-center gap-1 text-muted-foreground text-xs sm:text-sm mb-2 sm:mb-3">
-            <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary shrink-0" />
+          <div className="flex items-center gap-0.5 sm:gap-1 text-muted-foreground text-[10px] sm:text-sm mb-1.5 sm:mb-3">
+            <MapPin className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-primary shrink-0" />
             <span className="truncate">{location}</span>
           </div>
 
           {/* Vehicle specs */}
-          <div className="grid grid-cols-4 gap-1 sm:gap-2 mb-2 sm:mb-3 py-1.5 sm:py-2 border-y border-border/50">
+          <div className="grid grid-cols-4 gap-0.5 sm:gap-2 mb-1.5 sm:mb-3 py-1 sm:py-2 border-y border-border/50">
             <div className="flex flex-col items-center text-center">
-              <Users className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground mb-0.5 sm:mb-1" />
-              <span className="text-[10px] sm:text-xs text-muted-foreground">{vehicle.seats}</span>
+              <Users className="w-2.5 h-2.5 sm:w-4 sm:h-4 text-muted-foreground mb-0.5" />
+              <span className="text-[9px] sm:text-xs text-muted-foreground">{vehicle.seats}</span>
             </div>
             <div className="flex flex-col items-center text-center">
-              <DoorOpen className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground mb-0.5 sm:mb-1" />
-              <span className="text-[10px] sm:text-xs text-muted-foreground">{vehicle.doors}p</span>
+              <DoorOpen className="w-2.5 h-2.5 sm:w-4 sm:h-4 text-muted-foreground mb-0.5" />
+              <span className="text-[9px] sm:text-xs text-muted-foreground">{vehicle.doors}p</span>
             </div>
             <div className="flex flex-col items-center text-center">
-              <Gauge className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground mb-0.5 sm:mb-1" />
-              <span className="text-[10px] sm:text-xs text-muted-foreground">{(vehicle.mileage / 1000).toFixed(0)}k</span>
+              <Gauge className="w-2.5 h-2.5 sm:w-4 sm:h-4 text-muted-foreground mb-0.5" />
+              <span className="text-[9px] sm:text-xs text-muted-foreground">{(vehicle.mileage / 1000).toFixed(0)}k</span>
             </div>
             <div className="flex flex-col items-center text-center">
-              <Snowflake className={`w-3 h-3 sm:w-4 sm:h-4 mb-0.5 sm:mb-1 ${vehicle.has_air_conditioning ? 'text-primary' : 'text-muted-foreground/40'}`} />
-              <span className={`text-[10px] sm:text-xs ${vehicle.has_air_conditioning ? 'text-muted-foreground' : 'text-muted-foreground/40'}`}>
-                {vehicle.has_air_conditioning ? 'A/C' : 'S/AC'}
+              <Snowflake className={`w-2.5 h-2.5 sm:w-4 sm:h-4 mb-0.5 ${vehicle.has_air_conditioning ? 'text-primary' : 'text-muted-foreground/40'}`} />
+              <span className={`text-[9px] sm:text-xs ${vehicle.has_air_conditioning ? 'text-muted-foreground' : 'text-muted-foreground/40'}`}>
+                A/C
               </span>
             </div>
           </div>
 
           {/* Tags */}
-          <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-2 sm:mb-3">
-            <Badge variant="secondary" className="text-[10px] sm:text-xs capitalize px-1.5 sm:px-2 py-0 sm:py-0.5">
+          <div className="flex flex-wrap gap-1 mb-1.5 sm:mb-3">
+            <Badge variant="secondary" className="text-[9px] sm:text-xs capitalize px-1 sm:px-2 py-0 h-4 sm:h-5">
               {translateTransmission(vehicle.transmission_type)}
             </Badge>
-            <Badge variant="secondary" className="text-[10px] sm:text-xs capitalize px-1.5 sm:px-2 py-0 sm:py-0.5">
+            <Badge variant="secondary" className="text-[9px] sm:text-xs capitalize px-1 sm:px-2 py-0 h-4 sm:h-5">
               {translateFuel(vehicle.fuel_type)}
             </Badge>
-            <Badge variant="outline" className="text-[10px] sm:text-xs capitalize px-1.5 sm:px-2 py-0 sm:py-0.5 border-muted-foreground/30 hidden sm:inline-flex">
+            <Badge variant="outline" className="text-[9px] sm:text-xs capitalize px-1 sm:px-2 py-0 h-4 sm:h-5 border-muted-foreground/30 hidden sm:inline-flex">
               {vehicle.color}
             </Badge>
           </div>
 
           {/* Price + CTA */}
-          <div className="flex items-center justify-between pt-1 sm:pt-2">
+          <div className="flex items-center justify-between pt-0.5 sm:pt-2">
             <div>
-              <span className="text-base sm:text-xl font-bold text-primary">
+              <span className="text-sm sm:text-xl font-bold text-primary">
                 {formatCurrencyBRL(vehicle.daily_price)}
               </span>
-              <span className="text-muted-foreground text-xs sm:text-sm">/dia</span>
+              <span className="text-muted-foreground text-[9px] sm:text-sm">/dia</span>
             </div>
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs sm:text-sm px-2 sm:px-4 h-7 sm:h-9">
+            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 text-[10px] sm:text-sm px-2 sm:px-4 h-6 sm:h-9">
               Detalhes
             </Button>
           </div>
