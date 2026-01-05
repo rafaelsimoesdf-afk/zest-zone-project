@@ -78,7 +78,7 @@ export const ReviewForm = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {existingReview ? "Editar Avaliação" : "Avaliar Proprietário"}
+            {existingReview ? "Editar Avaliação" : `Avaliar ${reviewedName}`}
           </DialogTitle>
           <DialogDescription>
             {existingReview
