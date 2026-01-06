@@ -1139,7 +1139,7 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
               </CardContent>
             </Card>
 
-            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+            <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 pb-20 sm:pb-0">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="text-xs sm:text-sm h-9 sm:h-10">
                 Cancelar
               </Button>
