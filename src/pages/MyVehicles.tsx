@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Car, Plus, Edit, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { translateVehicleStatus, translateVehicleType, translateTransmission, translateFuel } from "@/lib/translations";
 import EditVehicleModal from "@/components/admin/EditVehicleModal";
 import { Vehicle } from "@/hooks/useVehicles";
 
@@ -82,7 +83,9 @@ const MyVehicles = () => {
                           alt={`${vehicle.brand} ${vehicle.model}`}
                           className="w-full h-full object-cover"
                         />
-                        <Badge className="absolute top-2 right-2 sm:top-4 sm:right-4 capitalize text-xs">{vehicle.status}</Badge>
+                        <Badge className="absolute top-2 right-2 sm:top-4 sm:right-4 text-xs">
+                          {translateVehicleStatus(vehicle.status)}
+                        </Badge>
                       </div>
                     )}
                     <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-3">
@@ -98,15 +101,15 @@ const MyVehicles = () => {
                         <div className="grid grid-cols-2 gap-1.5 sm:gap-2 text-xs sm:text-sm">
                           <div>
                             <span className="text-muted-foreground">Tipo:</span>
-                            <span className="ml-1 sm:ml-2 capitalize">{vehicle.vehicle_type}</span>
+                            <span className="ml-1 sm:ml-2">{translateVehicleType(vehicle.vehicle_type)}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Câmbio:</span>
-                            <span className="ml-1 sm:ml-2 capitalize">{vehicle.transmission_type}</span>
+                            <span className="ml-1 sm:ml-2">{translateTransmission(vehicle.transmission_type)}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Combustível:</span>
-                            <span className="ml-1 sm:ml-2 capitalize">{vehicle.fuel_type}</span>
+                            <span className="ml-1 sm:ml-2">{translateFuel(vehicle.fuel_type)}</span>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Passageiros:</span>

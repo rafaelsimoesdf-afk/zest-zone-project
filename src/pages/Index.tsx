@@ -19,6 +19,7 @@ import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
 import { Skeleton } from "@/components/ui/skeleton";
 import heroImage from "@/assets/hero-car.jpg";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { translateVehicleType } from "@/lib/translations";
 
 const Index = () => {
   const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(3);
@@ -33,17 +34,6 @@ const Index = () => {
       return `${vehicle.addresses.city}, ${vehicle.addresses.state}`;
     }
     return "Localização não informada";
-  };
-
-  const vehicleTypeLabels: Record<string, string> = {
-    sedan: "Sedan",
-    hatchback: "Hatchback",
-    suv: "SUV",
-    pickup: "Pickup",
-    van: "Van",
-    convertible: "Conversível",
-    coupe: "Coupé",
-    wagon: "Wagon",
   };
 
   const benefits = [
@@ -219,7 +209,7 @@ const Index = () => {
                         className="w-full h-full object-cover group-hover:scale-110 transition-smooth"
                       />
                       <Badge className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-background/90 backdrop-blur text-xs sm:text-sm">
-                        {vehicleTypeLabels[vehicle.vehicle_type] || vehicle.vehicle_type}
+                        {translateVehicleType(vehicle.vehicle_type)}
                       </Badge>
                     </div>
                     <CardContent className="p-4 sm:p-6">

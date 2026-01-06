@@ -33,6 +33,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { translateVehicleType, translateTransmission, translateFuel } from "@/lib/translations";
 
 const VehicleVerificationTab = () => {
   const { data: pendingVehicles, isLoading } = usePendingVehicles();
@@ -103,40 +104,9 @@ const VehicleVerificationTab = () => {
     );
   };
 
-  const getVehicleTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      sedan: "Sedan",
-      hatchback: "Hatchback",
-      suv: "SUV",
-      pickup: "Pickup",
-      van: "Van",
-      convertible: "Conversível",
-      coupe: "Cupê",
-      wagon: "Perua",
-    };
-    return labels[type] || type;
-  };
-
-  const getTransmissionLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      manual: "Manual",
-      automatic: "Automático",
-      cvt: "CVT",
-    };
-    return labels[type] || type;
-  };
-
-  const getFuelTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      gasoline: "Gasolina",
-      ethanol: "Etanol",
-      flex: "Flex",
-      diesel: "Diesel",
-      electric: "Elétrico",
-      hybrid: "Híbrido",
-    };
-    return labels[type] || type;
-  };
+  const getVehicleTypeLabel = translateVehicleType;
+  const getTransmissionLabel = translateTransmission;
+  const getFuelTypeLabel = translateFuel;
 
   if (isLoading) {
     return (

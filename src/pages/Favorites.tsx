@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Heart, Trash2, Car, MapPin, Fuel, Settings2 } from 'lucide-react';
 import { Link, Navigate } from 'react-router-dom';
 import { formatCurrencyBRL } from '@/lib/validators';
+import { translateTransmission, translateFuel } from '@/lib/translations';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,20 +21,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
-const transmissionLabels: Record<string, string> = {
-  manual: 'Manual',
-  automatic: 'Automático',
-  cvt: 'CVT',
-};
-
-const fuelLabels: Record<string, string> = {
-  gasoline: 'Gasolina',
-  ethanol: 'Etanol',
-  flex: 'Flex',
-  diesel: 'Diesel',
-  electric: 'Elétrico',
-  hybrid: 'Híbrido',
-};
 
 const Favorites = () => {
   const { user, loading: authLoading } = useAuth();
@@ -166,11 +153,11 @@ const Favorites = () => {
                       )}
                       <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs text-muted-foreground bg-muted px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
                         <Settings2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                        {transmissionLabels[vehicle.transmission_type] || vehicle.transmission_type}
+                        {translateTransmission(vehicle.transmission_type)}
                       </span>
                       <span className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs text-muted-foreground bg-muted px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full">
                         <Fuel className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                        {fuelLabels[vehicle.fuel_type] || vehicle.fuel_type}
+                        {translateFuel(vehicle.fuel_type)}
                       </span>
                     </div>
 

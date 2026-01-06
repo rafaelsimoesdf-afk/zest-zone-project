@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { translateVehicleType, translateTransmission, translateFuel } from "@/lib/translations";
 import { Vehicle } from "@/hooks/useVehicles";
 
 interface VehicleCardProps {
@@ -79,27 +80,6 @@ export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
     setCurrentImageIndex(index);
   };
 
-  const translateTransmission = (type: string) => {
-    const translations: Record<string, string> = {
-      automatic: 'Automático',
-      manual: 'Manual',
-      cvt: 'CVT'
-    };
-    return translations[type] || type;
-  };
-
-  const translateFuel = (type: string) => {
-    const translations: Record<string, string> = {
-      flex: 'Flex',
-      gasoline: 'Gasolina',
-      ethanol: 'Etanol',
-      diesel: 'Diesel',
-      electric: 'Elétrico',
-      hybrid: 'Híbrido'
-    };
-    return translations[type] || type;
-  };
-
   return (
     <Link to={carLink}>
       <Card className="overflow-hidden group hover:shadow-xl transition-smooth border hover:border-primary h-full bg-card">
@@ -166,8 +146,8 @@ export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
           )}
 
           {/* Vehicle Type Badge */}
-          <Badge className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 bg-background/90 backdrop-blur capitalize text-[9px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5">
-            {vehicle.vehicle_type}
+          <Badge className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 bg-background/90 backdrop-blur text-[9px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5">
+            {translateVehicleType(vehicle.vehicle_type)}
           </Badge>
 
           {/* Favorite Button */}

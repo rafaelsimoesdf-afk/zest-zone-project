@@ -11,13 +11,13 @@ interface VehicleTypeFilterProps {
 
 const vehicleTypes = [
   { value: "sedan", label: "Sedan", icon: "🚗" },
-  { value: "suv", label: "SUVs", icon: "🚙" },
-  { value: "hatchback", label: "Hatchback", icon: "🚘" },
-  { value: "pickup", label: "Pickup", icon: "🛻" },
-  { value: "van", label: "Vans", icon: "🚐" },
+  { value: "suv", label: "SUV", icon: "🚙" },
+  { value: "hatchback", label: "Hatch", icon: "🚘" },
+  { value: "pickup", label: "Picape", icon: "🛻" },
+  { value: "van", label: "Van", icon: "🚐" },
   { value: "convertible", label: "Conversível", icon: "🏎️" },
   { value: "coupe", label: "Cupê", icon: "🚕" },
-  { value: "wagon", label: "Wagon", icon: "🚃" },
+  { value: "wagon", label: "Perua", icon: "🚃" },
 ];
 
 export const VehicleTypeFilter = ({
