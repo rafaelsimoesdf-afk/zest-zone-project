@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Car, Star } from "lucide-react";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { translateBookingStatus } from "@/lib/translations";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 
 const MyBookings = () => {
@@ -76,7 +77,9 @@ const MyBookings = () => {
                             <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">Proprietário: {ownerName}</p>
                           </div>
                         </div>
-                        <Badge variant="outline" className="capitalize text-xs sm:text-sm self-start shrink-0">{booking.status}</Badge>
+                        <Badge variant="outline" className="text-xs sm:text-sm self-start shrink-0">
+                          {translateBookingStatus(booking.status)}
+                        </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">

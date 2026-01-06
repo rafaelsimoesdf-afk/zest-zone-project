@@ -40,6 +40,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { useVehicleBookings, getDisabledDates, isDateRangeAvailable } from "@/hooks/useVehicleBookings";
 import { formatCurrencyBRL } from "@/lib/validators";
+import { translateVehicleType, translateTransmission, translateFuel } from "@/lib/translations";
 import { useOwnerReviews } from "@/hooks/useReviews";
 import { OwnerReputationModal } from "@/components/reviews/OwnerReputationModal";
 
@@ -272,7 +273,7 @@ const CarDetails = () => {
               {/* Car Info */}
               <div>
                 <div className="mb-4">
-                  <Badge className="mb-2 sm:mb-3 capitalize text-xs">{vehicle.vehicle_type}</Badge>
+                  <Badge className="mb-2 sm:mb-3 text-xs">{translateVehicleType(vehicle.vehicle_type)}</Badge>
                   <h1 className="font-display text-xl sm:text-3xl lg:text-4xl font-bold mb-2">
                     {vehicle.brand} {vehicle.model} {vehicle.year}
                   </h1>
@@ -336,14 +337,14 @@ const CarDetails = () => {
                       <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="text-xs sm:text-sm text-muted-foreground">Câmbio</div>
-                        <div className="font-semibold text-sm sm:text-base capitalize">{vehicle.transmission_type}</div>
+                        <div className="font-semibold text-sm sm:text-base">{translateTransmission(vehicle.transmission_type)}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
                       <Fuel className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="text-xs sm:text-sm text-muted-foreground">Combustível</div>
-                        <div className="font-semibold text-sm sm:text-base capitalize">{vehicle.fuel_type}</div>
+                        <div className="font-semibold text-sm sm:text-base">{translateFuel(vehicle.fuel_type)}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-xl bg-muted/50">
@@ -396,7 +397,7 @@ const CarDetails = () => {
                       <Car className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
                       <div className="min-w-0">
                         <div className="text-xs sm:text-sm text-muted-foreground">Tipo</div>
-                        <div className="font-semibold text-sm sm:text-base capitalize">{vehicle.vehicle_type}</div>
+                        <div className="font-semibold text-sm sm:text-base">{translateVehicleType(vehicle.vehicle_type)}</div>
                       </div>
                     </div>
                   </div>
