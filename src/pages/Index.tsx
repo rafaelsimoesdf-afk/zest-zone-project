@@ -18,23 +18,10 @@ import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
 import { Skeleton } from "@/components/ui/skeleton";
 import heroImage from "@/assets/hero-car.jpg";
-import { formatCurrencyBRL } from "@/lib/validators";
-import { translateVehicleType } from "@/lib/translations";
+import { VehicleCard } from "@/components/browse/VehicleCard";
 
 const Index = () => {
   const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(3);
-
-  const getVehicleImage = (vehicle: any) => {
-    const primaryImage = vehicle.vehicle_images?.find((img: any) => img.is_primary);
-    return primaryImage?.image_url || vehicle.vehicle_images?.[0]?.image_url || "https://images.unsplash.com/photo-1494976388531-d1058494cdd8";
-  };
-
-  const getVehicleLocation = (vehicle: any) => {
-    if (vehicle.addresses) {
-      return `${vehicle.addresses.city}, ${vehicle.addresses.state}`;
-    }
-    return "Localização não informada";
-  };
 
   const benefits = [
     {
@@ -200,39 +187,7 @@ const Index = () => {
               ))
             ) : featuredVehicles && featuredVehicles.length > 0 ? (
               featuredVehicles.map((vehicle) => (
-                <Link key={vehicle.id} to={`/cars/${vehicle.id}`}>
-                  <Card className="overflow-hidden group hover:shadow-xl transition-smooth border-2 hover:border-primary">
-                    <div className="relative h-48 sm:h-64 overflow-hidden">
-                      <img
-                        src={getVehicleImage(vehicle)}
-                        alt={`${vehicle.brand} ${vehicle.model}`}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-smooth"
-                      />
-                      <Badge className="absolute top-3 sm:top-4 right-3 sm:right-4 bg-background/90 backdrop-blur text-xs sm:text-sm">
-                        {translateVehicleType(vehicle.vehicle_type)}
-                      </Badge>
-                    </div>
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-bold text-base sm:text-xl line-clamp-1">{vehicle.brand} {vehicle.model} {vehicle.year}</h3>
-                      </div>
-                      <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 truncate">
-                        📍 {getVehicleLocation(vehicle)}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-lg sm:text-2xl font-bold text-primary">
-                            {formatCurrencyBRL(vehicle.daily_price)}
-                          </span>
-                          <span className="text-muted-foreground text-xs sm:text-base">/dia</span>
-                        </div>
-                        <Button size="sm" className="bg-primary text-white hover:bg-primary/90 text-xs sm:text-sm px-3 sm:px-4">
-                          Reservar
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
               ))
             ) : (
               <div className="col-span-full text-center py-8 sm:py-12">
