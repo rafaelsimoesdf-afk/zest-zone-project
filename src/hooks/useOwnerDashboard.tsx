@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sendBookingStatusEmail, getUserEmailData } from "@/hooks/useEmailNotifications";
 
 export interface OwnerBooking {
   id: string;
@@ -358,6 +359,11 @@ export const useUpdateOwnerBookingStatus = () => {
         .select(`
           owner_id,
           customer_id,
+          start_date,
+          end_date,
+          total_days,
+          total_price,
+          daily_rate,
           vehicles (brand, model)
         `)
         .eq("id", bookingId)
@@ -384,14 +390,14 @@ export const useUpdateOwnerBookingStatus = () => {
 
       if (error) throw error;
 
+      const vehicleInfo = booking.vehicles as { brand: string; model: string } | null;
+      const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
+
       // Create notification for customer based on status change
       if (booking.customer_id) {
-        const vehicleInfo = booking.vehicles as { brand: string; model: string } | null;
-        const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
-        
         let notificationTitle = "";
         let notificationMessage = "";
-        let actionUrl = `/booking/${bookingId}`;
+        const actionUrl = `/booking/${bookingId}`;
         
         switch (status) {
           case "confirmed":
@@ -419,6 +425,31 @@ export const useUpdateOwnerBookingStatus = () => {
             action_url: actionUrl,
           });
         }
+      }
+
+      // Send email notifications
+      const [customerData, ownerData] = await Promise.all([
+        getUserEmailData(booking.customer_id),
+        getUserEmailData(booking.owner_id),
+      ]);
+
+      if (customerData && ownerData) {
+        sendBookingStatusEmail({
+          status,
+          customerEmail: customerData.email,
+          customerName: customerData.name,
+          ownerEmail: ownerData.email,
+          ownerName: ownerData.name,
+          ownerPhone: ownerData.phone,
+          vehicleName,
+          startDate: booking.start_date,
+          endDate: booking.end_date,
+          totalDays: booking.total_days,
+          totalPrice: booking.total_price,
+          dailyRate: booking.daily_rate,
+          reason,
+          bookingId,
+        });
       }
 
       return data;

@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { sendPaymentConfirmedEmail, getUserEmailData } from "@/hooks/useEmailNotifications";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -45,8 +46,6 @@ const PaymentSuccess = () => {
       setIsCreating(true);
 
       try {
-        // Parse dates correctly to avoid timezone issues
-        // Format: yyyy-MM-dd - add T12:00:00 to ensure correct date in any timezone
         const formattedStartDate = `${startDate}T12:00:00`;
         const formattedEndDate = `${endDate}T12:00:00`;
 
@@ -66,6 +65,27 @@ const PaymentSuccess = () => {
           extra_hours_charge: parseFloat(extraHoursCharge || '0'),
           acceptances: acceptances || undefined,
         });
+
+        // Send payment confirmation email
+        const customerData = await getUserEmailData(user.id);
+        if (customerData) {
+          // Get vehicle name from ownerId context (already passed as vehicleName-like string)
+          const { data: vehicleInfo } = await import("@/integrations/supabase/client").then(m =>
+            m.supabase.from("vehicles").select("brand, model").eq("id", vehicleId).single()
+          );
+          sendPaymentConfirmedEmail({
+            customerEmail: customerData.email,
+            customerName: customerData.name,
+            vehicleName: vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : vehicleId,
+            startDate: formattedStartDate,
+            endDate: formattedEndDate,
+            dailySubtotal: parseFloat(dailyRate) * parseInt(days),
+            extraHoursCharge: parseFloat(extraHoursCharge || '0'),
+            insurance: 0,
+            totalPrice: parseFloat(totalPrice),
+            sessionId: sessionId || "",
+          });
+        }
 
         setBookingCreated(true);
       } catch (error) {
