@@ -77,7 +77,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
-      toast.success('Cadastro realizado! Verifique seu email para confirmar.');
       return { error: null };
     } catch (error: any) {
       toast.error(error.message || 'Erro ao criar conta');

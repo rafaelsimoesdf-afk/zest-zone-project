@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail, CheckCircle } from 'lucide-react';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
@@ -38,6 +38,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState<string | null>(null);
 
   const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
@@ -71,9 +72,75 @@ const Auth = () => {
 
   const handleSignup = async (data: SignupFormData) => {
     setIsLoading(true);
-    await signUp(data.email, data.password, data.firstName, data.lastName);
+    const { error } = await signUp(data.email, data.password, data.firstName, data.lastName);
+    if (!error) {
+      setEmailSent(data.email);
+    }
     setIsLoading(false);
   };
+
+  const handleResendEmail = async () => {
+    if (!emailSent) return;
+    setIsLoading(true);
+    const { error } = await supabase.auth.resend({ type: 'signup', email: emailSent });
+    if (error) {
+      toast.error('Erro ao reenviar email. Tente novamente.');
+    } else {
+      toast.success('Email de confirmação reenviado!');
+    }
+    setIsLoading(false);
+  };
+
+  // Tela de confirmação de email
+  if (emailSent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-secondary to-accent p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="flex justify-center mb-4">
+              <div className="rounded-full bg-primary/10 p-4">
+                <Mail className="h-12 w-12 text-primary" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl">Verifique seu email</CardTitle>
+            <CardDescription className="text-base mt-2">
+              Enviamos um link de confirmação para
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="rounded-lg bg-muted px-4 py-3 font-medium text-foreground">
+              {emailSent}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Clique no link do email para ativar sua conta. Verifique também sua pasta de spam caso não encontre o email.
+            </p>
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleResendEmail}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Mail className="mr-2 h-4 w-4" />
+                )}
+                Reenviar email de confirmação
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => setEmailSent(null)}
+              >
+                Usar outro email
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-secondary to-accent p-4">
