@@ -11,103 +11,34 @@ interface EmailPayload {
   html: string;
 }
 
-const sendSMTP = async (payload: EmailPayload) => {
-  const host = Deno.env.get("SMTP_HOST") || "smtp.hostinger.com";
-  const port = parseInt(Deno.env.get("SMTP_PORT") || "465");
-  const user = Deno.env.get("SMTP_USER") || "";
-  const pass = Deno.env.get("SMTP_PASS") || "";
-  const from = Deno.env.get("EMAIL_FROM") || user;
+const sendEmail = async (payload: EmailPayload) => {
+  const apiKey = Deno.env.get("RESEND_API_KEY");
+  const from = Deno.env.get("EMAIL_FROM") || "ZestZone <noreply@zestzone.com.br>";
 
-  if (!user || !pass) {
-    throw new Error("SMTP credentials not configured");
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY not configured");
   }
 
-  // Use Deno's built-in fetch to call a simple SMTP relay via Supabase
-  // We'll use nodemailer-compatible approach via fetch to smtp2go or similar
-  // Since Deno edge functions can't use raw TCP SMTP, we use an HTTP API approach
-  // For Hostinger SMTP, we'll use the built-in Deno TCP support
-
-  const conn = await Deno.connect({
-    hostname: host,
-    port: port,
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: [payload.to],
+      subject: payload.subject,
+      html: payload.html,
+    }),
   });
 
-  let tlsConn: Deno.TlsConn;
-
-  // For port 465, use implicit TLS
-  if (port === 465) {
-    tlsConn = await Deno.startTls(conn, { hostname: host });
-  } else {
-    // For port 587, start with plain and upgrade with STARTTLS
-    tlsConn = conn as unknown as Deno.TlsConn;
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Resend API error: ${JSON.stringify(error)}`);
   }
 
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-
-  const readResponse = async (): Promise<string> => {
-    const buffer = new Uint8Array(4096);
-    const n = await tlsConn.read(buffer);
-    return decoder.decode(buffer.subarray(0, n ?? 0));
-  };
-
-  const sendCommand = async (cmd: string): Promise<string> => {
-    await tlsConn.write(encoder.encode(cmd + "\r\n"));
-    return await readResponse();
-  };
-
-  // Read greeting
-  await readResponse();
-
-  // EHLO
-  await sendCommand(`EHLO ${host}`);
-
-  // For port 587, upgrade to TLS
-  if (port === 587) {
-    const startTlsResponse = await sendCommand("STARTTLS");
-    if (!startTlsResponse.startsWith("220")) {
-      throw new Error("STARTTLS failed: " + startTlsResponse);
-    }
-    tlsConn = await Deno.startTls(conn, { hostname: host });
-    await sendCommand(`EHLO ${host}`);
-  }
-
-  // AUTH LOGIN
-  await sendCommand("AUTH LOGIN");
-  await sendCommand(btoa(user));
-  const authResponse = await sendCommand(btoa(pass));
-  if (!authResponse.startsWith("235")) {
-    throw new Error("SMTP authentication failed");
-  }
-
-  // MAIL FROM
-  await sendCommand(`MAIL FROM:<${from}>`);
-
-  // RCPT TO
-  await sendCommand(`RCPT TO:<${payload.to}>`);
-
-  // DATA
-  await sendCommand("DATA");
-
-  // Email headers and body
-  const emailContent = [
-    `From: ${from}`,
-    `To: ${payload.to}`,
-    `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent(payload.subject)))}?=`,
-    `MIME-Version: 1.0`,
-    `Content-Type: text/html; charset=UTF-8`,
-    `Content-Transfer-Encoding: base64`,
-    ``,
-    btoa(unescape(encodeURIComponent(payload.html))),
-    `.`,
-  ].join("\r\n");
-
-  await sendCommand(emailContent);
-
-  // QUIT
-  await sendCommand("QUIT");
-
-  tlsConn.close();
+  return await response.json();
 };
 
 // ============================================================
@@ -572,7 +503,7 @@ serve(async (req) => {
 
     const { subject, html } = templateFn(data);
 
-    await sendSMTP({ to, subject, html });
+    await sendEmail({ to, subject, html });
 
     console.log(`[SEND-EMAIL] Email sent successfully: template=${template}, to=${to}`);
 
