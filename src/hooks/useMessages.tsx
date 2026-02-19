@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { sendNewMessageEmail, getUserEmailData } from "@/hooks/useEmailNotifications";
 
 export interface Message {
   id: string;
@@ -253,6 +254,33 @@ export const useSendMessage = () => {
         notification_type: "support",
         action_url: `/messages?booking=${bookingId}`,
       });
+
+      // Send email notification
+      const [senderData, receiverData] = await Promise.all([
+        getUserEmailData(user.id),
+        getUserEmailData(receiverId),
+      ]);
+
+      // Get vehicle name from booking
+      const { data: bookingInfo } = await supabase
+        .from("bookings")
+        .select("vehicles (brand, model)")
+        .eq("id", bookingId)
+        .single();
+
+      const vehicleInfo = bookingInfo?.vehicles as any;
+      const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "reserva";
+
+      if (senderData && receiverData) {
+        sendNewMessageEmail({
+          receiverEmail: receiverData.email,
+          receiverName: receiverData.name,
+          senderName: senderData.name,
+          vehicleName,
+          messageContent: content.trim(),
+          bookingId,
+        });
+      }
 
       return data;
     },

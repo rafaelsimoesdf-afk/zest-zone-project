@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sendReviewReceivedEmail, getUserEmailData } from "@/hooks/useEmailNotifications";
 
 export interface Review {
   id: string;
@@ -211,6 +212,20 @@ export const useCreateReview = () => {
         message: notificationMessage,
         action_url: "/profile?tab=reviews",
       });
+
+      // Send email notification for review received
+      const reviewedUserData = await getUserEmailData(reviewedId);
+      const reviewerProfileData = await getUserEmailData(reviewerId);
+      if (reviewedUserData && reviewerProfileData) {
+        sendReviewReceivedEmail({
+          reviewedEmail: reviewedUserData.email,
+          reviewedName: reviewedUserData.name,
+          reviewerName: reviewerProfileData.name,
+          vehicleName,
+          rating,
+          comment: comment || null,
+        });
+      }
 
       return data;
     },

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sendVerificationEmail, sendVehicleStatusEmail } from "@/hooks/useEmailNotifications";
 
 export const useAdminStats = () => {
   return useQuery({
@@ -185,6 +186,13 @@ export const useUpdateVehicleStatus = () => {
 
   return useMutation({
     mutationFn: async ({ vehicleId, status }: { vehicleId: string; status: string }) => {
+      // Fetch vehicle + owner info before updating
+      const { data: vehicleInfo } = await supabase
+        .from("vehicles")
+        .select(`*, profiles!vehicles_owner_id_fkey (first_name, last_name, email)`)
+        .eq("id", vehicleId)
+        .single();
+
       const { data, error } = await supabase
         .from("vehicles")
         .update({ status: status as any })
@@ -193,6 +201,20 @@ export const useUpdateVehicleStatus = () => {
         .single();
 
       if (error) throw error;
+
+      // Send email to vehicle owner
+      if (vehicleInfo?.profiles) {
+        const owner = vehicleInfo.profiles as any;
+        sendVehicleStatusEmail({
+          ownerEmail: owner.email,
+          ownerName: `${owner.first_name} ${owner.last_name}`,
+          vehicleName: `${vehicleInfo.brand} ${vehicleInfo.model} ${vehicleInfo.year}`,
+          licensePlate: vehicleInfo.license_plate,
+          dailyPrice: vehicleInfo.daily_price,
+          approved: status === "approved",
+        });
+      }
+
       return data;
     },
     onSuccess: (_, variables) => {
@@ -248,6 +270,13 @@ export const useUpdateUserVerificationStatus = () => {
         updateData.status = 'verified';
       }
 
+      // Fetch user info before updating for email
+      const { data: userProfile } = await supabase
+        .from("profiles")
+        .select("email, first_name, last_name")
+        .eq("id", userId)
+        .single();
+
       const { data, error } = await supabase
         .from("profiles")
         .update(updateData)
@@ -256,6 +285,16 @@ export const useUpdateUserVerificationStatus = () => {
         .single();
 
       if (error) throw error;
+
+      // Send verification email
+      if (userProfile) {
+        sendVerificationEmail({
+          userEmail: userProfile.email,
+          userName: `${userProfile.first_name} ${userProfile.last_name}`,
+          approved: verificationStatus === "approved",
+        });
+      }
+
       return data;
     },
     onSuccess: (_, variables) => {
