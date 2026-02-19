@@ -189,6 +189,17 @@ const Auth = () => {
                   )}
                 </div>
 
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="px-0 text-sm text-muted-foreground"
+                    onClick={() => navigate('/forgot-password')}
+                  >
+                    Esqueceu sua senha?
+                  </Button>
+                </div>
+
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <>

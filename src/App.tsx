@@ -24,6 +24,8 @@ import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
 import SelfieUpload from "./pages/SelfieUpload";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +58,8 @@ const App = () => (
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/selfie-upload/:sessionToken" element={<SelfieUpload />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>
