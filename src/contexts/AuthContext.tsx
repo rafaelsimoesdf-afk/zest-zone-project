@@ -28,6 +28,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Redirect to reset-password page on password recovery event
+        if (event === 'PASSWORD_RECOVERY') {
+          navigate('/reset-password');
+        }
       }
     );
 
