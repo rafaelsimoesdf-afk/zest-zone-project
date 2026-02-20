@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -120,12 +120,20 @@ const Navbar = () => {
                     </Link>
                   </DropdownMenuItem>
                   {hasVehicles && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/owner-dashboard" className="cursor-pointer">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Dashboard Proprietário
-                      </Link>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/owner-dashboard" className="cursor-pointer">
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          Dashboard Proprietário
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/owner-withdrawals" className="cursor-pointer">
+                          <Wallet className="mr-2 h-4 w-4" />
+                          Saques
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
                   {isAdmin && (
                     <DropdownMenuItem asChild>
@@ -250,12 +258,20 @@ const Navbar = () => {
                     </Link>
                   </Button>
                   {hasVehicles && (
-                    <Button variant="outline" className="w-full" size="sm" asChild>
-                      <Link to="/owner-dashboard" onClick={() => setIsMenuOpen(false)}>
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard Proprietário
-                      </Link>
-                    </Button>
+                    <>
+                      <Button variant="outline" className="w-full" size="sm" asChild>
+                        <Link to="/owner-dashboard" onClick={() => setIsMenuOpen(false)}>
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard Proprietário
+                        </Link>
+                      </Button>
+                      <Button variant="outline" className="w-full" size="sm" asChild>
+                        <Link to="/owner-withdrawals" onClick={() => setIsMenuOpen(false)}>
+                          <Wallet className="w-4 h-4 mr-2" />
+                          Saques
+                        </Link>
+                      </Button>
+                    </>
                   )}
                   {isAdmin && (
                     <Button variant="outline" className="w-full" size="sm" asChild>
