@@ -12,6 +12,13 @@ interface StripeConnectStatus {
   } | null;
 }
 
+interface StripeBalance {
+  available: number;
+  pending: number;
+  has_stripe: boolean;
+  error?: string;
+}
+
 export const useStripeConnectStatus = () => {
   return useQuery({
     queryKey: ["stripeConnectStatus"],
@@ -22,6 +29,20 @@ export const useStripeConnectStatus = () => {
       if (error) throw error;
       return data as StripeConnectStatus;
     },
+  });
+};
+
+export const useStripeBalance = () => {
+  return useQuery({
+    queryKey: ["stripeBalance"],
+    queryFn: async (): Promise<StripeBalance> => {
+      const { data, error } = await supabase.functions.invoke("stripe-connect-onboarding", {
+        body: { action: "get_balance" },
+      });
+      if (error) throw error;
+      return data as StripeBalance;
+    },
+    refetchInterval: 60000, // Refresh every 60s
   });
 };
 
@@ -68,6 +89,7 @@ export const useProcessWithdrawalTransfer = () => {
       queryClient.invalidateQueries({ queryKey: ["allWithdrawals"] });
       queryClient.invalidateQueries({ queryKey: ["ownerBalance"] });
       queryClient.invalidateQueries({ queryKey: ["ownerWithdrawals"] });
+      queryClient.invalidateQueries({ queryKey: ["stripeBalance"] });
     },
     onError: (error: any) => {
       const msg = error?.message || error?.context?.body?.message || "Erro ao processar transferência";
