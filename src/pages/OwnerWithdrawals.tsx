@@ -193,28 +193,35 @@ const OwnerWithdrawals = () => {
               <>
                 <Card className="border-green-500/20">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Disponível no Stripe</CardTitle>
+                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Disponível para Saque</CardTitle>
                     <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
                     <div className="text-base sm:text-2xl font-bold text-green-600">
-                      {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.available) : formatCurrency(0)}
+                      {formatCurrency(balance.available_balance)}
                     </div>
-                    {!stripeBalance?.has_stripe && (
-                      <p className="text-[10px] text-muted-foreground mt-1">Stripe Connect não configurado</p>
+                    {stripeBalance?.has_stripe && stripeBalance.available > 0 && (
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        Stripe: {formatCurrency(stripeBalance.available)}
+                      </p>
                     )}
                   </CardContent>
                 </Card>
 
                 <Card className="border-yellow-500/20">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Pendente no Stripe</CardTitle>
+                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Pendente de Liberação</CardTitle>
                     <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
                     <div className="text-base sm:text-2xl font-bold text-yellow-600">
-                      {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.pending) : formatCurrency(0)}
+                      {stripeBalance?.has_stripe && stripeBalance.pending > 0
+                        ? formatCurrency(stripeBalance.pending)
+                        : formatCurrency(0)}
                     </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Valores em processamento no Stripe
+                    </p>
                   </CardContent>
                 </Card>
 
@@ -280,13 +287,10 @@ const OwnerWithdrawals = () => {
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div>
-                      <Label>Saldo disponível no Stripe</Label>
+                      <Label>Saldo disponível para saque</Label>
                       <p className="text-lg font-bold text-green-600">
-                        {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.available) : formatCurrency(0)}
+                        {formatCurrency(balance?.available_balance ?? 0)}
                       </p>
-                      {!stripeBalance?.has_stripe && (
-                        <p className="text-xs text-destructive">Configure o Stripe Connect para sacar.</p>
-                      )}
                     </div>
                     <div>
                       <Label htmlFor="amount">Valor do saque (R$)</Label>
@@ -294,7 +298,7 @@ const OwnerWithdrawals = () => {
                         id="amount"
                         type="number"
                         min={config?.minimum_withdrawal ?? 50}
-                        max={stripeBalance?.has_stripe ? stripeBalance.available : 0}
+                        max={balance?.available_balance ?? 0}
                         step="0.01"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
