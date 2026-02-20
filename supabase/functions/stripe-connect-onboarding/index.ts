@@ -81,6 +81,46 @@ serve(async (req) => {
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    if (action === "get_balance") {
+      // Return Stripe Connect available balance for the owner
+      if (!profile?.stripe_account_id || !profile?.stripe_onboarding_complete) {
+        return new Response(JSON.stringify({
+          available: 0,
+          pending: 0,
+          has_stripe: false,
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      try {
+        const balance = await stripe.balance.retrieve({
+          stripeAccount: profile.stripe_account_id,
+        });
+
+        // Sum available and pending amounts in BRL
+        const available = balance.available
+          .filter((b: any) => b.currency === "brl")
+          .reduce((sum: number, b: any) => sum + b.amount, 0) / 100;
+
+        const pending = balance.pending
+          .filter((b: any) => b.currency === "brl")
+          .reduce((sum: number, b: any) => sum + b.amount, 0) / 100;
+
+        return new Response(JSON.stringify({
+          available,
+          pending,
+          has_stripe: true,
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } catch (e) {
+        console.error("[STRIPE-CONNECT] Error retrieving balance:", e);
+        return new Response(JSON.stringify({
+          available: 0,
+          pending: 0,
+          has_stripe: true,
+          error: "Erro ao consultar saldo no Stripe",
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    }
+
     if (action === "create_or_link") {
       let accountId = profile?.stripe_account_id;
 

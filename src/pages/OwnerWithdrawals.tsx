@@ -22,7 +22,7 @@ import {
   useRequestWithdrawal,
   useSaveWithdrawalSettings,
 } from "@/hooks/useWithdrawals";
-import { useStripeConnectStatus, useStartStripeOnboarding } from "@/hooks/useStripeConnect";
+import { useStripeConnectStatus, useStartStripeOnboarding, useStripeBalance } from "@/hooks/useStripeConnect";
 import { useProfile } from "@/hooks/useProfile";
 import {
   Wallet,
@@ -72,6 +72,7 @@ const OwnerWithdrawals = () => {
   const { data: settings } = useWithdrawalSettings();
   const { data: profile } = useProfile();
   const { data: stripeStatus, refetch: refetchStripe } = useStripeConnectStatus();
+  const { data: stripeBalance, isLoading: loadingStripeBalance } = useStripeBalance();
   const startOnboarding = useStartStripeOnboarding();
   const requestWithdrawal = useRequestWithdrawal();
   const saveSettings = useSaveWithdrawalSettings();
@@ -180,9 +181,9 @@ const OwnerWithdrawals = () => {
           )}
 
           {/* Balance Cards */}
-          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
-            {loadingBalance ? (
-              Array(4).fill(0).map((_, i) => (
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-5 mb-6 sm:mb-8">
+            {(loadingBalance || loadingStripeBalance) ? (
+              Array(5).fill(0).map((_, i) => (
                 <Card key={i}>
                   <CardHeader className="pb-2 p-3 sm:p-6"><Skeleton className="h-4 w-24" /></CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0"><Skeleton className="h-8 w-32" /></CardContent>
@@ -192,11 +193,28 @@ const OwnerWithdrawals = () => {
               <>
                 <Card className="border-green-500/20">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Saldo Disponível</CardTitle>
+                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Disponível no Stripe</CardTitle>
                     <Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
-                    <div className="text-base sm:text-2xl font-bold text-green-600">{formatCurrency(balance.available_balance)}</div>
+                    <div className="text-base sm:text-2xl font-bold text-green-600">
+                      {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.available) : formatCurrency(0)}
+                    </div>
+                    {!stripeBalance?.has_stripe && (
+                      <p className="text-[10px] text-muted-foreground mt-1">Stripe Connect não configurado</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="border-yellow-500/20">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
+                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Pendente no Stripe</CardTitle>
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
+                  </CardHeader>
+                  <CardContent className="p-3 sm:p-6 pt-0">
+                    <div className="text-base sm:text-2xl font-bold text-yellow-600">
+                      {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.pending) : formatCurrency(0)}
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -220,13 +238,13 @@ const OwnerWithdrawals = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="border-yellow-500/20">
+                <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Em Processamento</CardTitle>
-                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
+                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Saques Pendentes</CardTitle>
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
-                    <div className="text-base sm:text-2xl font-bold text-yellow-600">{formatCurrency(balance.pending_withdrawals)}</div>
+                    <div className="text-base sm:text-2xl font-bold">{formatCurrency(balance.pending_withdrawals)}</div>
                   </CardContent>
                 </Card>
               </>
@@ -262,8 +280,13 @@ const OwnerWithdrawals = () => {
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div>
-                      <Label>Saldo disponível</Label>
-                      <p className="text-lg font-bold text-green-600">{formatCurrency(balance?.available_balance ?? 0)}</p>
+                      <Label>Saldo disponível no Stripe</Label>
+                      <p className="text-lg font-bold text-green-600">
+                        {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.available) : formatCurrency(0)}
+                      </p>
+                      {!stripeBalance?.has_stripe && (
+                        <p className="text-xs text-destructive">Configure o Stripe Connect para sacar.</p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="amount">Valor do saque (R$)</Label>
@@ -271,7 +294,7 @@ const OwnerWithdrawals = () => {
                         id="amount"
                         type="number"
                         min={config?.minimum_withdrawal ?? 50}
-                        max={balance?.available_balance ?? 0}
+                        max={stripeBalance?.has_stripe ? stripeBalance.available : 0}
                         step="0.01"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
