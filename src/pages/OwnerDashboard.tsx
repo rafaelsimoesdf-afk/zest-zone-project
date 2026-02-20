@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +39,8 @@ import {
   Mail,
   MapPin,
   Eye,
-  Star
+  Star,
+  Wallet
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -131,13 +132,21 @@ const OwnerDashboard = () => {
       <Navbar />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-4xl font-display font-bold text-primary mb-1 sm:mb-2">
-              Dashboard do Proprietário
-            </h1>
-            <p className="text-xs sm:text-base text-muted-foreground">
-              Gerencie suas reservas e acompanhe o desempenho dos seus veículos
-            </p>
+          <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h1 className="text-xl sm:text-4xl font-display font-bold text-primary mb-1 sm:mb-2">
+                Dashboard do Proprietário
+              </h1>
+              <p className="text-xs sm:text-base text-muted-foreground">
+                Gerencie suas reservas e acompanhe o desempenho dos seus veículos
+              </p>
+            </div>
+            <Button asChild variant="outline" size="sm" className="w-fit">
+              <Link to="/owner-withdrawals">
+                <Wallet className="w-4 h-4 mr-2" />
+                Saques
+              </Link>
+            </Button>
           </div>
 
           {/* Stats Cards */}
