@@ -98,19 +98,69 @@ serve(async (req) => {
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Process Stripe Transfer
+    // In Brazil, Stripe requires source_transaction for transfers.
+    // Check if there are linked Stripe charges from the owner's bookings.
+    const { data: ownerBookings } = await supabaseAdmin
+      .from("bookings")
+      .select("id")
+      .eq("owner_id", withdrawal.owner_id)
+      .eq("status", "completed");
+
+    const bookingIds = ownerBookings?.map((b: any) => b.id) || [];
+
+    let linkedPayments: any[] = [];
+    if (bookingIds.length > 0) {
+      const { data } = await supabaseAdmin
+        .from("payments")
+        .select("stripe_payment_intent_id, amount, booking_id")
+        .eq("payment_status", "completed")
+        .not("stripe_payment_intent_id", "is", null)
+        .in("booking_id", bookingIds);
+      linkedPayments = data || [];
+    }
+
+    if (linkedPayments.length === 0) {
+      // No Stripe charges — approve and mark as manual PIX transfer
+      await supabaseAdmin.from("withdrawals").update({
+        status: "approved",
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: adminId,
+        admin_notes: "Aprovado automaticamente. Transferência Stripe indisponível (sem cobranças Stripe vinculadas). Realizar transferência PIX manual.",
+      }).eq("id", withdrawalId);
+
+      await supabaseAdmin.from("notifications").insert({
+        user_id: withdrawal.owner_id,
+        notification_type: "payment",
+        title: "Saque aprovado!",
+        message: `Seu saque de R$ ${Number(withdrawal.net_amount).toFixed(2)} foi aprovado e será transferido via PIX.`,
+        action_url: "/owner-withdrawals",
+      });
+
+      return new Response(JSON.stringify({
+        success: true,
+        manual_transfer_required: true,
+        message: "Saque aprovado. Sem cobranças Stripe vinculadas — transferência PIX manual necessária.",
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Has Stripe charges — attempt transfer with source_transaction
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
 
     const amountInCents = Math.round(withdrawal.net_amount * 100);
+    const sourcePaymentIntent = linkedPayments[0].stripe_payment_intent_id;
 
-    console.log(`[WITHDRAWAL-TRANSFER] Processing transfer of ${amountInCents} cents to ${ownerProfile.stripe_account_id} for withdrawal ${withdrawalId}`);
+    console.log(`[WITHDRAWAL-TRANSFER] Processing transfer of ${amountInCents} cents to ${ownerProfile.stripe_account_id} with source PI ${sourcePaymentIntent}`);
+
+    const paymentIntent = await stripe.paymentIntents.retrieve(sourcePaymentIntent);
+    const chargeId = paymentIntent.latest_charge as string;
 
     const transfer = await stripe.transfers.create({
       amount: amountInCents,
       currency: "brl",
       destination: ownerProfile.stripe_account_id,
+      source_transaction: chargeId,
       description: `Saque #${withdrawalId.slice(0, 8)} - ${ownerProfile.first_name} ${ownerProfile.last_name}`,
       metadata: {
         withdrawal_id: withdrawalId,
@@ -120,7 +170,6 @@ serve(async (req) => {
 
     console.log(`[WITHDRAWAL-TRANSFER] Transfer created: ${transfer.id}`);
 
-    // Update withdrawal to completed
     await supabaseAdmin.from("withdrawals").update({
       status: "completed",
       reviewed_at: new Date().toISOString(),
@@ -130,7 +179,6 @@ serve(async (req) => {
       admin_notes: `Transferência Stripe automática: ${transfer.id}`,
     }).eq("id", withdrawalId);
 
-    // Notify owner
     await supabaseAdmin.from("notifications").insert({
       user_id: withdrawal.owner_id,
       notification_type: "payment",
