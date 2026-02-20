@@ -57,17 +57,23 @@ export const useProcessWithdrawalTransfer = () => {
       return data;
     },
     onSuccess: (data) => {
+      if (data.success && data.manual_transfer_required) {
+        toast.warning("Saque aprovado. Transferência Stripe indisponível — realizar PIX manual.");
+      } else if (data.success) {
+        toast.success("Transferência Stripe realizada com sucesso!");
+      } else if (data.error) {
+        toast.error(data.error);
+      }
+      // Force refetch all withdrawal-related queries
       queryClient.invalidateQueries({ queryKey: ["allWithdrawals"] });
       queryClient.invalidateQueries({ queryKey: ["ownerBalance"] });
       queryClient.invalidateQueries({ queryKey: ["ownerWithdrawals"] });
-      if (data.success) {
-        toast.success("Transferência Stripe realizada com sucesso!");
-      } else if (data.manual_transfer_required) {
-        toast.warning("Saque aprovado, mas o proprietário não completou o onboarding Stripe. Transferência manual necessária.");
-      }
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Erro ao processar transferência");
+    onError: (error: any) => {
+      const msg = error?.message || error?.context?.body?.message || "Erro ao processar transferência";
+      toast.error(msg);
+      // Still invalidate in case partial update happened
+      queryClient.invalidateQueries({ queryKey: ["allWithdrawals"] });
     },
   });
 };
