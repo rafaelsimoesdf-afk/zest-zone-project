@@ -198,12 +198,10 @@ const OwnerWithdrawals = () => {
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
                     <div className="text-base sm:text-2xl font-bold text-green-600">
-                      {formatCurrency(balance.available_balance)}
+                      {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.available) : formatCurrency(0)}
                     </div>
-                    {stripeBalance?.has_stripe && stripeBalance.available > 0 && (
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        Stripe: {formatCurrency(stripeBalance.available)}
-                      </p>
+                    {!stripeBalance?.has_stripe && (
+                      <p className="text-[10px] text-muted-foreground mt-1">Configure o Stripe Connect</p>
                     )}
                   </CardContent>
                 </Card>
@@ -215,12 +213,10 @@ const OwnerWithdrawals = () => {
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
                     <div className="text-base sm:text-2xl font-bold text-yellow-600">
-                      {stripeBalance?.has_stripe && stripeBalance.pending > 0
-                        ? formatCurrency(stripeBalance.pending)
-                        : formatCurrency(0)}
+                      {formatCurrency(balance.available_balance + (stripeBalance?.has_stripe ? stripeBalance.pending : 0))}
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-1">
-                      Valores em processamento no Stripe
+                      Aguardando liberação no Stripe
                     </p>
                   </CardContent>
                 </Card>
@@ -289,8 +285,16 @@ const OwnerWithdrawals = () => {
                     <div>
                       <Label>Saldo disponível para saque</Label>
                       <p className="text-lg font-bold text-green-600">
-                        {formatCurrency(balance?.available_balance ?? 0)}
+                        {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.available) : formatCurrency(0)}
                       </p>
+                      {!stripeBalance?.has_stripe && (
+                        <p className="text-xs text-destructive">Configure o Stripe Connect para sacar.</p>
+                      )}
+                      {balance && balance.available_balance > 0 && (
+                        <p className="text-xs text-yellow-600 mt-1">
+                          Pendente de liberação: {formatCurrency(balance.available_balance)}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="amount">Valor do saque (R$)</Label>
@@ -298,7 +302,7 @@ const OwnerWithdrawals = () => {
                         id="amount"
                         type="number"
                         min={config?.minimum_withdrawal ?? 50}
-                        max={balance?.available_balance ?? 0}
+                        max={stripeBalance?.has_stripe ? stripeBalance.available : 0}
                         step="0.01"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
