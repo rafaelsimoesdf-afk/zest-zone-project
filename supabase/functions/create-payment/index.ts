@@ -72,13 +72,31 @@ serve(async (req) => {
 
     // Calcular a taxa de serviço da plataforma (15% das diárias + horas extras - pago pelo proprietário)
     const rentalAmount = dailySubtotal + (extraHoursCharge || 0);
-    const platformFee = Math.round(rentalAmount * 0.15 * 100); // em centavos
-    logStep("Platform fee calculated", { platformFee: platformFee / 100, rentalAmount, dailySubtotal, extraHoursCharge });
+    const platformFeeAmount = rentalAmount * 0.15;
+    const ownerNetAmount = rentalAmount - platformFeeAmount; // valor líquido do proprietário
+    const ownerNetAmountCents = Math.round(ownerNetAmount * 100);
+    logStep("Split calculation", { rentalAmount, platformFeeAmount, ownerNetAmount, insurance, totalPrice });
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
     });
+
+    // Look up owner's Stripe Connect account for split payment
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+    const { data: ownerProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("stripe_account_id, stripe_onboarding_complete")
+      .eq("id", ownerId)
+      .single();
+
+    const ownerStripeAccountId = ownerProfile?.stripe_account_id && ownerProfile?.stripe_onboarding_complete
+      ? ownerProfile.stripe_account_id
+      : null;
+    logStep("Owner Stripe account", { ownerId, ownerStripeAccountId, onboardingComplete: ownerProfile?.stripe_onboarding_complete });
 
     // Check if a Stripe customer record exists for this user
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -135,11 +153,12 @@ serve(async (req) => {
       });
     }
 
-    // Create a one-time payment session
-    // A taxa da plataforma será calculada internamente e deduzida do repasse ao proprietário
+    // Create a one-time payment session with split payment
+    // Owner receives: rental amount - 15% platform fee (via transfer_data)
+    // Platform keeps: 15% platform fee + insurance (for insurer)
     const acceptancesEncoded = acceptances ? encodeURIComponent(JSON.stringify(acceptances)) : '';
     
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: any = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
@@ -160,14 +179,30 @@ serve(async (req) => {
         subtotal: String(subtotal),
         insurance: String(insurance),
         totalPrice: String(totalPrice),
-        platformFee: String(platformFee / 100),
+        platformFee: String(platformFeeAmount),
+        ownerNetAmount: String(ownerNetAmount),
         ownerId,
         userId: user.id,
         pickupLocation: pickupLocation || '',
         notes: notes || '',
         acceptances: acceptances ? JSON.stringify(acceptances) : '',
       },
-    });
+    };
+
+    // If owner has Stripe Connect, split payment automatically
+    if (ownerStripeAccountId) {
+      sessionParams.payment_intent_data = {
+        transfer_data: {
+          destination: ownerStripeAccountId,
+          amount: ownerNetAmountCents, // only the owner's net amount goes to their account
+        },
+      };
+      logStep("Split payment configured", { destination: ownerStripeAccountId, ownerNetAmountCents });
+    } else {
+      logStep("No Stripe Connect account for owner, payment will be processed without split");
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 
