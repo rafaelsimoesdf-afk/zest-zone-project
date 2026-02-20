@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAllWithdrawals, useUpdateWithdrawalStatus } from "@/hooks/useWithdrawals";
-import { CheckCircle, XCircle, Clock, Banknote, ArrowRight } from "lucide-react";
+import { useProcessWithdrawalTransfer } from "@/hooks/useStripeConnect";
+import { CheckCircle, XCircle, Clock, Banknote, ArrowRight, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatCurrencyBRL } from "@/lib/validators";
@@ -41,6 +42,7 @@ const WithdrawalsTab = () => {
 
   const { data: withdrawals, isLoading } = useAllWithdrawals(statusFilter);
   const updateStatus = useUpdateWithdrawalStatus();
+  const processTransfer = useProcessWithdrawalTransfer();
 
   const handleAction = () => {
     if (!actionDialog.withdrawalId || !actionDialog.type) return;
@@ -147,10 +149,23 @@ const WithdrawalsTab = () => {
                             size="sm"
                             variant="outline"
                             className="text-green-600 border-green-600 hover:bg-green-50"
+                            onClick={() => {
+                              // Try automatic Stripe transfer first
+                              processTransfer.mutate(w.id);
+                            }}
+                            disabled={processTransfer.isPending}
+                          >
+                            <Zap className="w-3.5 h-3.5 mr-1" />
+                            {processTransfer.isPending ? "..." : "Aprovar + Transferir"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-600 border-green-600 hover:bg-green-50"
                             onClick={() => setActionDialog({ type: "approve", withdrawalId: w.id })}
                           >
                             <CheckCircle className="w-3.5 h-3.5 mr-1" />
-                            Aprovar
+                            Aprovar Manual
                           </Button>
                           <Button
                             size="sm"

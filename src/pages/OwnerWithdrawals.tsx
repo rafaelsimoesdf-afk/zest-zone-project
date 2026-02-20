@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import {
   useRequestWithdrawal,
   useSaveWithdrawalSettings,
 } from "@/hooks/useWithdrawals";
+import { useStripeConnectStatus, useStartStripeOnboarding } from "@/hooks/useStripeConnect";
 import { useProfile } from "@/hooks/useProfile";
 import {
   Wallet,
@@ -33,6 +34,8 @@ import {
   Settings,
   TrendingUp,
   AlertCircle,
+  ExternalLink,
+  CreditCard,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -60,6 +63,7 @@ const OwnerWithdrawals = () => {
   const { user, loading: authLoading } = useAuth();
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchParams] = useSearchParams();
 
   const { data: hasVehicles, isLoading: checkingVehicles } = useHasVehicles();
   const { data: balance, isLoading: loadingBalance } = useOwnerBalance();
@@ -67,6 +71,8 @@ const OwnerWithdrawals = () => {
   const { data: withdrawals, isLoading: loadingWithdrawals } = useOwnerWithdrawals();
   const { data: settings } = useWithdrawalSettings();
   const { data: profile } = useProfile();
+  const { data: stripeStatus, refetch: refetchStripe } = useStripeConnectStatus();
+  const startOnboarding = useStartStripeOnboarding();
   const requestWithdrawal = useRequestWithdrawal();
   const saveSettings = useSaveWithdrawalSettings();
 
@@ -74,7 +80,13 @@ const OwnerWithdrawals = () => {
   const [frequency, setFrequency] = useState(settings?.frequency ?? "monthly");
   const [minAutoAmount, setMinAutoAmount] = useState(String(settings?.minimum_amount ?? 100));
 
-  // Sync settings state when data loads
+  // Refetch Stripe status after onboarding return
+  useEffect(() => {
+    if (searchParams.get("stripe_onboarding") === "complete") {
+      refetchStripe();
+    }
+  }, [searchParams, refetchStripe]);
+
   useEffect(() => {
     if (settings) {
       setAutoEnabled(settings.auto_withdraw_enabled);
@@ -130,6 +142,42 @@ const OwnerWithdrawals = () => {
               Gerencie seus saques via PIX (CPF cadastrado)
             </p>
           </div>
+
+          {/* Stripe Connect Onboarding Card */}
+          {stripeStatus && !stripeStatus.onboarding_complete && (
+            <Card className="mb-6 border-primary/30 bg-primary/5">
+              <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <CreditCard className="h-6 w-6 text-primary flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm">Configure sua conta Stripe Connect</p>
+                  <p className="text-xs text-muted-foreground">
+                    Para receber transferências automáticas, vincule sua conta bancária ao Stripe Connect.
+                    {stripeStatus.has_account && " Seu cadastro está incompleto."}
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => startOnboarding.mutate()}
+                  disabled={startOnboarding.isPending}
+                >
+                  <ExternalLink className="w-4 h-4 mr-1.5" />
+                  {startOnboarding.isPending ? "Abrindo..." : stripeStatus.has_account ? "Continuar Cadastro" : "Vincular Conta"}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {stripeStatus?.onboarding_complete && (
+            <Card className="mb-6 border-green-500/30 bg-green-500/5">
+              <CardContent className="p-4 flex items-center gap-3">
+                <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-sm text-green-700">Stripe Connect ativo</p>
+                  <p className="text-xs text-muted-foreground">Transferências automáticas habilitadas para sua conta.</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Balance Cards */}
           <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">

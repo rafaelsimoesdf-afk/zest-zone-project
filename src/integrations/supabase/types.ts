@@ -590,6 +590,8 @@ export type Database = {
           phone_verified_at: string | null
           profile_image: string | null
           status: Database["public"]["Enums"]["user_status"]
+          stripe_account_id: string | null
+          stripe_onboarding_complete: boolean
           terms_accepted: boolean | null
           updated_at: string
           verification_status:
@@ -616,6 +618,8 @@ export type Database = {
           phone_verified_at?: string | null
           profile_image?: string | null
           status?: Database["public"]["Enums"]["user_status"]
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean
           terms_accepted?: boolean | null
           updated_at?: string
           verification_status?:
@@ -642,6 +646,8 @@ export type Database = {
           phone_verified_at?: string | null
           profile_image?: string | null
           status?: Database["public"]["Enums"]["user_status"]
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean
           terms_accepted?: boolean | null
           updated_at?: string
           verification_status?:
