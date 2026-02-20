@@ -308,6 +308,7 @@ export const useOwnerBookings = (status?: string) => {
           )
         `)
         .eq("owner_id", user.id)
+        .not("cancelled_reason", "eq", "duplicate")
         .order("created_at", { ascending: false });
 
       if (status && status !== "all") {
