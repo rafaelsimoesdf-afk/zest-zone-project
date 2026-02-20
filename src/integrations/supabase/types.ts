@@ -203,6 +203,7 @@ export type Database = {
       }
       bookings: {
         Row: {
+          cancelled_reason: string | null
           created_at: string
           customer_id: string
           daily_rate: number
@@ -224,6 +225,7 @@ export type Database = {
           vehicle_id: string
         }
         Insert: {
+          cancelled_reason?: string | null
           created_at?: string
           customer_id: string
           daily_rate: number
@@ -245,6 +247,7 @@ export type Database = {
           vehicle_id: string
         }
         Update: {
+          cancelled_reason?: string | null
           created_at?: string
           customer_id?: string
           daily_rate?: number
