@@ -1268,12 +1268,139 @@ export type Database = {
           },
         ]
       }
+      withdrawal_config: {
+        Row: {
+          auto_approval_limit: number
+          id: string
+          minimum_withdrawal: number
+          platform_fee_percentage: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          auto_approval_limit?: number
+          id?: string
+          minimum_withdrawal?: number
+          platform_fee_percentage?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          auto_approval_limit?: number
+          id?: string
+          minimum_withdrawal?: number
+          platform_fee_percentage?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      withdrawal_settings: {
+        Row: {
+          auto_withdraw_enabled: boolean
+          created_at: string
+          frequency: Database["public"]["Enums"]["withdrawal_frequency"]
+          id: string
+          minimum_amount: number
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          auto_withdraw_enabled?: boolean
+          created_at?: string
+          frequency?: Database["public"]["Enums"]["withdrawal_frequency"]
+          id?: string
+          minimum_amount?: number
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          auto_withdraw_enabled?: boolean
+          created_at?: string
+          frequency?: Database["public"]["Enums"]["withdrawal_frequency"]
+          id?: string
+          minimum_amount?: number
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          auto_approved: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          net_amount: number
+          owner_id: string
+          pix_key: string
+          platform_fee: number
+          rejection_reason: string | null
+          requested_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["withdrawal_status"]
+          transfer_proof_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          auto_approved?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          net_amount: number
+          owner_id: string
+          pix_key: string
+          platform_fee?: number
+          rejection_reason?: string | null
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          transfer_proof_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          auto_approved?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          net_amount?: number
+          owner_id?: string
+          pix_key?: string
+          platform_fee?: number
+          rejection_reason?: string | null
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          transfer_proof_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       add_admin_role_by_email: { Args: { _email: string }; Returns: undefined }
+      get_owner_balance: {
+        Args: { _owner_id: string }
+        Returns: {
+          available_balance: number
+          pending_withdrawals: number
+          platform_fees: number
+          total_earnings: number
+          total_withdrawn: number
+        }[]
+      }
       get_public_vehicle_bookings: {
         Args: { _vehicle_id: string }
         Returns: {
@@ -1349,6 +1476,13 @@ export type Database = {
         | "coupe"
         | "wagon"
       verification_status: "pending" | "approved" | "rejected"
+      withdrawal_frequency: "weekly" | "biweekly" | "monthly"
+      withdrawal_status:
+        | "pending"
+        | "approved"
+        | "processing"
+        | "completed"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1541,6 +1675,14 @@ export const Constants = {
         "wagon",
       ],
       verification_status: ["pending", "approved", "rejected"],
+      withdrawal_frequency: ["weekly", "biweekly", "monthly"],
+      withdrawal_status: [
+        "pending",
+        "approved",
+        "processing",
+        "completed",
+        "rejected",
+      ],
     },
   },
 } as const

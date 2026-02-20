@@ -26,6 +26,7 @@ import Notifications from "./pages/Notifications";
 import SelfieUpload from "./pages/SelfieUpload";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import OwnerWithdrawals from "./pages/OwnerWithdrawals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/my-vehicles" element={<MyVehicles />} />
             <Route path="/owner-dashboard" element={<OwnerDashboard />} />
+            <Route path="/owner-withdrawals" element={<OwnerWithdrawals />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/notifications" element={<Notifications />} />

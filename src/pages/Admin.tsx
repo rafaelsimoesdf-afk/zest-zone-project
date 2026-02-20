@@ -17,7 +17,8 @@ import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
 import UserVerificationTab from "@/components/admin/UserVerificationTab";
 import VehicleVerificationTab from "@/components/admin/VehicleVerificationTab";
 import EditVehicleModal from "@/components/admin/EditVehicleModal";
-import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck, FileText, ExternalLink } from "lucide-react";
+import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck, FileText, ExternalLink, Banknote } from "lucide-react";
+import WithdrawalsTab from "@/components/admin/WithdrawalsTab";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { formatCurrencyBRL } from "@/lib/validators";
@@ -221,7 +222,7 @@ const Admin = () => {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="verifications" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="verifications" className="flex items-center gap-1">
               <FileCheck className="h-4 w-4" />
               Verificações
@@ -241,6 +242,10 @@ const Admin = () => {
             <TabsTrigger value="bookings" className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               Reservas
+            </TabsTrigger>
+            <TabsTrigger value="withdrawals" className="flex items-center gap-1">
+              <Banknote className="h-4 w-4" />
+              Saques
             </TabsTrigger>
             <TabsTrigger value="collaborators" className="flex items-center gap-1">
               <Shield className="h-4 w-4" />
@@ -577,6 +582,11 @@ const Admin = () => {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Withdrawals */}
+          <TabsContent value="withdrawals">
+            <WithdrawalsTab />
           </TabsContent>
 
           {/* Collaborators */}
