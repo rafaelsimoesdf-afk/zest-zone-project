@@ -178,14 +178,26 @@ const WithdrawalsTab = () => {
                           </Button>
                         </>
                       )}
-                      {(w.status === "approved" || w.status === "processing") && (
-                        <Button
-                          size="sm"
-                          onClick={() => setActionDialog({ type: "complete", withdrawalId: w.id })}
-                        >
-                          <ArrowRight className="w-3.5 h-3.5 mr-1" />
-                          Concluir
-                        </Button>
+                  {(w.status === "approved" || w.status === "processing") && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            onClick={() => processTransfer.mutate(w.id)}
+                            disabled={processTransfer.isPending}
+                          >
+                            <Zap className="w-3.5 h-3.5 mr-1" />
+                            {processTransfer.isPending ? "..." : "Transferir via Stripe"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => setActionDialog({ type: "complete", withdrawalId: w.id })}
+                          >
+                            <ArrowRight className="w-3.5 h-3.5 mr-1" />
+                            Concluir Manual
+                          </Button>
+                        </>
                       )}
                     </div>
                   </TableCell>
