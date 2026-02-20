@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { useCreateBooking } from "@/hooks/useBookings";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,7 @@ const PaymentSuccess = () => {
   const createBooking = useCreateBooking();
   const [bookingCreated, setBookingCreated] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const hasAttempted = useRef(false);
 
   const sessionId = searchParams.get("session_id");
   const vehicleId = searchParams.get("vehicleId");
@@ -33,16 +34,22 @@ const PaymentSuccess = () => {
   const notes = searchParams.get("notes");
   const acceptancesParam = searchParams.get("acceptances");
 
-  // Parse acceptances from URL
-  const acceptances = acceptancesParam ? JSON.parse(decodeURIComponent(acceptancesParam)) : null;
+  // Memoize acceptances to prevent new object reference on every render
+  const acceptances = useMemo(() => {
+    return acceptancesParam ? JSON.parse(decodeURIComponent(acceptancesParam)) : null;
+  }, [acceptancesParam]);
 
   useEffect(() => {
+    // Strict guard: only attempt once per component mount
+    if (hasAttempted.current) return;
+
     const createBookingAfterPayment = async () => {
       if (!user || bookingCreated || isCreating) return;
       if (!vehicleId || !startDate || !endDate || !days || !dailyRate || !totalPrice || !ownerId) {
         return;
       }
 
+      hasAttempted.current = true;
       setIsCreating(true);
 
       try {
@@ -69,7 +76,6 @@ const PaymentSuccess = () => {
         // Send payment confirmation email
         const customerData = await getUserEmailData(user.id);
         if (customerData) {
-          // Get vehicle name from ownerId context (already passed as vehicleName-like string)
           const { data: vehicleInfo } = await import("@/integrations/supabase/client").then(m =>
             m.supabase.from("vehicles").select("brand, model").eq("id", vehicleId).single()
           );
@@ -90,13 +96,14 @@ const PaymentSuccess = () => {
         setBookingCreated(true);
       } catch (error) {
         console.error("Error creating booking:", error);
+        hasAttempted.current = false; // Allow retry on error
       } finally {
         setIsCreating(false);
       }
     };
 
     createBookingAfterPayment();
-  }, [user, vehicleId, startDate, endDate, startTime, endTime, days, dailyRate, extraHours, extraHoursCharge, totalPrice, ownerId, pickupLocation, notes, acceptances, bookingCreated, isCreating]);
+  }, [user]); // Only depend on user auth state
 
   if (!user) {
     navigate("/auth");

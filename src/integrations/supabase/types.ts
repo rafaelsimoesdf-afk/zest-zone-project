@@ -1397,6 +1397,26 @@ export type Database = {
     }
     Functions: {
       add_admin_role_by_email: { Args: { _email: string }; Returns: undefined }
+      create_booking_atomic: {
+        Args: {
+          p_customer_id: string
+          p_daily_rate: number
+          p_end_date: string
+          p_end_time: string
+          p_extra_hours?: number
+          p_extra_hours_charge?: number
+          p_notes?: string
+          p_owner_id: string
+          p_pickup_location?: string
+          p_return_location?: string
+          p_start_date: string
+          p_start_time: string
+          p_total_days: number
+          p_total_price: number
+          p_vehicle_id: string
+        }
+        Returns: string
+      }
       get_owner_balance: {
         Args: { _owner_id: string }
         Returns: {

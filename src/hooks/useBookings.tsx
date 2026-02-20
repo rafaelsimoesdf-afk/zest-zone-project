@@ -168,23 +168,29 @@ async function createBookingFn(bookingData: CreateBookingData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  if (user.id === bookingData.owner_id) {
-    throw new Error("Você não pode reservar seu próprio veículo");
-  }
+  // Use atomic database function with advisory lock to prevent duplicates
+  const { data: bookingId, error: rpcError } = await supabase.rpc("create_booking_atomic", {
+    p_customer_id: user.id,
+    p_vehicle_id: bookingData.vehicle_id,
+    p_owner_id: bookingData.owner_id,
+    p_start_date: bookingData.start_date,
+    p_end_date: bookingData.end_date,
+    p_start_time: bookingData.start_time || null,
+    p_end_time: bookingData.end_time || null,
+    p_total_days: bookingData.total_days,
+    p_daily_rate: bookingData.daily_rate,
+    p_total_price: bookingData.total_price,
+    p_extra_hours: bookingData.extra_hours || 0,
+    p_extra_hours_charge: bookingData.extra_hours_charge || 0,
+    p_pickup_location: bookingData.pickup_location || null,
+    p_return_location: bookingData.return_location || null,
+    p_notes: bookingData.notes || null,
+  });
 
-  // Check for existing duplicate booking
-  const { data: existing } = await supabase
-    .from("bookings")
-    .select("id")
-    .eq("customer_id", user.id)
-    .eq("vehicle_id", bookingData.vehicle_id)
-    .eq("start_date", `${bookingData.start_date}`)
-    .eq("end_date", `${bookingData.end_date}`)
-    .in("status", ["pending", "confirmed", "in_progress"])
-    .maybeSingle();
-
-  if (existing) {
-    throw new Error("Você já possui uma reserva para este veículo neste período");
+  if (rpcError) {
+    // Parse user-friendly error from database
+    const msg = rpcError.message || "Erro ao criar reserva";
+    throw new Error(msg);
   }
 
   // Get vehicle info for notification
@@ -201,26 +207,13 @@ async function createBookingFn(bookingData: CreateBookingData) {
     .eq("id", user.id)
     .single();
 
-  // Separate acceptances from booking data
-  const { acceptances, ...bookingDataWithoutAcceptances } = bookingData;
-
-  const { data, error } = await supabase
-    .from("bookings")
-    .insert({
-      ...bookingDataWithoutAcceptances,
-      customer_id: user.id,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-
   // Save acceptances for legal compliance
-  if (acceptances && data) {
+  const { acceptances } = bookingData;
+  if (acceptances && bookingId) {
     const { error: acceptanceError } = await supabase
       .from("booking_acceptances")
       .insert({
-        booking_id: data.id,
+        booking_id: bookingId,
         user_id: user.id,
         owner_rules_accepted: acceptances.owner_rules_accepted,
         owner_rules_accepted_at: acceptances.owner_rules_accepted_at,
@@ -241,7 +234,7 @@ async function createBookingFn(bookingData: CreateBookingData) {
   }
 
   // Create notification for the vehicle owner
-  if (bookingData.owner_id && data) {
+  if (bookingData.owner_id && bookingId) {
     const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
     const customerName = customerProfile ? `${customerProfile.first_name} ${customerProfile.last_name}` : "Um usuário";
     
@@ -254,7 +247,7 @@ async function createBookingFn(bookingData: CreateBookingData) {
     });
   }
 
-  return data;
+  return { id: bookingId };
 }
 
 export interface BookingDetails extends Booking {
