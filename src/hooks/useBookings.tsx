@@ -62,7 +62,7 @@ export const useMyBookings = () => {
           )
         `)
         .eq("customer_id", user.id)
-        .not("cancelled_reason", "eq", "duplicate")
+        .or("cancelled_reason.is.null,cancelled_reason.neq.duplicate")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -97,7 +97,7 @@ export const useOwnerBookings = () => {
           )
         `)
         .eq("owner_id", user.id)
-        .not("cancelled_reason", "eq", "duplicate")
+        .or("cancelled_reason.is.null,cancelled_reason.neq.duplicate")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
