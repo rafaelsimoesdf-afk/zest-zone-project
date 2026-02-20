@@ -137,86 +137,21 @@ export interface CreateBookingData {
 
 export const useCreateBooking = () => {
   const queryClient = useQueryClient();
+  const mutationRef = { current: false };
 
   return useMutation({
     mutationFn: async (bookingData: CreateBookingData) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      // Check if user is trying to book their own vehicle
-      if (user.id === bookingData.owner_id) {
-        throw new Error("Você não pode reservar seu próprio veículo");
+      // Prevent double submissions
+      if (mutationRef.current) {
+        throw new Error("Reserva já está sendo processada, aguarde...");
       }
+      mutationRef.current = true;
 
-      // Get vehicle info for notification
-      const { data: vehicleInfo } = await supabase
-        .from("vehicles")
-        .select("brand, model")
-        .eq("id", bookingData.vehicle_id)
-        .single();
-
-      // Get customer name for notification
-      const { data: customerProfile } = await supabase
-        .from("profiles")
-        .select("first_name, last_name")
-        .eq("id", user.id)
-        .single();
-
-      // Separate acceptances from booking data
-      const { acceptances, ...bookingDataWithoutAcceptances } = bookingData;
-
-      const { data, error } = await supabase
-        .from("bookings")
-        .insert({
-          ...bookingDataWithoutAcceptances,
-          customer_id: user.id,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Save acceptances for legal compliance
-      if (acceptances && data) {
-        const { error: acceptanceError } = await supabase
-          .from("booking_acceptances")
-          .insert({
-            booking_id: data.id,
-            user_id: user.id,
-            owner_rules_accepted: acceptances.owner_rules_accepted,
-            owner_rules_accepted_at: acceptances.owner_rules_accepted_at,
-            basic_rules_accepted: acceptances.basic_rules_accepted,
-            basic_rules_accepted_at: acceptances.basic_rules_accepted_at,
-            cancellation_policy_accepted: acceptances.cancellation_policy_accepted,
-            cancellation_policy_accepted_at: acceptances.cancellation_policy_accepted_at,
-            terms_of_service_accepted: acceptances.terms_of_service_accepted,
-            terms_of_service_accepted_at: acceptances.terms_of_service_accepted_at,
-            privacy_policy_accepted: acceptances.privacy_policy_accepted,
-            privacy_policy_accepted_at: acceptances.privacy_policy_accepted_at,
-            user_agent: navigator.userAgent,
-          });
-
-        if (acceptanceError) {
-          console.error("Error saving acceptances:", acceptanceError);
-          // Don't throw - booking was created successfully
-        }
+      try {
+        return await createBookingFn(bookingData);
+      } finally {
+        mutationRef.current = false;
       }
-
-      // Create notification for the vehicle owner
-      if (bookingData.owner_id && data) {
-        const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
-        const customerName = customerProfile ? `${customerProfile.first_name} ${customerProfile.last_name}` : "Um usuário";
-        
-        await supabase.from("notifications").insert({
-          user_id: bookingData.owner_id,
-          notification_type: "booking",
-          title: "Nova solicitação de reserva!",
-          message: `${customerName} quer alugar seu ${vehicleName} de ${new Date(bookingData.start_date).toLocaleDateString('pt-BR')} a ${new Date(bookingData.end_date).toLocaleDateString('pt-BR')}. Clique para revisar e aprovar!`,
-          action_url: `/owner-dashboard`,
-        });
-      }
-
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["myBookings"] });
@@ -228,6 +163,99 @@ export const useCreateBooking = () => {
     },
   });
 };
+
+async function createBookingFn(bookingData: CreateBookingData) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  if (user.id === bookingData.owner_id) {
+    throw new Error("Você não pode reservar seu próprio veículo");
+  }
+
+  // Check for existing duplicate booking
+  const { data: existing } = await supabase
+    .from("bookings")
+    .select("id")
+    .eq("customer_id", user.id)
+    .eq("vehicle_id", bookingData.vehicle_id)
+    .eq("start_date", `${bookingData.start_date}`)
+    .eq("end_date", `${bookingData.end_date}`)
+    .in("status", ["pending", "confirmed", "in_progress"])
+    .maybeSingle();
+
+  if (existing) {
+    throw new Error("Você já possui uma reserva para este veículo neste período");
+  }
+
+  // Get vehicle info for notification
+  const { data: vehicleInfo } = await supabase
+    .from("vehicles")
+    .select("brand, model")
+    .eq("id", bookingData.vehicle_id)
+    .single();
+
+  // Get customer name for notification
+  const { data: customerProfile } = await supabase
+    .from("profiles")
+    .select("first_name, last_name")
+    .eq("id", user.id)
+    .single();
+
+  // Separate acceptances from booking data
+  const { acceptances, ...bookingDataWithoutAcceptances } = bookingData;
+
+  const { data, error } = await supabase
+    .from("bookings")
+    .insert({
+      ...bookingDataWithoutAcceptances,
+      customer_id: user.id,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  // Save acceptances for legal compliance
+  if (acceptances && data) {
+    const { error: acceptanceError } = await supabase
+      .from("booking_acceptances")
+      .insert({
+        booking_id: data.id,
+        user_id: user.id,
+        owner_rules_accepted: acceptances.owner_rules_accepted,
+        owner_rules_accepted_at: acceptances.owner_rules_accepted_at,
+        basic_rules_accepted: acceptances.basic_rules_accepted,
+        basic_rules_accepted_at: acceptances.basic_rules_accepted_at,
+        cancellation_policy_accepted: acceptances.cancellation_policy_accepted,
+        cancellation_policy_accepted_at: acceptances.cancellation_policy_accepted_at,
+        terms_of_service_accepted: acceptances.terms_of_service_accepted,
+        terms_of_service_accepted_at: acceptances.terms_of_service_accepted_at,
+        privacy_policy_accepted: acceptances.privacy_policy_accepted,
+        privacy_policy_accepted_at: acceptances.privacy_policy_accepted_at,
+        user_agent: navigator.userAgent,
+      });
+
+    if (acceptanceError) {
+      console.error("Error saving acceptances:", acceptanceError);
+    }
+  }
+
+  // Create notification for the vehicle owner
+  if (bookingData.owner_id && data) {
+    const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
+    const customerName = customerProfile ? `${customerProfile.first_name} ${customerProfile.last_name}` : "Um usuário";
+    
+    await supabase.from("notifications").insert({
+      user_id: bookingData.owner_id,
+      notification_type: "booking",
+      title: "Nova solicitação de reserva!",
+      message: `${customerName} quer alugar seu ${vehicleName} de ${new Date(bookingData.start_date).toLocaleDateString('pt-BR')} a ${new Date(bookingData.end_date).toLocaleDateString('pt-BR')}. Clique para revisar e aprovar!`,
+      action_url: `/owner-dashboard`,
+    });
+  }
+
+  return data;
+}
 
 export interface BookingDetails extends Booking {
   vehicles?: {
