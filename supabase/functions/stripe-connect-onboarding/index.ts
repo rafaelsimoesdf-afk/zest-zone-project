@@ -61,12 +61,14 @@ serve(async (req) => {
             payouts_enabled: account.payouts_enabled,
             details_submitted: account.details_submitted,
           };
-          // Update onboarding status if complete
-          if (account.charges_enabled && account.payouts_enabled && !profile.stripe_onboarding_complete) {
+          // Update onboarding status if details were submitted
+          const isComplete = account.details_submitted || (account.charges_enabled && account.payouts_enabled);
+          if (isComplete && !profile.stripe_onboarding_complete) {
             await supabaseAdmin
               .from("profiles")
               .update({ stripe_onboarding_complete: true })
               .eq("id", userId);
+            profile.stripe_onboarding_complete = true;
           }
         } catch (e) {
           console.error("Error retrieving Stripe account:", e);
