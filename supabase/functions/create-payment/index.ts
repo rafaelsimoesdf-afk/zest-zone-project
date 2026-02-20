@@ -189,20 +189,30 @@ serve(async (req) => {
       },
     };
 
-    // If owner has Stripe Connect, split payment automatically
+    // Try with split payment if owner has Stripe Connect
+    let session;
     if (ownerStripeAccountId) {
-      sessionParams.payment_intent_data = {
-        transfer_data: {
-          destination: ownerStripeAccountId,
-          amount: ownerNetAmountCents, // only the owner's net amount goes to their account
-        },
-      };
-      logStep("Split payment configured", { destination: ownerStripeAccountId, ownerNetAmountCents });
+      try {
+        sessionParams.payment_intent_data = {
+          transfer_data: {
+            destination: ownerStripeAccountId,
+            amount: ownerNetAmountCents,
+          },
+        };
+        logStep("Attempting split payment", { destination: ownerStripeAccountId, ownerNetAmountCents });
+        session = await stripe.checkout.sessions.create(sessionParams);
+        logStep("Split payment session created", { sessionId: session.id });
+      } catch (splitError: any) {
+        // If split fails (e.g. account missing transfers capability), fallback without split
+        logStep("Split payment failed, falling back to standard payment", { error: splitError.message });
+        delete sessionParams.payment_intent_data;
+        session = await stripe.checkout.sessions.create(sessionParams);
+        logStep("Fallback session created (no split)", { sessionId: session.id });
+      }
     } else {
-      logStep("No Stripe Connect account for owner, payment will be processed without split");
+      logStep("No Stripe Connect account for owner, standard payment");
+      session = await stripe.checkout.sessions.create(sessionParams);
     }
-
-    const session = await stripe.checkout.sessions.create(sessionParams);
 
     logStep("Checkout session created", { sessionId: session.id, url: session.url });
 
