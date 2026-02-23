@@ -227,7 +227,7 @@ const OwnerWithdrawals = () => {
                     <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
-                    <div className="text-base sm:text-2xl font-bold">{formatCurrency(balance.total_earnings - balance.platform_fees)}</div>
+                    <div className="text-base sm:text-2xl font-bold">{formatCurrency(balance.total_earnings)}</div>
                   </CardContent>
                 </Card>
 
