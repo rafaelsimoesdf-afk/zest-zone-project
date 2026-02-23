@@ -70,12 +70,15 @@ serve(async (req) => {
       throw new Error("Missing required payment information");
     }
 
-    // Calcular a taxa de serviço da plataforma (15% das diárias + horas extras - pago pelo proprietário)
+    // Calcular a taxa de serviço da plataforma (15% das diárias + horas extras)
+    // A plataforma retém: 15% do rental + 100% do seguro
     const rentalAmount = dailySubtotal + (extraHoursCharge || 0);
     const platformFeeAmount = rentalAmount * 0.15;
-    const ownerNetAmount = rentalAmount - platformFeeAmount; // valor líquido do proprietário
-    const ownerNetAmountCents = Math.round(ownerNetAmount * 100);
-    logStep("Split calculation", { rentalAmount, platformFeeAmount, ownerNetAmount, insurance, totalPrice });
+    const ownerNetAmount = rentalAmount - platformFeeAmount;
+    // application_fee_amount = taxa plataforma + seguro (tudo que a plataforma retém)
+    const applicationFeeAmount = platformFeeAmount + (insurance || 0);
+    const applicationFeeCents = Math.round(applicationFeeAmount * 100);
+    logStep("Split calculation", { rentalAmount, platformFeeAmount, ownerNetAmount, insurance, applicationFeeAmount, totalPrice });
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -193,17 +196,24 @@ serve(async (req) => {
     let session;
     if (ownerStripeAccountId) {
       try {
+        // Usar application_fee_amount para separar claramente no Stripe:
+        // - Owner recebe: total - application_fee (diárias + horas extras - 15%)
+        // - Plataforma retém: application_fee (15% + seguro)
         sessionParams.payment_intent_data = {
+          application_fee_amount: applicationFeeCents,
           transfer_data: {
             destination: ownerStripeAccountId,
-            amount: ownerNetAmountCents,
           },
         };
-        logStep("Attempting split payment", { destination: ownerStripeAccountId, ownerNetAmountCents });
+        logStep("Attempting split payment with application_fee", { 
+          destination: ownerStripeAccountId, 
+          applicationFeeCents,
+          ownerWillReceive: Math.round(ownerNetAmount * 100)
+        });
         session = await stripe.checkout.sessions.create(sessionParams);
         logStep("Split payment session created", { sessionId: session.id });
       } catch (splitError: any) {
-        // If split fails (e.g. account missing transfers capability), fallback without split
+        // If split fails, fallback without split
         logStep("Split payment failed, falling back to standard payment", { error: splitError.message });
         delete sessionParams.payment_intent_data;
         session = await stripe.checkout.sessions.create(sessionParams);
