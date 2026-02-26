@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.process-withdrawal-transfer]
 verify_jwt = false
+
+[functions.verify-payment]
+verify_jwt = false
+
+[functions.check-selfie-session]
+verify_jwt = false
