@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { usePendingUserVerifications, useUserVerificationDetails, useUpdateUserVerificationStatus } from "@/hooks/useAdmin";
+import SecureDocumentImage from "@/components/admin/SecureDocumentImage";
 import { 
   CheckCircle, 
   XCircle, 
@@ -22,8 +23,6 @@ import {
   Mail,
   CreditCard,
   Clock,
-  ExternalLink,
-  AlertTriangle
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -66,38 +65,6 @@ const UserVerificationTab = () => {
   const isCNHExpired = (expiryDate: string | null) => {
     if (!expiryDate) return false;
     return new Date(expiryDate) < new Date();
-  };
-
-  const DocumentImage = ({ url, label }: { url: string | null; label: string }) => {
-    if (!url) {
-      return (
-        <div className="flex flex-col items-center justify-center p-4 border border-dashed border-muted-foreground/30 rounded-lg bg-muted/20 min-h-[200px]">
-          <AlertTriangle className="h-8 w-8 text-muted-foreground mb-2" />
-          <span className="text-sm text-muted-foreground">{label} não enviado</span>
-        </div>
-      );
-    }
-
-    return (
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium">{label}</span>
-        <a 
-          href={url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="relative group"
-        >
-          <img 
-            src={url} 
-            alt={label} 
-            className="w-full h-48 object-cover rounded-lg border border-border hover:opacity-90 transition-opacity"
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-            <ExternalLink className="h-8 w-8 text-white" />
-          </div>
-        </a>
-      </div>
-    );
   };
 
   if (isLoading) {
@@ -367,11 +334,11 @@ const UserVerificationTab = () => {
                             <p className="font-medium uppercase">{verificationDetails.identityDoc.document_type}</p>
                           </div>
                           <div className="grid grid-cols-2 gap-4">
-                            <DocumentImage 
+                            <SecureDocumentImage 
                               url={verificationDetails.identityDoc.front_image_url} 
                               label="Frente do Documento" 
                             />
-                            <DocumentImage 
+                            <SecureDocumentImage 
                               url={verificationDetails.identityDoc.back_image_url} 
                               label="Verso do Documento" 
                             />
@@ -406,7 +373,7 @@ const UserVerificationTab = () => {
                               <p className="font-medium">{formatDate(verificationDetails.proofOfResidence.issue_date)}</p>
                             </div>
                           </div>
-                          <DocumentImage 
+                          <SecureDocumentImage 
                             url={verificationDetails.proofOfResidence.document_url} 
                             label="Comprovante de Residência" 
                           />
@@ -463,18 +430,18 @@ const UserVerificationTab = () => {
 
                           {verificationDetails.cnh.digital_image_url ? (
                             <div>
-                              <DocumentImage 
+                              <SecureDocumentImage 
                                 url={verificationDetails.cnh.digital_image_url} 
                                 label="CNH Digital" 
                               />
                             </div>
                           ) : (
                             <div className="grid grid-cols-2 gap-4">
-                              <DocumentImage 
+                              <SecureDocumentImage 
                                 url={verificationDetails.cnh.front_image_url} 
                                 label="CNH Frente" 
                               />
-                              <DocumentImage 
+                              <SecureDocumentImage 
                                 url={verificationDetails.cnh.back_image_url} 
                                 label="CNH Verso" 
                               />
@@ -502,7 +469,7 @@ const UserVerificationTab = () => {
                     </CardHeader>
                     <CardContent>
                       {verificationDetails.selfie ? (
-                        <DocumentImage 
+                        <SecureDocumentImage 
                           url={verificationDetails.selfie.selfie_url} 
                           label="Selfie segurando documento" 
                         />

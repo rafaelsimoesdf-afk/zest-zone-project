@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,14 +8,13 @@ import { toast } from "sonner";
 
 const SelfieUpload = () => {
   const { sessionToken } = useParams<{ sessionToken: string }>();
-  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [sessionData, setSessionData] = useState<any>(null);
+  const [sessionValid, setSessionValid] = useState(false);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -25,41 +24,50 @@ const SelfieUpload = () => {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("selfie_upload_sessions")
-        .select("*")
-        .eq("session_token", sessionToken)
-        .single();
+      try {
+        // Use edge function instead of direct table query (no public access to table)
+        const { data, error: fnError } = await supabase.functions.invoke("check-selfie-session", {
+          body: { sessionToken },
+        });
 
-      if (error || !data) {
-        setError("Sessão não encontrada ou expirada");
+        if (fnError || !data) {
+          setError("Sessão não encontrada ou expirada");
+          setLoading(false);
+          return;
+        }
+
+        if (data.completed) {
+          setSuccess(true);
+          setLoading(false);
+          return;
+        }
+
+        if (data.expired) {
+          setError("Sessão expirada. Por favor, gere um novo QR code.");
+          setLoading(false);
+          return;
+        }
+
+        if (data.error) {
+          setError(data.error);
+          setLoading(false);
+          return;
+        }
+
+        setSessionValid(true);
         setLoading(false);
-        return;
-      }
-
-      if (data.status === "completed") {
-        setSuccess(true);
+      } catch {
+        setError("Erro ao verificar sessão");
         setLoading(false);
-        return;
       }
-
-      if (new Date(data.expires_at) < new Date()) {
-        setError("Sessão expirada. Por favor, gere um novo QR code.");
-        setLoading(false);
-        return;
-      }
-
-      setSessionData(data);
-      setLoading(false);
     };
 
     checkSession();
   }, [sessionToken]);
 
   const handleFileChange = async (file: File | null) => {
-    if (!file || !sessionData) return;
+    if (!file || !sessionValid) return;
 
-    // Preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result as string);
@@ -68,23 +76,20 @@ const SelfieUpload = () => {
   };
 
   const handleUpload = async () => {
-    if (!preview || !sessionData) return;
+    if (!preview || !sessionValid) return;
 
     setUploading(true);
 
     try {
-      // Convert base64 to blob
       const response = await fetch(preview);
       const blob = await response.blob();
-      
-      // Create FormData to send to edge function
+
       const formData = new FormData();
       formData.append("file", blob, "selfie.jpg");
       formData.append("sessionToken", sessionToken || "");
 
-      // Use edge function to bypass RLS
       const uploadResponse = await fetch(
-        "https://ptimwsvsizqpecakzkcn.supabase.co/functions/v1/upload-selfie",
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-selfie`,
         {
           method: "POST",
           body: formData,
