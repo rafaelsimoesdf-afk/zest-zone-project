@@ -1420,6 +1420,17 @@ export type Database = {
         }
         Returns: string
       }
+      get_booking_participant_profile: {
+        Args: { _user_id: string }
+        Returns: {
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone_number: string
+          profile_image: string
+        }[]
+      }
       get_owner_balance: {
         Args: { _owner_id: string }
         Returns: {
