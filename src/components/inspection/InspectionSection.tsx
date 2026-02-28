@@ -31,7 +31,7 @@ const InspectionSection = ({
   const canCreatePickup = isCustomer && !pickupInspection && ["confirmed", "in_progress"].includes(bookingStatus);
   const canConfirmPickup = isOwner && pickupInspection?.status === "pending";
 
-  const canCreateReturn = isOwner && !returnInspection && ["in_progress", "completed"].includes(bookingStatus);
+  const canCreateReturn = isOwner && !returnInspection && ["confirmed", "in_progress", "completed"].includes(bookingStatus);
   const canConfirmReturn = isCustomer && returnInspection?.status === "pending";
 
   // Only show if booking is in relevant status
@@ -86,7 +86,7 @@ const InspectionSection = ({
           ) : canCreateReturn ? (
             <InspectionForm bookingId={bookingId} inspectionType="return" />
           ) : (
-            ["in_progress", "completed"].includes(bookingStatus) && (
+            ["confirmed", "in_progress", "completed"].includes(bookingStatus) && (
               <Card className="border-dashed">
                 <CardContent className="p-3 sm:p-4 text-center text-muted-foreground text-sm">
                   {isCustomer
