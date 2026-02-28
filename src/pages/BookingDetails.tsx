@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard, MessageSquare, Star, CheckCircle } from "lucide-react";
 import { formatCurrencyBRL } from "@/lib/validators";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
+import InspectionSection from "@/components/inspection/InspectionSection";
 
 const statusLabels: Record<string, string> = {
   pending: "Pendente",
@@ -257,6 +258,17 @@ const BookingDetails = () => {
                     )}
                   </CardContent>
                 </Card>
+              )}
+
+              {/* Vehicle Inspection Section */}
+              {user && (
+                <InspectionSection
+                  bookingId={booking.id}
+                  bookingStatus={booking.status}
+                  isOwner={isOwner}
+                  isCustomer={isCustomer}
+                  userId={user.id}
+                />
               )}
 
               {/* Notes Card */}

@@ -994,6 +994,102 @@ export type Database = {
           },
         ]
       }
+      vehicle_inspection_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          display_order: number
+          id: string
+          inspection_id: string
+          photo_url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          inspection_id: string
+          photo_url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          inspection_id?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_inspection_photos_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_inspections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_inspections: {
+        Row: {
+          booking_id: string
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          id: string
+          inspection_type: string
+          inspector_id: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          inspection_type: string
+          inspector_id: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          inspection_type?: string
+          inspector_id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_inspections_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_inspections_confirmed_by_fkey"
+            columns: ["confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_inspections_inspector_id_fkey"
+            columns: ["inspector_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_models: {
         Row: {
           brand_id: string
