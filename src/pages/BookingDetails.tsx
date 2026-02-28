@@ -14,6 +14,7 @@ import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard,
 import { formatCurrencyBRL } from "@/lib/validators";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import InspectionSection from "@/components/inspection/InspectionSection";
+import { useBookingInspections } from "@/hooks/useVehicleInspections";
 
 const statusLabels: Record<string, string> = {
   pending: "Pendente",
@@ -31,20 +32,40 @@ const statusVariants: Record<string, "default" | "secondary" | "destructive" | "
 
 const OwnerCompleteButton = ({ bookingId }: { bookingId: string }) => {
   const updateStatus = useUpdateOwnerBookingStatus();
-  
+  const { data: inspections, isLoading: inspLoading } = useBookingInspections(bookingId);
+
+  const pickupInspection = inspections?.find((i) => i.inspection_type === "pickup");
+  const returnInspection = inspections?.find((i) => i.inspection_type === "return");
+  const bothConfirmed = pickupInspection?.status === "confirmed" && returnInspection?.status === "confirmed";
+
   const handleComplete = () => {
     updateStatus.mutate({ bookingId, status: "completed" });
   };
 
+  if (inspLoading) return null;
+
   return (
-    <Button 
-      className="w-full bg-blue-600 hover:bg-blue-700" 
-      onClick={handleComplete}
-      disabled={updateStatus.isPending}
-    >
-      <CheckCircle className="w-4 h-4 mr-2" />
-      {updateStatus.isPending ? "Finalizando..." : "Finalizar Reserva"}
-    </Button>
+    <div className="space-y-2">
+      <Button 
+        className="w-full bg-blue-600 hover:bg-blue-700" 
+        onClick={handleComplete}
+        disabled={updateStatus.isPending || !bothConfirmed}
+      >
+        <CheckCircle className="w-4 h-4 mr-2" />
+        {updateStatus.isPending ? "Finalizando..." : "Finalizar Reserva"}
+      </Button>
+      {!bothConfirmed && (
+        <p className="text-xs text-muted-foreground text-center">
+          {!pickupInspection
+            ? "⚠️ Inspeção de entrega pendente"
+            : pickupInspection.status !== "confirmed"
+            ? "⚠️ Inspeção de entrega aguardando confirmação"
+            : !returnInspection
+            ? "⚠️ Inspeção de devolução pendente"
+            : "⚠️ Inspeção de devolução aguardando confirmação"}
+        </p>
+      )}
+    </div>
   );
 };
 

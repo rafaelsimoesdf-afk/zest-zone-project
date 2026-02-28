@@ -462,11 +462,12 @@ const OwnerDashboard = () => {
                                         <Button
                                           size="sm"
                                           className="bg-blue-600 hover:bg-blue-700 text-[10px] sm:text-xs h-7 sm:h-9 px-2 sm:px-3"
-                                          onClick={() => handleComplete(booking)}
-                                          disabled={updateStatus.isPending}
+                                          asChild
                                         >
-                                          <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                                          <span className="hidden sm:inline">Finalizar</span>
+                                          <Link to={`/booking/${booking.id}`}>
+                                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
+                                            <span className="hidden sm:inline">Finalizar</span>
+                                          </Link>
                                         </Button>
                                         <Button
                                           variant="destructive"
