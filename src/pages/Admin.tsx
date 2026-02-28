@@ -150,15 +150,15 @@ const Admin = () => {
       
       <main className="flex-grow container mx-auto px-4 pt-24 pb-8">
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">Painel Administrativo</h1>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <h1 className="text-2xl sm:text-4xl font-bold">Painel Administrativo</h1>
           </div>
-          <p className="text-muted-foreground">Gerencie veículos, usuários, verificações e reservas da plataforma</p>
+          <p className="text-xs sm:text-base text-muted-foreground">Gerencie veículos, usuários, verificações e reservas da plataforma</p>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Veículos</CardTitle>
@@ -222,34 +222,41 @@ const Admin = () => {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="verifications" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="verifications" className="flex items-center gap-1">
-              <FileCheck className="h-4 w-4" />
-              Verificações
+          <TabsList className="flex flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="verifications" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <FileCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Verificações</span>
+              <span className="sm:hidden">Verific.</span>
             </TabsTrigger>
-            <TabsTrigger value="pending" className="flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              Veículos Pendentes
+            <TabsTrigger value="pending" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Veículos Pendentes</span>
+              <span className="sm:hidden">Pend.</span>
             </TabsTrigger>
-            <TabsTrigger value="vehicles" className="flex items-center gap-1">
-              <Car className="h-4 w-4" />
-              Veículos
+            <TabsTrigger value="vehicles" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <Car className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Veículos</span>
+              <span className="sm:hidden">Veíc.</span>
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
-              Usuários
+            <TabsTrigger value="users" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Usuários</span>
+              <span className="sm:hidden">Usuár.</span>
             </TabsTrigger>
-            <TabsTrigger value="bookings" className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              Reservas
+            <TabsTrigger value="bookings" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Reservas</span>
+              <span className="sm:hidden">Reserv.</span>
             </TabsTrigger>
-            <TabsTrigger value="withdrawals" className="flex items-center gap-1">
-              <Banknote className="h-4 w-4" />
-              Saques
+            <TabsTrigger value="withdrawals" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <Banknote className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Saques</span>
+              <span className="sm:hidden">Saques</span>
             </TabsTrigger>
-            <TabsTrigger value="collaborators" className="flex items-center gap-1">
-              <Shield className="h-4 w-4" />
-              Colaboradores
+            <TabsTrigger value="collaborators" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Colaboradores</span>
+              <span className="sm:hidden">Colab.</span>
             </TabsTrigger>
           </TabsList>
 

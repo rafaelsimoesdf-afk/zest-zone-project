@@ -410,14 +410,14 @@ const OwnerDashboard = () => {
                                     </p>
                                   </div>
 
-                                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                                  <div className="flex flex-wrap gap-2">
                                     <Button
                                       variant="outline"
                                       size="sm"
                                       onClick={() => setSelectedBooking(booking)}
-                                      className="text-[10px] sm:text-xs h-7 sm:h-9 px-2 sm:px-3"
+                                      className="text-xs h-9 px-3"
                                     >
-                                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
+                                      <Eye className="w-4 h-4 mr-1" />
                                       Detalhes
                                     </Button>
 
@@ -426,10 +426,10 @@ const OwnerDashboard = () => {
                                         variant="outline"
                                         size="sm"
                                         onClick={() => setReviewDialog({ open: true, booking })}
-                                        className="text-[10px] sm:text-xs h-7 sm:h-9 px-2 sm:px-3"
+                                        className="text-xs h-9 px-3"
                                       >
-                                        <Star className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                                        <span className="hidden sm:inline">Avaliar</span>
+                                        <Star className="w-4 h-4 mr-1" />
+                                        Avaliar
                                       </Button>
                                     )}
 
@@ -437,22 +437,22 @@ const OwnerDashboard = () => {
                                       <>
                                         <Button
                                           size="sm"
-                                          className="bg-green-600 hover:bg-green-700 text-[10px] sm:text-xs h-7 sm:h-9 px-2 sm:px-3"
+                                          className="bg-green-600 hover:bg-green-700 text-xs h-9 px-3"
                                           onClick={() => handleApprove(booking)}
                                           disabled={updateStatus.isPending}
                                         >
-                                          <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                                          <span className="hidden sm:inline">Aprovar</span>
+                                          <CheckCircle className="w-4 h-4 mr-1" />
+                                          Aprovar
                                         </Button>
                                         <Button
                                           variant="destructive"
                                           size="sm"
                                           onClick={() => setActionDialog({ type: "reject", booking })}
                                           disabled={updateStatus.isPending}
-                                          className="text-[10px] sm:text-xs h-7 sm:h-9 px-2 sm:px-3"
+                                          className="text-xs h-9 px-3"
                                         >
-                                          <XCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                                          <span className="hidden sm:inline">Rejeitar</span>
+                                          <XCircle className="w-4 h-4 mr-1" />
+                                          Rejeitar
                                         </Button>
                                       </>
                                     )}
@@ -461,12 +461,12 @@ const OwnerDashboard = () => {
                                       <>
                                         <Button
                                           size="sm"
-                                          className="bg-blue-600 hover:bg-blue-700 text-[10px] sm:text-xs h-7 sm:h-9 px-2 sm:px-3"
+                                          className="bg-blue-600 hover:bg-blue-700 text-xs h-9 px-3"
                                           asChild
                                         >
                                           <Link to={`/booking/${booking.id}`}>
-                                            <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                                            <span className="hidden sm:inline">Finalizar</span>
+                                            <CheckCircle className="w-4 h-4 mr-1" />
+                                            Finalizar
                                           </Link>
                                         </Button>
                                         <Button
@@ -474,10 +474,10 @@ const OwnerDashboard = () => {
                                           size="sm"
                                           onClick={() => setActionDialog({ type: "cancel", booking })}
                                           disabled={updateStatus.isPending}
-                                          className="text-[10px] sm:text-xs h-7 sm:h-9 px-2 sm:px-3"
+                                          className="text-xs h-9 px-3"
                                         >
-                                          <XCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                                          <span className="hidden sm:inline">Cancelar</span>
+                                          <XCircle className="w-4 h-4 mr-1" />
+                                          Cancelar
                                         </Button>
                                       </>
                                     )}
