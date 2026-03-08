@@ -32,6 +32,9 @@ import Classifieds from "./pages/Classifieds";
 import CreateListing from "./pages/CreateListing";
 import ClassifiedDetails from "./pages/ClassifiedDetails";
 import MyListings from "./pages/MyListings";
+import Services from "./pages/Services";
+import ServiceDetails from "./pages/ServiceDetails";
+import MyServices from "./pages/MyServices";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
