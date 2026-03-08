@@ -277,11 +277,13 @@ const Navbar = () => {
                     </Button>
                     <Button variant="outline" className="w-full" size="sm" asChild>
                       <Link to="/my-bookings" onClick={() => setMobileMenuOpen(false)}>
+                        <CalendarDays className="w-4 h-4 mr-2" />
                         Minhas Reservas
                       </Link>
                     </Button>
                     <Button variant="outline" className="w-full" size="sm" asChild>
                       <Link to="/my-vehicles" onClick={() => setMobileMenuOpen(false)}>
+                        <Car className="w-4 h-4 mr-2" />
                         Meus Veículos
                       </Link>
                     </Button>
