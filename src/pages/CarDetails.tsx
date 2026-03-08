@@ -58,6 +58,8 @@ const CarDetails = () => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
+  const isAppDriverMode = searchParams.get("appDriver") === "true";
+
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
 
@@ -769,15 +771,41 @@ const CarDetails = () => {
               <Card className="border-2 shadow-xl">
                 <CardContent className="p-4 sm:p-6">
                   <div className="mb-4 sm:mb-6">
-                    <div className="flex items-baseline gap-2 mb-1 sm:mb-2">
-                      <span className="text-2xl sm:text-4xl font-display font-bold text-primary">
-                        {formatCurrencyBRL(vehicle.daily_price)}
-                      </span>
-                      <span className="text-muted-foreground text-sm sm:text-base">/dia</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      * Valor pode variar conforme o período
-                    </p>
+                    {isAppDriverMode ? (
+                      <div className="space-y-2">
+                        {(vehicle.app_driver_weekly_price ?? 0) > 0 && (
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl sm:text-4xl font-display font-bold text-primary">
+                              {formatCurrencyBRL(vehicle.app_driver_weekly_price!)}
+                            </span>
+                            <span className="text-muted-foreground text-sm sm:text-base">/semana</span>
+                          </div>
+                        )}
+                        {(vehicle.app_driver_monthly_price ?? 0) > 0 && (
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl sm:text-4xl font-display font-bold text-primary">
+                              {formatCurrencyBRL(vehicle.app_driver_monthly_price!)}
+                            </span>
+                            <span className="text-muted-foreground text-sm sm:text-base">/mês</span>
+                          </div>
+                        )}
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          Aluguel para motoristas de aplicativo
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-baseline gap-2 mb-1 sm:mb-2">
+                          <span className="text-2xl sm:text-4xl font-display font-bold text-primary">
+                            {formatCurrencyBRL(vehicle.daily_price)}
+                          </span>
+                          <span className="text-muted-foreground text-sm sm:text-base">/dia</span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          * Valor pode variar conforme o período
+                        </p>
+                      </>
+                    )}
                   </div>
 
                   <div className="space-y-4 mb-6">
