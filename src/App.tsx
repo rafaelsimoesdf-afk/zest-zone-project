@@ -63,6 +63,7 @@ const App = () => (
             <Route path="/selfie-upload/:sessionToken" element={<SelfieUpload />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/app-driver-rentals" element={<AppDriverRentals />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>
