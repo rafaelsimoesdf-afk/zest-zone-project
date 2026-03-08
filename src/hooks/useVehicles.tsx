@@ -104,6 +104,7 @@ export const useVehicles = (filters?: {
   untilTime?: string;
   minYear?: number;
   maxYear?: number;
+  appDriverRental?: boolean;
 }) => {
   return useQuery({
     queryKey: ["vehicles", filters],
