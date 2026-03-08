@@ -167,7 +167,7 @@ const Services = () => {
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  
 
   const { data: services, isLoading } = useServiceListings({
     category: category !== "all" ? category : undefined,
