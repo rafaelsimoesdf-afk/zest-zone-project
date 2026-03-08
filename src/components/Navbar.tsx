@@ -66,6 +66,12 @@ const Navbar = () => {
               Classificados
             </Link>
             <Link
+              to="/services"
+              className="text-sm font-medium text-foreground hover:text-primary transition-fast"
+            >
+              Serviços
+            </Link>
+            <Link
               to="/become-owner"
               className="text-sm font-medium text-foreground hover:text-primary transition-fast"
             >
