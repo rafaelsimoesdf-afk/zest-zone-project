@@ -113,16 +113,21 @@ serve(async (req) => {
       logStep("No existing Stripe customer found");
     }
 
-    // Criar line items - Locatário paga apenas subtotal + seguro
+    // Criar line items
+    const periodLabel = appDriver
+      ? (appDriverPeriod === 'weekly' ? 'Semanal' : 'Mensal')
+      : null;
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
           currency: "brl",
           product_data: {
-            name: `Aluguel: ${vehicleName}`,
-            description: `${days} ${days === 1 ? 'dia' : 'dias'} de aluguel`,
+            name: appDriver ? `Aluguel ${periodLabel}: ${vehicleName}` : `Aluguel: ${vehicleName}`,
+            description: appDriver
+              ? `Aluguel ${periodLabel?.toLowerCase()} para motorista de app (${days} dias)`
+              : `${days} ${days === 1 ? 'dia' : 'dias'} de aluguel`,
           },
-          unit_amount: Math.round(dailySubtotal * 100), // Convert to cents
+          unit_amount: Math.round(dailySubtotal * 100),
         },
         quantity: 1,
       },
