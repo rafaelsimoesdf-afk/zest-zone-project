@@ -12,6 +12,7 @@ import { Vehicle } from "@/hooks/useVehicles";
 interface VehicleCardProps {
   vehicle: Vehicle;
   linkParams?: string;
+  appDriverMode?: boolean;
 }
 
 export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
