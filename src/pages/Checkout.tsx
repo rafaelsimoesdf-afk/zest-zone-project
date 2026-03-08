@@ -314,12 +314,25 @@ const Checkout = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium text-sm sm:text-base">Duração</p>
+                      <p className="font-medium text-sm sm:text-base">
+                        {isAppDriver ? "Período" : "Duração"}
+                      </p>
                       <p className="text-muted-foreground text-xs sm:text-base">
-                        {days} {days === 1 ? "dia" : "dias"}
+                        {isAppDriver
+                          ? (appDriverPeriod === "weekly" ? "Semanal (7 dias)" : "Mensal (30 dias)")
+                          : `${days} ${days === 1 ? "dia" : "dias"}`
+                        }
                       </p>
                     </div>
                   </div>
+                  {isAppDriver && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">
+                        <Car className="w-3 h-3 mr-1" />
+                        Motorista de App
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </section>
 
