@@ -58,6 +58,8 @@ const CarDetails = () => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
+  const isAppDriverMode = searchParams.get("appDriver") === "true";
+
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50;
 
