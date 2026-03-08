@@ -487,18 +487,40 @@ const MyServices = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
-                            <Button variant="outline" size="sm" asChild title="Visualizar">
-                              <Link to={`/services/${service.id}`}><Eye className="w-4 h-4" /></Link>
+                            <Button
+                              size="icon"
+                              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/80 text-primary-foreground shadow-md"
+                              asChild
+                              title="Visualizar"
+                            >
+                              <Link to={`/services/${service.id}`}><Eye className="w-5 h-5" /></Link>
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => openEdit(service)} title="Editar">
-                              <Edit className="w-4 h-4" />
+                            <Button
+                              size="icon"
+                              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/80 text-primary-foreground shadow-md"
+                              onClick={() => openEdit(service)}
+                              title="Editar"
+                            >
+                              <Edit className="w-5 h-5" />
                             </Button>
-                            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(service)} disabled={updateService.isPending} title={service.status === "active" ? "Pausar" : "Reativar"}>
-                              {service.status === "active" ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                            <Button
+                              size="icon"
+                              className="h-10 w-10 rounded-full bg-amber-500 hover:bg-amber-600 text-white shadow-md"
+                              onClick={() => handleToggleStatus(service)}
+                              disabled={updateService.isPending}
+                              title={service.status === "active" ? "Pausar" : "Reativar"}
+                            >
+                              {service.status === "active" ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" title="Excluir"><Trash2 className="w-4 h-4" /></Button>
+                                <Button
+                                  size="icon"
+                                  className="h-10 w-10 rounded-full bg-destructive hover:bg-destructive/80 text-destructive-foreground shadow-md"
+                                  title="Excluir"
+                                >
+                                  <Trash2 className="w-5 h-5" />
+                                </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
