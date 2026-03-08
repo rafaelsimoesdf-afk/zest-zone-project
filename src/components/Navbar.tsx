@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench, CalendarDays, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -130,11 +130,13 @@ const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/my-bookings" className="cursor-pointer">
+                      <CalendarDays className="mr-2 h-4 w-4" />
                       Minhas Reservas
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/my-vehicles" className="cursor-pointer">
+                      <Car className="mr-2 h-4 w-4" />
                       Meus Veículos
                     </Link>
                   </DropdownMenuItem>
@@ -275,11 +277,13 @@ const Navbar = () => {
                     </Button>
                     <Button variant="outline" className="w-full" size="sm" asChild>
                       <Link to="/my-bookings" onClick={() => setMobileMenuOpen(false)}>
+                        <CalendarDays className="w-4 h-4 mr-2" />
                         Minhas Reservas
                       </Link>
                     </Button>
                     <Button variant="outline" className="w-full" size="sm" asChild>
                       <Link to="/my-vehicles" onClick={() => setMobileMenuOpen(false)}>
+                        <Car className="w-4 h-4 mr-2" />
                         Meus Veículos
                       </Link>
                     </Button>
