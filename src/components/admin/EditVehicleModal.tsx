@@ -418,6 +418,9 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
         manual_veiculo: formData.manual_veiculo,
         sensor_chuva: formData.sensor_chuva,
         sensor_crepuscular: formData.sensor_crepuscular,
+        app_driver_rental: formData.app_driver_rental,
+        app_driver_weekly_price: formData.app_driver_rental ? formData.app_driver_weekly_price : null,
+        app_driver_monthly_price: formData.app_driver_rental ? formData.app_driver_monthly_price : null,
       };
 
       // If admin, keep the status they selected; otherwise set to pending
