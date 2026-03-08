@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.check-selfie-session]
 verify_jwt = false
+
+[functions.create-service-subscription]
+verify_jwt = false
+
+[functions.check-service-subscription]
+verify_jwt = false

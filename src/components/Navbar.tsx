@@ -143,6 +143,12 @@ const Navbar = () => {
                       Meus Anúncios
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/my-services" className="cursor-pointer">
+                      <Wrench className="mr-2 h-4 w-4" />
+                      Meus Serviços
+                    </Link>
+                  </DropdownMenuItem>
                   {hasVehicles && (
                     <>
                       <DropdownMenuItem asChild>
