@@ -289,6 +289,12 @@ const Navbar = () => {
                       Meus Veículos
                     </Link>
                   </Button>
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/my-listings" onClick={() => setIsMenuOpen(false)}>
+                      <Tag className="w-4 h-4 mr-2" />
+                      Meus Anúncios
+                    </Link>
+                  </Button>
                   {hasVehicles && (
                     <>
                       <Button variant="outline" className="w-full" size="sm" asChild>
