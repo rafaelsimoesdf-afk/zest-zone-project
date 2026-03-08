@@ -219,7 +219,7 @@ const Checkout = () => {
           startTime,
           endTime,
           days,
-          dailyRate: vehicle.daily_price,
+          dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
           dailySubtotal,
           extraHours,
           extraHoursCharge,
@@ -229,6 +229,8 @@ const Checkout = () => {
           ownerId: vehicle.owner_id,
           pickupLocation: pickupLocationStr,
           notes: message || '',
+          appDriver: isAppDriver || false,
+          appDriverPeriod: appDriverPeriod || null,
           // Acceptance data for legal compliance
           acceptances: {
             owner_rules_accepted: acceptOwnerRules,
