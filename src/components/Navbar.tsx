@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import { useHasVehicles } from "@/hooks/useOwnerDashboard";
 import { useUnreadMessagesCount } from "@/hooks/useMessages";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
