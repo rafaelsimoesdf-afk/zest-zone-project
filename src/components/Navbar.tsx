@@ -60,6 +60,12 @@ const Navbar = () => {
               Motoristas de App
             </Link>
             <Link
+              to="/classifieds"
+              className="text-sm font-medium text-foreground hover:text-primary transition-fast"
+            >
+              Classificados
+            </Link>
+            <Link
               to="/become-owner"
               className="text-sm font-medium text-foreground hover:text-primary transition-fast"
             >
