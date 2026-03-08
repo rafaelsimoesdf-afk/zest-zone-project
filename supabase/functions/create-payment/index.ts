@@ -174,7 +174,7 @@ serve(async (req) => {
       line_items: lineItems,
       mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}&days=${days}&dailyRate=${dailyRate}&extraHours=${extraHours || 0}&extraHoursCharge=${extraHoursCharge || 0}&totalPrice=${totalPrice}&ownerId=${ownerId}&pickupLocation=${encodeURIComponent(pickupLocation || '')}&notes=${encodeURIComponent(notes || '')}&acceptances=${acceptancesEncoded}`,
-      cancel_url: `${req.headers.get("origin")}/checkout?vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}`,
+      cancel_url: `${req.headers.get("origin")}/checkout?vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}${appDriver ? '&appDriver=true&appDriverPeriod=' + (appDriverPeriod || '') : ''}`,
       metadata: {
         vehicleId,
         startDate,
@@ -196,6 +196,8 @@ serve(async (req) => {
         pickupLocation: pickupLocation || '',
         notes: notes || '',
         acceptances: acceptances ? JSON.stringify(acceptances) : '',
+        appDriver: String(appDriver || false),
+        appDriverPeriod: appDriverPeriod || '',
       },
     };
 
