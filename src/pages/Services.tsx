@@ -163,6 +163,7 @@ const FeaturedCard = ({ service }: { service: ServiceListing }) => {
 
 const Services = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
