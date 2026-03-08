@@ -219,10 +219,33 @@ export const VehicleCard = ({ vehicle, linkParams, appDriverMode }: VehicleCardP
           {/* Price + CTA */}
           <div className="flex items-center justify-between pt-0.5 sm:pt-2">
             <div>
-              <span className="text-sm sm:text-xl font-bold text-primary">
-                {formatCurrencyBRL(vehicle.daily_price)}
-              </span>
-              <span className="text-muted-foreground text-[9px] sm:text-sm">/dia</span>
+              {appDriverMode ? (
+                <div className="flex flex-col gap-0.5">
+                  {(vehicle.app_driver_weekly_price ?? 0) > 0 && (
+                    <div>
+                      <span className="text-sm sm:text-xl font-bold text-primary">
+                        {formatCurrencyBRL(vehicle.app_driver_weekly_price!)}
+                      </span>
+                      <span className="text-muted-foreground text-[9px] sm:text-sm">/semana</span>
+                    </div>
+                  )}
+                  {(vehicle.app_driver_monthly_price ?? 0) > 0 && (
+                    <div>
+                      <span className="text-sm sm:text-xl font-bold text-primary">
+                        {formatCurrencyBRL(vehicle.app_driver_monthly_price!)}
+                      </span>
+                      <span className="text-muted-foreground text-[9px] sm:text-sm">/mês</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <span className="text-sm sm:text-xl font-bold text-primary">
+                    {formatCurrencyBRL(vehicle.daily_price)}
+                  </span>
+                  <span className="text-muted-foreground text-[9px] sm:text-sm">/dia</span>
+                </>
+              )}
             </div>
             <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 text-[10px] sm:text-sm px-2 sm:px-4 h-6 sm:h-9">
               Detalhes
