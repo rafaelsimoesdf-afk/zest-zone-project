@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { PriceFilter } from "./PriceFilter";
 import { VehicleTypeFilter } from "./VehicleTypeFilter";
 import { YearFilter } from "./YearFilter";
@@ -18,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Vehicle } from "@/hooks/useVehicles";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FilterBarProps {
   filters: {
