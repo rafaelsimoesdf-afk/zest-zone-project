@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useServiceListings, SERVICE_CATEGORIES, getCategoryLabel, ServiceListing } from "@/hooks/useServices";
 import { useAuth } from "@/contexts/AuthContext";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 
 
 const categoryIcons: Record<string, any> = {
