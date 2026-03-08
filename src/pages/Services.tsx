@@ -125,7 +125,7 @@ const Services = () => {
               ))}
             </div>
           ) : services && services.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {services.map((service) => {
                 const Icon = categoryIcons[service.category] || Wrench;
                 const providerName = service.profiles
@@ -134,54 +134,70 @@ const Services = () => {
 
                 return (
                   <Link key={service.id} to={`/services/${service.id}`}>
-                    <Card className="h-full hover:shadow-lg transition-all hover:-translate-y-1 border-border">
-                      {service.image_url && (
-                        <div className="relative h-48 overflow-hidden rounded-t-lg">
+                    <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border overflow-hidden group">
+                      {/* Image or placeholder */}
+                      <div className="relative h-44 sm:h-52 overflow-hidden bg-muted">
+                        {service.image_url ? (
                           <img
                             src={service.image_url}
                             alt={service.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
-                        </div>
-                      )}
-                      <CardContent className={`p-5 ${!service.image_url ? 'pt-6' : ''}`}>
-                        <div className="flex items-start justify-between mb-3">
-                          <Badge variant="secondary" className="flex items-center gap-1">
-                            <Icon className="w-3 h-3" />
-                            {getCategoryLabel(service.category)}
-                          </Badge>
-                          {service.price_range && (
-                            <span className="text-sm font-semibold text-primary">
-                              {service.price_range}
-                            </span>
-                          )}
-                        </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Icon className="w-14 h-14 text-muted-foreground/20" />
+                          </div>
+                        )}
+                        {/* Category badge overlay */}
+                        <Badge variant="secondary" className="absolute top-3 left-3 backdrop-blur-sm bg-background/80 shadow-sm flex items-center gap-1.5 text-xs">
+                          <Icon className="w-3 h-3" />
+                          {getCategoryLabel(service.category)}
+                        </Badge>
+                        {/* Price overlay */}
+                        {service.price_range && (
+                          <div className="absolute bottom-3 right-3 bg-primary text-primary-foreground text-xs sm:text-sm font-bold px-3 py-1 rounded-full shadow-md">
+                            {service.price_range}
+                          </div>
+                        )}
+                      </div>
 
-                        <h3 className="font-semibold text-foreground text-lg mb-2 line-clamp-2">
+                      <CardContent className="p-4 sm:p-5 space-y-3">
+                        {/* Title */}
+                        <h3 className="font-bold text-foreground text-base sm:text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                           {service.title}
                         </h3>
 
+                        {/* Description */}
                         {service.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                             {service.description}
                           </p>
                         )}
 
+                        {/* Location */}
                         {service.city && (
-                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
-                            <MapPin className="w-3.5 h-3.5" />
+                          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                            <MapPin className="w-3.5 h-3.5 shrink-0 text-primary/60" />
                             {service.city}{service.state ? `, ${service.state}` : ""}
                           </div>
                         )}
 
-                        <div className="flex items-center gap-2 pt-3 border-t border-border">
-                          <Avatar className="h-7 w-7">
+                        {/* Provider */}
+                        <div className="flex items-center gap-2.5 pt-3 border-t border-border">
+                          <Avatar className="h-8 w-8">
                             <AvatarImage src={service.profiles?.profile_image || undefined} />
-                            <AvatarFallback className="text-xs">
+                            <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
                               {providerName.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm text-muted-foreground">{providerName}</span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-foreground truncate">{providerName}</p>
+                            {service.whatsapp_number && service.show_phone && (
+                              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Phone className="w-3 h-3" /> WhatsApp disponível
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
