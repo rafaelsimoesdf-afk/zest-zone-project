@@ -226,6 +226,13 @@ const Navbar = () => {
               Motoristas de App
             </Link>
             <Link
+              to="/classifieds"
+              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Classificados
+            </Link>
+            <Link
               to="/become-owner"
               className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
               onClick={() => setIsMenuOpen(false)}
