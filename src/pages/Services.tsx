@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, MapPin, Plus, Wrench, Car, Camera, Navigation, Shield, FileText, Truck, Sparkles, Users, Phone } from "lucide-react";
+import { Search, MapPin, Wrench, Car, Camera, Navigation, Shield, FileText, Truck, Sparkles, Users, Phone, SlidersHorizontal, X, Star, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
