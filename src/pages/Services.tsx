@@ -211,21 +211,54 @@ const Services = () => {
                   <Search className="w-4 h-4 mr-2" />
                   Buscar
                 </Button>
-                <Button
-                  variant={showFilters ? "default" : "outline"}
-                  size="icon"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="shrink-0 relative"
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  {activeFilterLabel && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background" />
-                  )}
-                </Button>
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant={activeFilterLabel ? "default" : "outline"}
+                      size="icon"
+                      className="shrink-0 relative"
+                    >
+                      <SlidersHorizontal className="w-4 h-4" />
+                      {activeFilterLabel && (
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background" />
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetHeader>
+                      <SheetTitle>Filtrar por categoria</SheetTitle>
+                    </SheetHeader>
+                    <div className="flex gap-2 flex-wrap mt-4">
+                      <Button
+                        variant={category === "all" ? "default" : "outline"}
+                        size="sm"
+                        className="rounded-full h-8 px-3 text-xs"
+                        onClick={() => setCategory("all")}
+                      >
+                        Todos
+                      </Button>
+                      {SERVICE_CATEGORIES.map((cat) => {
+                        const Icon = categoryIcons[cat.value] || Wrench;
+                        return (
+                          <Button
+                            key={cat.value}
+                            variant={category === cat.value ? "default" : "outline"}
+                            size="sm"
+                            className="rounded-full h-8 px-3 text-xs"
+                            onClick={() => setCategory(cat.value)}
+                          >
+                            <Icon className="w-3 h-3 mr-1" />
+                            {cat.label}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
 
               {/* Active filter indicator */}
-              {activeFilterLabel && !showFilters && (
+              {activeFilterLabel && (
                 <div className="mt-3 flex justify-center">
                   <Badge
                     variant="secondary"
@@ -241,44 +274,6 @@ const Services = () => {
             </div>
           </div>
         </div>
-
-        {/* Collapsible Filters */}
-        {showFilters && (
-          <div className="border-b border-border bg-card/50 backdrop-blur-sm animate-in slide-in-from-top-2 duration-200">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-foreground">Filtrar por categoria</h3>
-                <Button variant="ghost" size="sm" onClick={() => setShowFilters(false)} className="h-7 px-2 text-muted-foreground">
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant={category === "all" ? "default" : "outline"}
-                  size="sm"
-                  className="rounded-full h-8 px-3 text-xs"
-                  onClick={() => setCategory("all")}
-                >
-                  Todos
-                </Button>
-                {SERVICE_CATEGORIES.map((cat) => {
-                  const Icon = categoryIcons[cat.value] || Wrench;
-                  return (
-                    <Button
-                      key={cat.value}
-                      variant={category === cat.value ? "default" : "outline"}
-                      size="sm"
-                      className="rounded-full h-8 px-3 text-xs"
-                      onClick={() => setCategory(cat.value)}
-                    >
-                      <Icon className="w-3 h-3 mr-1" />
-                      {cat.label}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
         )}
 
         <div className="container mx-auto px-4 mt-8">
