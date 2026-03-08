@@ -88,6 +88,10 @@ interface Vehicle {
   manual_veiculo?: boolean;
   sensor_chuva?: boolean;
   sensor_crepuscular?: boolean;
+  // App driver rental
+  app_driver_rental?: boolean;
+  app_driver_weekly_price?: number | null;
+  app_driver_monthly_price?: number | null;
 }
 
 interface EditVehicleModalProps {
@@ -201,6 +205,11 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
     manual_veiculo: false,
     sensor_chuva: false,
     sensor_crepuscular: false,
+    
+    // App driver rental
+    app_driver_rental: false,
+    app_driver_weekly_price: 0,
+    app_driver_monthly_price: 0,
   });
 
   useEffect(() => {
@@ -277,6 +286,9 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
         manual_veiculo: vehicle.manual_veiculo || false,
         sensor_chuva: vehicle.sensor_chuva || false,
         sensor_crepuscular: vehicle.sensor_crepuscular || false,
+        app_driver_rental: vehicle.app_driver_rental || false,
+        app_driver_weekly_price: vehicle.app_driver_weekly_price || 0,
+        app_driver_monthly_price: vehicle.app_driver_monthly_price || 0,
       });
     }
   }, [vehicle]);
@@ -406,6 +418,9 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
         manual_veiculo: formData.manual_veiculo,
         sensor_chuva: formData.sensor_chuva,
         sensor_crepuscular: formData.sensor_crepuscular,
+        app_driver_rental: formData.app_driver_rental,
+        app_driver_weekly_price: formData.app_driver_rental ? formData.app_driver_weekly_price : null,
+        app_driver_monthly_price: formData.app_driver_rental ? formData.app_driver_monthly_price : null,
       };
 
       // If admin, keep the status they selected; otherwise set to pending
@@ -1096,6 +1111,53 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* App Driver Rental */}
+            <Card className="border-primary/30 bg-primary/5">
+              <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                <CardTitle className="text-sm sm:text-lg flex items-center gap-1.5 sm:gap-2">
+                  <Car className="w-4 h-4 sm:w-5 sm:h-5" />
+                  Aluguel para Motoristas de Aplicativo
+                </CardTitle>
+                <CardDescription className="text-[10px] sm:text-sm">
+                  Disponibilize o veículo para motoristas de Uber, 99, InDrive, etc.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 sm:p-6 pt-0 space-y-3 sm:space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="edit_app_driver_rental"
+                    checked={formData.app_driver_rental}
+                    onCheckedChange={(checked) => handleCheckboxChange("app_driver_rental", checked as boolean)}
+                  />
+                  <Label htmlFor="edit_app_driver_rental" className="cursor-pointer text-xs sm:text-sm font-medium">
+                    Disponível para motoristas de aplicativo
+                  </Label>
+                </div>
+                {formData.app_driver_rental && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="edit_app_driver_weekly_price" className="text-xs sm:text-sm">Preço Semanal (R$)</Label>
+                      <CurrencyInput
+                        id="edit_app_driver_weekly_price"
+                        value={formData.app_driver_weekly_price}
+                        onChange={(value) => setFormData({ ...formData, app_driver_weekly_price: value })}
+                      />
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Valor para aluguel semanal</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="edit_app_driver_monthly_price" className="text-xs sm:text-sm">Preço Mensal (R$)</Label>
+                      <CurrencyInput
+                        id="edit_app_driver_monthly_price"
+                        value={formData.app_driver_monthly_price}
+                        onChange={(value) => setFormData({ ...formData, app_driver_monthly_price: value })}
+                      />
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Valor para aluguel mensal</p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
