@@ -189,7 +189,7 @@ const ServiceDetails = () => {
                   <div className="space-y-3">
                     {/* WhatsApp */}
                     {service.show_phone && service.whatsapp_number && (
-                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={handleWhatsApp}>
+                      <Button className="w-full bg-[hsl(142,71%,35%)] hover:bg-[hsl(142,71%,30%)] text-white" onClick={handleWhatsApp}>
                         <Phone className="w-4 h-4 mr-2" />
                         WhatsApp
                       </Button>
