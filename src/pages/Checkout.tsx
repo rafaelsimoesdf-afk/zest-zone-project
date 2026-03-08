@@ -28,6 +28,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VerificationRequired } from "@/components/VerificationRequired";
+import { Badge } from "@/components/ui/badge";
 import { maskCPF, formatCurrencyBRL } from "@/lib/validators";
 
 const Checkout = () => {
