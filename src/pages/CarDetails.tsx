@@ -54,6 +54,7 @@ const CarDetails = () => {
   const [startTime, setStartTime] = useState("10:00");
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [endTime, setEndTime] = useState("10:00");
+  const [appDriverPeriod, setAppDriverPeriod] = useState<"weekly" | "monthly">("weekly");
   const [showReputationModal, setShowReputationModal] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
