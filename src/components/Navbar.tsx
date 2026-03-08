@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { data: hasVehicles } = useHasVehicles();
   const { data: unreadCount } = useUnreadMessagesCount();
