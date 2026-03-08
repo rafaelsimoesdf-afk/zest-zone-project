@@ -42,7 +42,7 @@ const emptyForm = {
 const MyServices = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
-  const { data: services, isLoading: loadingServices, refetch: refetchServices } = useMyServices();
+  const { data: services, isLoading: loadingServices } = useMyServices();
   const { data: subscription, isLoading: loadingSub, refetch: refetchSub } = useServiceSubscription();
   const subscribeMutation = useSubscribeToServices();
   const createService = useCreateService();
@@ -59,7 +59,6 @@ const MyServices = () => {
     if (searchParams.get("subscribed") === "true") {
       toast.success("Assinatura ativada com sucesso! Agora você pode anunciar serviços.");
       refetchSub();
-      // Clean URL
       window.history.replaceState({}, "", "/my-services");
     }
   }, [searchParams]);
@@ -74,9 +73,7 @@ const MyServices = () => {
   const handleSubscribe = async () => {
     try {
       const result = await subscribeMutation.mutateAsync();
-      if (result?.url) {
-        window.open(result.url, "_blank");
-      }
+      if (result?.url) window.open(result.url, "_blank");
     } catch {}
   };
 
@@ -88,10 +85,7 @@ const MyServices = () => {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Imagem deve ter no máximo 5MB");
-      return;
-    }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Imagem deve ter no máximo 5MB"); return; }
     setUploading(true);
     try {
       const ext = file.name.split(".").pop();
@@ -128,12 +122,7 @@ const MyServices = () => {
         allow_chat: formData.allow_chat,
         image_url: formData.image_url || undefined,
       },
-      {
-        onSuccess: () => {
-          setCreateOpen(false);
-          setFormData(emptyForm);
-        },
-      }
+      { onSuccess: () => { setCreateOpen(false); setFormData(emptyForm); } }
     );
   };
 
@@ -174,26 +163,21 @@ const MyServices = () => {
         allow_chat: formData.allow_chat,
         image_url: formData.image_url || null,
       },
-      {
-        onSuccess: () => {
-          setEditOpen(false);
-          setEditingService(null);
-          setFormData(emptyForm);
-        },
-      }
+      { onSuccess: () => { setEditOpen(false); setEditingService(null); setFormData(emptyForm); } }
     );
   };
 
   const handleToggleStatus = (service: ServiceListing) => {
-    const newStatus = service.status === "active" ? "paused" : "active";
-    updateService.mutate({ id: service.id, status: newStatus });
+    updateService.mutate({ id: service.id, status: service.status === "active" ? "paused" : "active" });
   };
 
-  const ServiceForm = ({ isEdit = false }: { isEdit?: boolean }) => (
+  // Inline form fields — NOT a component, just JSX to avoid remounting
+  const formFields = (
     <div className="space-y-4">
       <div>
-        <Label>Título do serviço *</Label>
+        <Label htmlFor="svc-title">Título do serviço *</Label>
         <Input
+          id="svc-title"
           value={formData.title}
           onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))}
           placeholder="Ex: Polimento automotivo profissional"
@@ -202,9 +186,9 @@ const MyServices = () => {
         <p className="text-xs text-muted-foreground mt-1">{formData.title.length}/100</p>
       </div>
       <div>
-        <Label>Categoria *</Label>
+        <Label htmlFor="svc-category">Categoria *</Label>
         <Select value={formData.category} onValueChange={(v) => setFormData(p => ({ ...p, category: v }))}>
-          <SelectTrigger><SelectValue placeholder="Selecione a categoria" /></SelectTrigger>
+          <SelectTrigger id="svc-category"><SelectValue placeholder="Selecione a categoria" /></SelectTrigger>
           <SelectContent>
             {SERVICE_CATEGORIES.map(cat => (
               <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
@@ -214,8 +198,9 @@ const MyServices = () => {
       </div>
       {formData.category === "outros" && (
         <div>
-          <Label>Categoria personalizada *</Label>
+          <Label htmlFor="svc-custom-cat">Categoria personalizada *</Label>
           <Input
+            id="svc-custom-cat"
             value={formData.custom_category}
             onChange={(e) => setFormData(p => ({ ...p, custom_category: e.target.value }))}
             placeholder="Descreva o tipo de serviço"
@@ -223,8 +208,9 @@ const MyServices = () => {
         </div>
       )}
       <div>
-        <Label>Descrição</Label>
+        <Label htmlFor="svc-desc">Descrição</Label>
         <Textarea
+          id="svc-desc"
           value={formData.description}
           onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
           placeholder="Descreva seu serviço em detalhes, experiência, diferenciais..."
@@ -234,8 +220,9 @@ const MyServices = () => {
         <p className="text-xs text-muted-foreground mt-1">{formData.description.length}/1000</p>
       </div>
       <div>
-        <Label>Faixa de preço</Label>
+        <Label htmlFor="svc-price">Faixa de preço</Label>
         <Input
+          id="svc-price"
           value={formData.price_range}
           onChange={(e) => setFormData(p => ({ ...p, price_range: e.target.value }))}
           placeholder="Ex: R$ 150 - R$ 300 ou A combinar"
@@ -243,16 +230,18 @@ const MyServices = () => {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Cidade</Label>
+          <Label htmlFor="svc-city">Cidade</Label>
           <Input
+            id="svc-city"
             value={formData.city}
             onChange={(e) => setFormData(p => ({ ...p, city: e.target.value }))}
             placeholder="Sua cidade"
           />
         </div>
         <div>
-          <Label>Estado</Label>
+          <Label htmlFor="svc-state">Estado</Label>
           <Input
+            id="svc-state"
             value={formData.state}
             onChange={(e) => setFormData(p => ({ ...p, state: e.target.value }))}
             placeholder="UF"
@@ -261,8 +250,9 @@ const MyServices = () => {
         </div>
       </div>
       <div>
-        <Label>WhatsApp</Label>
+        <Label htmlFor="svc-whatsapp">WhatsApp</Label>
         <Input
+          id="svc-whatsapp"
           value={formData.whatsapp_number}
           onChange={(e) => setFormData(p => ({ ...p, whatsapp_number: e.target.value }))}
           placeholder="(11) 99999-9999"
@@ -271,17 +261,16 @@ const MyServices = () => {
       <div>
         <Label>Imagem do serviço</Label>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" asChild disabled={uploading}>
-            <label className="cursor-pointer">
-              <Upload className="w-4 h-4 mr-2" />
-              {uploading ? "Enviando..." : "Enviar imagem"}
-              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-            </label>
+          <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => document.getElementById('svc-image-input')?.click()}>
+            <Upload className="w-4 h-4 mr-2" />
+            {uploading ? "Enviando..." : "Enviar imagem"}
           </Button>
+          <input id="svc-image-input" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
           {formData.image_url && (
             <div className="relative">
               <img src={formData.image_url} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />
               <button
+                type="button"
                 className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs"
                 onClick={() => setFormData(p => ({ ...p, image_url: "" }))}
               >×</button>
@@ -365,8 +354,7 @@ const MyServices = () => {
                       </div>
                     </div>
                     <Button variant="ghost" size="sm" onClick={handleRefreshSubscription}>
-                      <RefreshCw className="w-4 h-4 mr-1" />
-                      Atualizar
+                      <RefreshCw className="w-4 h-4 mr-1" /> Atualizar
                     </Button>
                   </div>
                 </CardContent>
@@ -380,26 +368,23 @@ const MyServices = () => {
                       <p className="font-medium text-foreground">Uso do pacote</p>
                       <p className="text-sm text-muted-foreground">
                         {serviceCount} de {MAX_SERVICES} anúncios utilizados
-                        {activeCount > 0 && <> • <span className="text-primary">{activeCount} ativo{activeCount > 1 ? 's' : ''}</span></>}
-                        {pausedCount > 0 && <> • <span className="text-amber-500">{pausedCount} pausado{pausedCount > 1 ? 's' : ''}</span></>}
+                        {activeCount > 0 && <> • <span className="text-primary">{activeCount} ativo{activeCount > 1 ? "s" : ""}</span></>}
+                        {pausedCount > 0 && <> • <span className="text-amber-500">{pausedCount} pausado{pausedCount > 1 ? "s" : ""}</span></>}
                       </p>
                     </div>
                     {canCreateMore ? (
                       <Dialog open={createOpen} onOpenChange={(open) => { setCreateOpen(open); if (!open) setFormData(emptyForm); }}>
                         <DialogTrigger asChild>
                           <Button size="sm">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Novo Serviço
+                            <Plus className="w-4 h-4 mr-2" /> Novo Serviço
                           </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
                             <DialogTitle>Anunciar Novo Serviço</DialogTitle>
-                            <DialogDescription>
-                              Preencha os dados do seu serviço. Campos com * são obrigatórios.
-                            </DialogDescription>
+                            <DialogDescription>Preencha os dados do seu serviço. Campos com * são obrigatórios.</DialogDescription>
                           </DialogHeader>
-                          <ServiceForm />
+                          {formFields}
                           <DialogFooter>
                             <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
                             <Button onClick={handleCreate} disabled={createService.isPending}>
@@ -410,15 +395,14 @@ const MyServices = () => {
                       </Dialog>
                     ) : (
                       <Badge variant="secondary" className="flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        Limite atingido
+                        <AlertCircle className="w-3 h-3" /> Limite atingido
                       </Badge>
                     )}
                   </div>
                   <Progress value={quotaPercent} className="h-2" />
                   {!canCreateMore && (
                     <p className="text-xs text-muted-foreground mt-2">
-                      Exclua ou pause um serviço existente para liberar espaço, ou entre em contato para upgrade.
+                      Exclua um serviço existente para liberar espaço.
                     </p>
                   )}
                 </CardContent>
@@ -445,8 +429,7 @@ const MyServices = () => {
                   </Button>
                   <div>
                     <Button variant="link" size="sm" onClick={handleRefreshSubscription} className="text-muted-foreground">
-                      <RefreshCw className="w-3 h-3 mr-1" />
-                      Já paguei? Verificar assinatura
+                      <RefreshCw className="w-3 h-3 mr-1" /> Já paguei? Verificar assinatura
                     </Button>
                   </div>
                 </div>
@@ -479,7 +462,6 @@ const MyServices = () => {
                     <Card key={service.id} className={service.status === "paused" ? "opacity-70" : ""}>
                       <CardContent className="p-4">
                         <div className="flex flex-col sm:flex-row items-start gap-4">
-                          {/* Image */}
                           {service.image_url ? (
                             <img src={service.image_url} alt="" className="h-20 w-20 rounded-lg object-cover shrink-0" />
                           ) : (
@@ -487,8 +469,6 @@ const MyServices = () => {
                               <Wrench className="w-8 h-8 text-muted-foreground/30" />
                             </div>
                           )}
-
-                          {/* Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1 flex-wrap">
                               <h3 className="font-semibold text-foreground truncate">{service.title}</h3>
@@ -501,40 +481,24 @@ const MyServices = () => {
                               {service.city && <> • {service.city}{service.state ? `/${service.state}` : ""}</>}
                             </p>
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Eye className="w-3 h-3" /> {service.views_count} views
-                              </span>
-                              {service.price_range && (
-                                <span className="font-medium text-primary">{service.price_range}</span>
-                              )}
+                              <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {service.views_count} views</span>
+                              {service.price_range && <span className="font-medium text-primary">{service.price_range}</span>}
                               <span>Criado em {format(new Date(service.created_at), "dd/MM/yyyy")}</span>
                             </div>
                           </div>
-
-                          {/* Actions */}
                           <div className="flex items-center gap-2 shrink-0">
                             <Button variant="outline" size="sm" asChild title="Visualizar">
-                              <Link to={`/services/${service.id}`}>
-                                <Eye className="w-4 h-4" />
-                              </Link>
+                              <Link to={`/services/${service.id}`}><Eye className="w-4 h-4" /></Link>
                             </Button>
                             <Button variant="outline" size="sm" onClick={() => openEdit(service)} title="Editar">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleToggleStatus(service)}
-                              disabled={updateService.isPending}
-                              title={service.status === "active" ? "Pausar" : "Reativar"}
-                            >
+                            <Button variant="outline" size="sm" onClick={() => handleToggleStatus(service)} disabled={updateService.isPending} title={service.status === "active" ? "Pausar" : "Reativar"}>
                               {service.status === "active" ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm" title="Excluir">
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
+                                <Button variant="destructive" size="sm" title="Excluir"><Trash2 className="w-4 h-4" /></Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -545,10 +509,7 @@ const MyServices = () => {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => deleteService.mutate(service.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  >
+                                  <AlertDialogAction onClick={() => deleteService.mutate(service.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                                     Excluir
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
@@ -567,19 +528,14 @@ const MyServices = () => {
                   <p className="text-muted-foreground mb-6">Crie seu primeiro anúncio e alcance milhares de clientes!</p>
                   <Dialog open={createOpen} onOpenChange={(open) => { setCreateOpen(open); if (!open) setFormData(emptyForm); }}>
                     <DialogTrigger asChild>
-                      <Button>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Criar Primeiro Anúncio
-                      </Button>
+                      <Button><Plus className="w-4 h-4 mr-2" /> Criar Primeiro Anúncio</Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Anunciar Novo Serviço</DialogTitle>
-                        <DialogDescription>
-                          Preencha os dados do seu serviço. Campos com * são obrigatórios.
-                        </DialogDescription>
+                        <DialogDescription>Preencha os dados do seu serviço. Campos com * são obrigatórios.</DialogDescription>
                       </DialogHeader>
-                      <ServiceForm />
+                      {formFields}
                       <DialogFooter>
                         <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancelar</Button>
                         <Button onClick={handleCreate} disabled={createService.isPending}>
@@ -600,7 +556,7 @@ const MyServices = () => {
                 <DialogTitle>Editar Serviço</DialogTitle>
                 <DialogDescription>Atualize as informações do seu anúncio.</DialogDescription>
               </DialogHeader>
-              <ServiceForm isEdit />
+              {formFields}
               <DialogFooter>
                 <Button variant="outline" onClick={() => setEditOpen(false)}>Cancelar</Button>
                 <Button onClick={handleUpdate} disabled={updateService.isPending}>
