@@ -147,7 +147,18 @@ export const useListing = (id: string) => {
         .update({ views_count: (data.views_count || 0) + 1 })
         .eq("id", id);
 
-      return data as VehicleListing;
+      // If linked to a vehicle, fetch full vehicle data with accessories
+      let linkedVehicle = null;
+      if (data.vehicle_id) {
+        const { data: vehicleData } = await supabase
+          .from("vehicles")
+          .select("*")
+          .eq("id", data.vehicle_id)
+          .single();
+        linkedVehicle = vehicleData;
+      }
+
+      return { ...data, linked_vehicle: linkedVehicle } as VehicleListing & { linked_vehicle: any };
     },
     enabled: !!id,
   });
