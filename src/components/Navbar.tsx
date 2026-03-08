@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import { useHasVehicles } from "@/hooks/useOwnerDashboard";
 import { useUnreadMessagesCount } from "@/hooks/useMessages";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { data: hasVehicles } = useHasVehicles();
   const { data: unreadCount } = useUnreadMessagesCount();
@@ -199,187 +200,162 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-muted transition-fast"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? (
-              <X className="w-6 h-6 text-foreground" />
-            ) : (
-              <Menu className="w-6 h-6 text-foreground" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-lg">
-          <div className="container mx-auto px-4 py-4 space-y-3">
-            <Link
-              to="/browse"
-              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Buscar Carros
-            </Link>
-            <Link
-              to="/how-it-works"
-              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Como Funciona
-            </Link>
-            <Link
-              to="/app-driver-rentals"
-              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Motoristas de App
-            </Link>
-            <Link
-              to="/classifieds"
-              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Classificados
-            </Link>
-            <Link
-              to="/services"
-              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Serviços
-            </Link>
-            <Link
-              to="/become-owner"
-              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Anuncie seu Carro
-            </Link>
-            <div className="pt-3 space-y-2 border-t border-border">
-              <div className="flex justify-center pb-2">
-                <ThemeToggle />
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <button className="md:hidden p-2 rounded-lg hover:bg-muted transition-fast">
+                <Menu className="w-6 h-6 text-foreground" />
+              </button>
+            </SheetTrigger>
+            <SheetContent className="overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>
+                  <span className="text-2xl font-display font-bold text-primary">InfiniteDrive</span>
+                </SheetTitle>
+              </SheetHeader>
+              <div className="mt-6 space-y-1">
+                <Link to="/browse" className="block py-3 text-sm font-medium text-foreground hover:text-primary transition-fast" onClick={() => setMobileMenuOpen(false)}>
+                  Buscar Carros
+                </Link>
+                <Link to="/how-it-works" className="block py-3 text-sm font-medium text-foreground hover:text-primary transition-fast" onClick={() => setMobileMenuOpen(false)}>
+                  Como Funciona
+                </Link>
+                <Link to="/app-driver-rentals" className="block py-3 text-sm font-medium text-foreground hover:text-primary transition-fast" onClick={() => setMobileMenuOpen(false)}>
+                  Motoristas de App
+                </Link>
+                <Link to="/classifieds" className="block py-3 text-sm font-medium text-foreground hover:text-primary transition-fast" onClick={() => setMobileMenuOpen(false)}>
+                  Classificados
+                </Link>
+                <Link to="/services" className="block py-3 text-sm font-medium text-foreground hover:text-primary transition-fast" onClick={() => setMobileMenuOpen(false)}>
+                  Serviços
+                </Link>
+                <Link to="/become-owner" className="block py-3 text-sm font-medium text-foreground hover:text-primary transition-fast" onClick={() => setMobileMenuOpen(false)}>
+                  Anuncie seu Carro
+                </Link>
               </div>
-              {user ? (
-                <>
-                  <Button variant="outline" className="w-full" size="sm" asChild>
-                    <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
-                      <User className="w-4 h-4 mr-2" />
-                      Meu Perfil
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full" size="sm" asChild>
-                    <Link to="/favorites" onClick={() => setIsMenuOpen(false)}>
-                      <Heart className="w-4 h-4 mr-2" />
-                      Favoritos
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full relative" size="sm" asChild>
-                    <Link to="/messages" onClick={() => setIsMenuOpen(false)}>
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Mensagens
-                      {unreadCount && unreadCount > 0 ? (
-                        <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs px-1.5 py-0">
-                          {unreadCount}
-                        </Badge>
-                      ) : null}
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full relative" size="sm" asChild>
-                    <Link to="/notifications" onClick={() => setIsMenuOpen(false)}>
-                      <Bell className="w-4 h-4 mr-2" />
-                      Notificações
-                      {unreadNotifications && unreadNotifications > 0 ? (
-                        <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs px-1.5 py-0">
-                          {unreadNotifications}
-                        </Badge>
-                      ) : null}
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full" size="sm" asChild>
-                    <Link to="/my-bookings" onClick={() => setIsMenuOpen(false)}>
-                      Minhas Reservas
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full" size="sm" asChild>
-                    <Link to="/my-vehicles" onClick={() => setIsMenuOpen(false)}>
-                      Meus Veículos
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full" size="sm" asChild>
-                    <Link to="/my-listings" onClick={() => setIsMenuOpen(false)}>
-                      <Tag className="w-4 h-4 mr-2" />
-                      Meus Anúncios
-                    </Link>
-                  </Button>
-                  <Button variant="outline" className="w-full" size="sm" asChild>
-                    <Link to="/my-services" onClick={() => setIsMenuOpen(false)}>
-                      <Wrench className="w-4 h-4 mr-2" />
-                      Meus Serviços
-                    </Link>
-                  </Button>
-                  {hasVehicles && (
-                    <>
-                      <Button variant="outline" className="w-full" size="sm" asChild>
-                        <Link to="/owner-dashboard" onClick={() => setIsMenuOpen(false)}>
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Dashboard Proprietário
-                        </Link>
-                      </Button>
-                      <Button variant="outline" className="w-full" size="sm" asChild>
-                        <Link to="/owner-withdrawals" onClick={() => setIsMenuOpen(false)}>
-                          <Wallet className="w-4 h-4 mr-2" />
-                          Saques
-                        </Link>
-                      </Button>
-                    </>
-                  )}
-                  {isAdmin && (
+
+              <div className="mt-6 pt-6 space-y-2 border-t border-border">
+                <div className="flex justify-center pb-2">
+                  <ThemeToggle />
+                </div>
+                {user ? (
+                  <>
                     <Button variant="outline" className="w-full" size="sm" asChild>
-                      <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
-                        <Shield className="w-4 h-4 mr-2" />
-                        Administração
+                      <Link to="/profile" onClick={() => setMobileMenuOpen(false)}>
+                        <User className="w-4 h-4 mr-2" />
+                        Meu Perfil
                       </Link>
                     </Button>
-                  )}
-                  <Button 
-                    variant="outline" 
-                    className="w-full" 
-                    size="sm"
-                    onClick={() => {
-                      signOut();
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sair
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="outline" className="w-full" size="sm" asChild>
-                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                      <User className="w-4 h-4 mr-2" />
-                      Entrar
-                    </Link>
-                  </Button>
-                  <Button
-                    className="w-full bg-gray-800 text-white hover:bg-gray-700"
-                    size="sm"
-                    asChild
-                  >
-                    <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                      Cadastrar
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/favorites" onClick={() => setMobileMenuOpen(false)}>
+                        <Heart className="w-4 h-4 mr-2" />
+                        Favoritos
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full relative" size="sm" asChild>
+                      <Link to="/messages" onClick={() => setMobileMenuOpen(false)}>
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Mensagens
+                        {unreadCount && unreadCount > 0 ? (
+                          <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs px-1.5 py-0">
+                            {unreadCount}
+                          </Badge>
+                        ) : null}
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full relative" size="sm" asChild>
+                      <Link to="/notifications" onClick={() => setMobileMenuOpen(false)}>
+                        <Bell className="w-4 h-4 mr-2" />
+                        Notificações
+                        {unreadNotifications && unreadNotifications > 0 ? (
+                          <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs px-1.5 py-0">
+                            {unreadNotifications}
+                          </Badge>
+                        ) : null}
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/my-bookings" onClick={() => setMobileMenuOpen(false)}>
+                        Minhas Reservas
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/my-vehicles" onClick={() => setMobileMenuOpen(false)}>
+                        Meus Veículos
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/my-listings" onClick={() => setMobileMenuOpen(false)}>
+                        <Tag className="w-4 h-4 mr-2" />
+                        Meus Anúncios
+                      </Link>
+                    </Button>
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/my-services" onClick={() => setMobileMenuOpen(false)}>
+                        <Wrench className="w-4 h-4 mr-2" />
+                        Meus Serviços
+                      </Link>
+                    </Button>
+                    {hasVehicles && (
+                      <>
+                        <Button variant="outline" className="w-full" size="sm" asChild>
+                          <Link to="/owner-dashboard" onClick={() => setMobileMenuOpen(false)}>
+                            <LayoutDashboard className="w-4 h-4 mr-2" />
+                            Dashboard Proprietário
+                          </Link>
+                        </Button>
+                        <Button variant="outline" className="w-full" size="sm" asChild>
+                          <Link to="/owner-withdrawals" onClick={() => setMobileMenuOpen(false)}>
+                            <Wallet className="w-4 h-4 mr-2" />
+                            Saques
+                          </Link>
+                        </Button>
+                      </>
+                    )}
+                    {isAdmin && (
+                      <Button variant="outline" className="w-full" size="sm" asChild>
+                        <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
+                          <Shield className="w-4 h-4 mr-2" />
+                          Administração
+                        </Link>
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      size="sm"
+                      onClick={() => {
+                        signOut();
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sair
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                        <User className="w-4 h-4 mr-2" />
+                        Entrar
+                      </Link>
+                    </Button>
+                    <Button
+                      className="w-full"
+                      size="sm"
+                      asChild
+                    >
+                      <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                        Cadastrar
+                      </Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
-      )}
+      </div>
     </nav>
   );
 };
