@@ -205,6 +205,11 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
     manual_veiculo: false,
     sensor_chuva: false,
     sensor_crepuscular: false,
+    
+    // App driver rental
+    app_driver_rental: false,
+    app_driver_weekly_price: 0,
+    app_driver_monthly_price: 0,
   });
 
   useEffect(() => {
