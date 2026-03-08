@@ -286,6 +286,9 @@ export default function EditVehicleModal({ vehicle, open, onOpenChange, isAdmin 
         manual_veiculo: vehicle.manual_veiculo || false,
         sensor_chuva: vehicle.sensor_chuva || false,
         sensor_crepuscular: vehicle.sensor_crepuscular || false,
+        app_driver_rental: vehicle.app_driver_rental || false,
+        app_driver_weekly_price: vehicle.app_driver_weekly_price || 0,
+        app_driver_monthly_price: vehicle.app_driver_monthly_price || 0,
       });
     }
   }, [vehicle]);
