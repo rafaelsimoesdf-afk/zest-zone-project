@@ -101,16 +101,6 @@ const Services = () => {
                 );
               })}
             </div>
-            {user && (
-              <div className="flex justify-end">
-                <Button asChild className="shrink-0 rounded-full">
-                  <Link to="/my-services">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Anunciar Serviço
-                  </Link>
-                </Button>
-              </div>
-            )}
           </div>
 
           {/* Results */}
