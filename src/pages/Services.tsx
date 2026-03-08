@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, MapPin, Plus, Wrench, Car, Camera, Navigation, Shield, FileText, Truck, Sparkles, Users, Phone, ChevronDown } from "lucide-react";
+import { Search, MapPin, Plus, Wrench, Car, Camera, Navigation, Shield, FileText, Truck, Sparkles, Users, Phone } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useServiceListings, SERVICE_CATEGORIES, getCategoryLabel } from "@/hooks/useServices";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -75,12 +74,13 @@ const Services = () => {
         </div>
 
         <div className="container mx-auto px-4 mt-8">
-          {/* Categories + CTA */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-            <div className="flex flex-wrap gap-2">
+          {/* Categories: horizontal scroll on mobile, wrap on desktop */}
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
               <Button
                 variant={category === "all" ? "default" : "outline"}
                 size="sm"
+                className="shrink-0 rounded-full h-9 px-4 text-xs sm:text-sm"
                 onClick={() => setCategory("all")}
               >
                 Todos
@@ -92,6 +92,7 @@ const Services = () => {
                     key={cat.value}
                     variant={category === cat.value ? "default" : "outline"}
                     size="sm"
+                    className="shrink-0 rounded-full h-9 px-4 text-xs sm:text-sm"
                     onClick={() => setCategory(cat.value)}
                   >
                     <Icon className="w-3.5 h-3.5 mr-1.5" />
@@ -101,25 +102,27 @@ const Services = () => {
               })}
             </div>
             {user && (
-              <Button asChild className="shrink-0">
-                <Link to="/my-services">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Anunciar Serviço
-                </Link>
-              </Button>
+              <div className="flex justify-end">
+                <Button asChild className="shrink-0 rounded-full">
+                  <Link to="/my-services">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Anunciar Serviço
+                  </Link>
+                </Button>
+              </div>
             )}
           </div>
 
           {/* Results */}
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardContent className="p-6">
-                    <div className="h-6 bg-muted rounded w-3/4 mb-3" />
-                    <div className="h-4 bg-muted rounded w-1/2 mb-2" />
-                    <div className="h-4 bg-muted rounded w-full mb-4" />
-                    <div className="h-10 bg-muted rounded" />
+                <Card key={i} className="animate-pulse overflow-hidden">
+                  <div className="h-44 sm:h-52 bg-muted" />
+                  <CardContent className="p-4 space-y-3">
+                    <div className="h-5 bg-muted rounded w-3/4" />
+                    <div className="h-4 bg-muted rounded w-1/2" />
+                    <div className="h-4 bg-muted rounded w-full" />
                   </CardContent>
                 </Card>
               ))}
@@ -135,7 +138,6 @@ const Services = () => {
                 return (
                   <Link key={service.id} to={`/services/${service.id}`}>
                     <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border overflow-hidden group">
-                      {/* Image or placeholder */}
                       <div className="relative h-44 sm:h-52 overflow-hidden bg-muted">
                         {service.image_url ? (
                           <img
@@ -148,12 +150,10 @@ const Services = () => {
                             <Icon className="w-14 h-14 text-muted-foreground/20" />
                           </div>
                         )}
-                        {/* Category badge overlay */}
                         <Badge variant="secondary" className="absolute top-3 left-3 backdrop-blur-sm bg-background/80 shadow-sm flex items-center gap-1.5 text-xs">
                           <Icon className="w-3 h-3" />
                           {getCategoryLabel(service.category)}
                         </Badge>
-                        {/* Price overlay */}
                         {service.price_range && (
                           <div className="absolute bottom-3 right-3 bg-primary text-primary-foreground text-xs sm:text-sm font-bold px-3 py-1 rounded-full shadow-md">
                             {service.price_range}
@@ -162,27 +162,20 @@ const Services = () => {
                       </div>
 
                       <CardContent className="p-4 sm:p-5 space-y-3">
-                        {/* Title */}
                         <h3 className="font-bold text-foreground text-base sm:text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
                           {service.title}
                         </h3>
-
-                        {/* Description */}
                         {service.description && (
                           <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                             {service.description}
                           </p>
                         )}
-
-                        {/* Location */}
                         {service.city && (
                           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
                             <MapPin className="w-3.5 h-3.5 shrink-0 text-primary/60" />
                             {service.city}{service.state ? `, ${service.state}` : ""}
                           </div>
                         )}
-
-                        {/* Provider */}
                         <div className="flex items-center gap-2.5 pt-3 border-t border-border">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={service.profiles?.profile_image || undefined} />
