@@ -41,6 +41,8 @@ const Checkout = () => {
   const endDate = searchParams.get("endDate");
   const startTime = searchParams.get("startTime") || "09:00";
   const endTime = searchParams.get("endTime") || "09:00";
+  const isAppDriverMode = searchParams.get("appDriver") === "true";
+  const appDriverPeriod = searchParams.get("appDriverPeriod") as "weekly" | "monthly" | null;
 
   const { data: vehicle, isLoading } = useVehicle(vehicleId || "");
   const [isProcessing, setIsProcessing] = useState(false);
