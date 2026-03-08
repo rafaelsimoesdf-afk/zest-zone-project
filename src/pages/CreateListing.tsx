@@ -63,6 +63,47 @@ const CreateListing = () => {
       return a.display_order - b.display_order;
     }).map(img => img.image_url) || [];
 
+    // Build rich description from vehicle data
+    const v = vehicle as any;
+    const accessories: string[] = [];
+    const accessoryMap: Record<string, string> = {
+      ar_digital: "Ar digital", has_air_conditioning: "Ar-condicionado",
+      airbag_frontal: "Airbag frontal", airbag_lateral: "Airbag lateral",
+      freios_abs: "Freios ABS", controle_tracao: "Controle de tração",
+      controle_estabilidade: "Controle de estabilidade", alarme: "Alarme",
+      sensor_estacionamento: "Sensor de estacionamento", sensor_chuva: "Sensor de chuva",
+      sensor_crepuscular: "Sensor crepuscular", camera_re: "Câmera de ré",
+      piloto_automatico: "Piloto automático", start_stop: "Start/Stop",
+      banco_couro: "Bancos de couro", banco_eletrico: "Bancos elétricos",
+      retrovisores_eletricos: "Retrovisores elétricos", vidros_eletricos: "Vidros elétricos",
+      direcao_eletrica: "Direção elétrica", direcao_hidraulica: "Direção hidráulica",
+      multimidia: "Central multimídia", bluetooth: "Bluetooth",
+      apple_carplay: "Apple CarPlay", android_auto: "Android Auto",
+      gps: "GPS", wifi: "Wi-Fi", entrada_usb: "Entrada USB",
+      carregador_inducao: "Carregador por indução",
+      farol_led: "Farol LED", farol_milha: "Farol de milha",
+      rodas_liga_leve: "Rodas de liga leve", rack_teto: "Rack de teto",
+      engate: "Engate", chave_reserva: "Chave reserva",
+      manual_veiculo: "Manual do veículo",
+    };
+
+    for (const [key, label] of Object.entries(accessoryMap)) {
+      if (v[key]) accessories.push(label);
+    }
+
+    const descParts: string[] = [];
+    descParts.push(`${vehicle.brand} ${vehicle.model} ${vehicle.year} - ${vehicle.color}`);
+    if (v.versao) descParts.push(`Versão: ${v.versao}`);
+    if (v.motor) descParts.push(`Motor: ${v.motor}`);
+    if (v.direcao) descParts.push(`Direção: ${v.direcao}`);
+    descParts.push(`${vehicle.mileage.toLocaleString("pt-BR")} km rodados`);
+    if (accessories.length > 0) {
+      descParts.push(`\nAcessórios: ${accessories.join(", ")}`);
+    }
+    if (vehicle.description) {
+      descParts.push(`\n${vehicle.description}`);
+    }
+
     setFormData(prev => ({
       ...prev,
       brand: vehicle.brand,
@@ -79,6 +120,7 @@ const CreateListing = () => {
       license_plate: vehicle.license_plate || "",
       city: vehicle.city || "",
       state: vehicle.state || "",
+      description: descParts.join("\n"),
     }));
     setImageUrls(vehicleImages);
   }, [selectedVehicleId, myVehicles]);
