@@ -245,6 +245,13 @@ const Navbar = () => {
               Classificados
             </Link>
             <Link
+              to="/services"
+              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Serviços
+            </Link>
+            <Link
               to="/become-owner"
               className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
               onClick={() => setIsMenuOpen(false)}
