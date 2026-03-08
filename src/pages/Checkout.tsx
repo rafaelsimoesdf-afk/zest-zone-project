@@ -614,7 +614,10 @@ const Checkout = () => {
                     <div className="space-y-2 sm:space-y-3 text-sm sm:text-base">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">
-                          Diária ({formatCurrencyBRL(vehicle.daily_price)} × {days})
+                          {isAppDriver
+                            ? `Aluguel ${appDriverPeriod === "weekly" ? "Semanal" : "Mensal"} (${days} dias)`
+                            : `Diária (${formatCurrencyBRL(vehicle.daily_price)} × ${days})`
+                          }
                         </span>
                         <span className="font-medium">{formatCurrencyBRL(dailySubtotal)}</span>
                       </div>

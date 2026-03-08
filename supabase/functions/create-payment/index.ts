@@ -62,6 +62,8 @@ serve(async (req) => {
       pickupLocation,
       notes,
       acceptances,
+      appDriver,
+      appDriverPeriod,
     } = body;
 
     logStep("Payment details received", { vehicleId, vehicleName, days, totalPrice, subtotal, insurance, extraHours, extraHoursCharge });
