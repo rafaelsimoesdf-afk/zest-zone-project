@@ -314,6 +314,12 @@ const Navbar = () => {
                       Meus Anúncios
                     </Link>
                   </Button>
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/my-services" onClick={() => setIsMenuOpen(false)}>
+                      <Wrench className="w-4 h-4 mr-2" />
+                      Meus Serviços
+                    </Link>
+                  </Button>
                   {hasVehicles && (
                     <>
                       <Button variant="outline" className="w-full" size="sm" asChild>
