@@ -28,6 +28,10 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OwnerWithdrawals from "./pages/OwnerWithdrawals";
 import AppDriverRentals from "./pages/AppDriverRentals";
+import Classifieds from "./pages/Classifieds";
+import CreateListing from "./pages/CreateListing";
+import ClassifiedDetails from "./pages/ClassifiedDetails";
+import MyListings from "./pages/MyListings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,6 +68,10 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app-driver-rentals" element={<AppDriverRentals />} />
+            <Route path="/classifieds" element={<Classifieds />} />
+            <Route path="/classifieds/create" element={<CreateListing />} />
+            <Route path="/classifieds/:id" element={<ClassifiedDetails />} />
+            <Route path="/my-listings" element={<MyListings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>

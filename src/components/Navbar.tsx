@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,6 +58,12 @@ const Navbar = () => {
               className="text-sm font-medium text-foreground hover:text-primary transition-fast"
             >
               Motoristas de App
+            </Link>
+            <Link
+              to="/classifieds"
+              className="text-sm font-medium text-foreground hover:text-primary transition-fast"
+            >
+              Classificados
             </Link>
             <Link
               to="/become-owner"
@@ -123,6 +129,12 @@ const Navbar = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/my-vehicles" className="cursor-pointer">
                       Meus Veículos
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/my-listings" className="cursor-pointer">
+                      <Tag className="mr-2 h-4 w-4" />
+                      Meus Anúncios
                     </Link>
                   </DropdownMenuItem>
                   {hasVehicles && (
@@ -214,6 +226,13 @@ const Navbar = () => {
               Motoristas de App
             </Link>
             <Link
+              to="/classifieds"
+              className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Classificados
+            </Link>
+            <Link
               to="/become-owner"
               className="block py-2 text-sm font-medium text-foreground hover:text-primary transition-fast"
               onClick={() => setIsMenuOpen(false)}
@@ -268,6 +287,12 @@ const Navbar = () => {
                   <Button variant="outline" className="w-full" size="sm" asChild>
                     <Link to="/my-vehicles" onClick={() => setIsMenuOpen(false)}>
                       Meus Veículos
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/my-listings" onClick={() => setIsMenuOpen(false)}>
+                      <Tag className="w-4 h-4 mr-2" />
+                      Meus Anúncios
                     </Link>
                   </Button>
                   {hasVehicles && (
