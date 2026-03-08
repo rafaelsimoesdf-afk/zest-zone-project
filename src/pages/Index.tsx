@@ -118,39 +118,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-12 sm:py-20 bg-muted/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 sm:mb-16">
-            <Badge className="mb-4">Por que escolher o InfiniteDrive?</Badge>
-            <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold mb-4">
-              Vantagens para Você
-            </h2>
-            <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
-              A melhor experiência de aluguel de carros com segurança,
-              economia e praticidade
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
-            {benefits.map((benefit, index) => (
-              <Card
-                key={index}
-                className="border-2 hover:border-primary transition-smooth hover:shadow-lg"
-              >
-                <CardContent className="pt-4 sm:pt-6 text-center p-3 sm:p-6">
-                  <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
-                    <benefit.icon className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="font-bold text-sm sm:text-xl mb-1 sm:mb-2">{benefit.title}</h3>
-                  <p className="text-muted-foreground text-xs sm:text-base hidden sm:block">{benefit.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Featured Cars */}
       <section className="py-12 sm:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -171,7 +138,6 @@ const Index = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
             {isLoadingVehicles ? (
-              // Loading skeletons
               Array.from({ length: 3 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden border-2">
                   <Skeleton className="h-48 sm:h-64 w-full" />
@@ -207,6 +173,39 @@ const Index = () => {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-12 sm:py-20 bg-muted/50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10 sm:mb-16">
+            <Badge className="mb-4">Por que escolher o InfiniteDrive?</Badge>
+            <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold mb-4">
+              Vantagens para Você
+            </h2>
+            <p className="text-sm sm:text-lg text-muted-foreground max-w-2xl mx-auto px-2">
+              A melhor experiência de aluguel de carros com segurança,
+              economia e praticidade
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
+            {benefits.map((benefit, index) => (
+              <Card
+                key={index}
+                className="border-2 hover:border-primary transition-smooth hover:shadow-lg"
+              >
+                <CardContent className="pt-4 sm:pt-6 text-center p-3 sm:p-6">
+                  <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+                    <benefit.icon className="w-5 h-5 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-sm sm:text-xl mb-1 sm:mb-2">{benefit.title}</h3>
+                  <p className="text-muted-foreground text-xs sm:text-base hidden sm:block">{benefit.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
