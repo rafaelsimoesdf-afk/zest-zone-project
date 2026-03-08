@@ -415,6 +415,96 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_images: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          is_primary: boolean
+          listing_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          is_primary?: boolean
+          listing_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_primary?: boolean
+          listing_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_images_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          listing_id: string
+          read_at: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          listing_id: string
+          read_at?: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          listing_id?: string
+          read_at?: string | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_messages_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           booking_id: string
@@ -1090,6 +1180,114 @@ export type Database = {
           },
         ]
       }
+      vehicle_listings: {
+        Row: {
+          accepts_trade: boolean
+          allow_chat: boolean
+          brand: string
+          city: string | null
+          color: string
+          condition: string
+          created_at: string
+          description: string | null
+          doors: number
+          fuel_type: string
+          has_air_conditioning: boolean
+          id: string
+          license_plate: string | null
+          mileage: number
+          model: string
+          sale_price: number
+          seats: number
+          seller_id: string
+          show_phone: boolean
+          state: string | null
+          status: Database["public"]["Enums"]["listing_status"]
+          transmission_type: string
+          updated_at: string
+          vehicle_id: string | null
+          vehicle_type: string
+          views_count: number
+          whatsapp_number: string | null
+          year: number
+        }
+        Insert: {
+          accepts_trade?: boolean
+          allow_chat?: boolean
+          brand: string
+          city?: string | null
+          color: string
+          condition?: string
+          created_at?: string
+          description?: string | null
+          doors?: number
+          fuel_type: string
+          has_air_conditioning?: boolean
+          id?: string
+          license_plate?: string | null
+          mileage: number
+          model: string
+          sale_price: number
+          seats?: number
+          seller_id: string
+          show_phone?: boolean
+          state?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          transmission_type: string
+          updated_at?: string
+          vehicle_id?: string | null
+          vehicle_type: string
+          views_count?: number
+          whatsapp_number?: string | null
+          year: number
+        }
+        Update: {
+          accepts_trade?: boolean
+          allow_chat?: boolean
+          brand?: string
+          city?: string | null
+          color?: string
+          condition?: string
+          created_at?: string
+          description?: string | null
+          doors?: number
+          fuel_type?: string
+          has_air_conditioning?: boolean
+          id?: string
+          license_plate?: string | null
+          mileage?: number
+          model?: string
+          sale_price?: number
+          seats?: number
+          seller_id?: string
+          show_phone?: boolean
+          state?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          transmission_type?: string
+          updated_at?: string
+          vehicle_id?: string | null
+          vehicle_type?: string
+          views_count?: number
+          whatsapp_number?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_listings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_listings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_models: {
         Row: {
           brand_id: string
@@ -1579,6 +1777,7 @@ export type Database = {
         | "diesel"
         | "electric"
         | "hybrid"
+      listing_status: "active" | "sold" | "paused" | "expired"
       notification_type:
         | "booking"
         | "payment"
@@ -1773,6 +1972,7 @@ export const Constants = {
         "electric",
         "hybrid",
       ],
+      listing_status: ["active", "sold", "paused", "expired"],
       notification_type: [
         "booking",
         "payment",
