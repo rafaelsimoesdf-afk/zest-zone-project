@@ -59,12 +59,24 @@ serve(async (req) => {
       limit: 10,
     });
 
+    logStep("Subscriptions found", { count: subscriptions.data.length });
+
     const serviceSub = subscriptions.data.find(sub =>
       sub.items.data.some(item => item.price.id === "price_1T8iPP9HTd0OO9FPu2hiF9QF")
     );
 
     if (serviceSub) {
-      const subscriptionEnd = new Date(serviceSub.current_period_end * 1000).toISOString();
+      // Safe date conversion - current_period_end is a Unix timestamp in seconds
+      let subscriptionEnd: string;
+      try {
+        const endTimestamp = typeof serviceSub.current_period_end === 'number' 
+          ? serviceSub.current_period_end 
+          : Number(serviceSub.current_period_end);
+        subscriptionEnd = new Date(endTimestamp * 1000).toISOString();
+      } catch {
+        subscriptionEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      }
+      
       logStep("Active service subscription found", { subscriptionId: serviceSub.id, endDate: subscriptionEnd });
       return new Response(JSON.stringify({
         subscribed: true,
