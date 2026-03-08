@@ -76,129 +76,46 @@ const Services = () => {
 
         <div className="container mx-auto px-4 mt-8">
           {/* Categories + CTA */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={category === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCategory("all")}
-              >
-                Todos
-              </Button>
-              {SERVICE_CATEGORIES.map((cat) => {
-                const Icon = categoryIcons[cat.value] || Wrench;
-                return (
-                  <Button
-                    key={cat.value}
-                    variant={category === cat.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCategory(cat.value)}
-                  >
-                    <Icon className="w-3.5 h-3.5 mr-1.5" />
-                    {cat.label}
-                  </Button>
-                );
-              })}
+          <div className="flex flex-col gap-4 mb-8">
+            {/* Mobile: horizontal scroll | Desktop: wrap */}
+            <div className="relative">
+              <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 sm:flex-wrap scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+                <Button
+                  variant={category === "all" ? "default" : "outline"}
+                  size="sm"
+                  className="shrink-0 rounded-full h-9 px-4 text-xs sm:text-sm"
+                  onClick={() => setCategory("all")}
+                >
+                  Todos
+                </Button>
+                {SERVICE_CATEGORIES.map((cat) => {
+                  const Icon = categoryIcons[cat.value] || Wrench;
+                  return (
+                    <Button
+                      key={cat.value}
+                      variant={category === cat.value ? "default" : "outline"}
+                      size="sm"
+                      className="shrink-0 rounded-full h-9 px-4 text-xs sm:text-sm"
+                      onClick={() => setCategory(cat.value)}
+                    >
+                      <Icon className="w-3.5 h-3.5 mr-1.5" />
+                      {cat.label}
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
             {user && (
-              <Button asChild className="shrink-0">
-                <Link to="/my-services">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Anunciar Serviço
-                </Link>
-              </Button>
+              <div className="flex justify-end">
+                <Button asChild className="shrink-0 rounded-full">
+                  <Link to="/my-services">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Anunciar Serviço
+                  </Link>
+                </Button>
+              </div>
             )}
           </div>
-
-          {/* Results */}
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardContent className="p-6">
-                    <div className="h-6 bg-muted rounded w-3/4 mb-3" />
-                    <div className="h-4 bg-muted rounded w-1/2 mb-2" />
-                    <div className="h-4 bg-muted rounded w-full mb-4" />
-                    <div className="h-10 bg-muted rounded" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : services && services.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {services.map((service) => {
-                const Icon = categoryIcons[service.category] || Wrench;
-                const providerName = service.profiles
-                  ? `${service.profiles.first_name} ${service.profiles.last_name}`
-                  : "Prestador";
-
-                return (
-                  <Link key={service.id} to={`/services/${service.id}`}>
-                    <Card className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-border overflow-hidden group">
-                      {/* Image or placeholder */}
-                      <div className="relative h-44 sm:h-52 overflow-hidden bg-muted">
-                        {service.image_url ? (
-                          <img
-                            src={service.image_url}
-                            alt={service.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Icon className="w-14 h-14 text-muted-foreground/20" />
-                          </div>
-                        )}
-                        {/* Category badge overlay */}
-                        <Badge variant="secondary" className="absolute top-3 left-3 backdrop-blur-sm bg-background/80 shadow-sm flex items-center gap-1.5 text-xs">
-                          <Icon className="w-3 h-3" />
-                          {getCategoryLabel(service.category)}
-                        </Badge>
-                        {/* Price overlay */}
-                        {service.price_range && (
-                          <div className="absolute bottom-3 right-3 bg-primary text-primary-foreground text-xs sm:text-sm font-bold px-3 py-1 rounded-full shadow-md">
-                            {service.price_range}
-                          </div>
-                        )}
-                      </div>
-
-                      <CardContent className="p-4 sm:p-5 space-y-3">
-                        {/* Title */}
-                        <h3 className="font-bold text-foreground text-base sm:text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-                          {service.title}
-                        </h3>
-
-                        {/* Description */}
-                        {service.description && (
-                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-                            {service.description}
-                          </p>
-                        )}
-
-                        {/* Location */}
-                        {service.city && (
-                          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-                            <MapPin className="w-3.5 h-3.5 shrink-0 text-primary/60" />
-                            {service.city}{service.state ? `, ${service.state}` : ""}
-                          </div>
-                        )}
-
-                        {/* Provider */}
-                        <div className="flex items-center gap-2.5 pt-3 border-t border-border">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={service.profiles?.profile_image || undefined} />
-                            <AvatarFallback className="text-xs bg-primary/10 text-primary font-semibold">
-                              {providerName.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium text-foreground truncate">{providerName}</p>
-                            {service.whatsapp_number && service.show_phone && (
-                              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Phone className="w-3 h-3" /> WhatsApp disponível
-                              </p>
-                            )}
-                          </div>
-                        </div>
                       </CardContent>
                     </Card>
                   </Link>
