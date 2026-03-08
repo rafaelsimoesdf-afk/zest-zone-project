@@ -88,6 +88,10 @@ interface Vehicle {
   manual_veiculo?: boolean;
   sensor_chuva?: boolean;
   sensor_crepuscular?: boolean;
+  // App driver rental
+  app_driver_rental?: boolean;
+  app_driver_weekly_price?: number | null;
+  app_driver_monthly_price?: number | null;
 }
 
 interface EditVehicleModalProps {
