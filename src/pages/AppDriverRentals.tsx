@@ -169,6 +169,7 @@ const AppDriverRentals = () => {
                 if (filters.untilDate) carLinkParams.set("until", filters.untilDate);
                 if (filters.fromTime) carLinkParams.set("fromTime", filters.fromTime);
                 if (filters.untilTime) carLinkParams.set("untilTime", filters.untilTime);
+                carLinkParams.set("appDriver", "true");
 
                 return (
                   <div key={vehicle.id} className="relative">
