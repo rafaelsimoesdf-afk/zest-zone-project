@@ -905,6 +905,129 @@ export type Database = {
         }
         Relationships: []
       }
+      service_listings: {
+        Row: {
+          allow_chat: boolean
+          category: string
+          city: string | null
+          created_at: string
+          custom_category: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          price_range: string | null
+          provider_id: string
+          show_phone: boolean
+          state: string | null
+          status: string
+          title: string
+          updated_at: string
+          views_count: number
+          whatsapp_number: string | null
+        }
+        Insert: {
+          allow_chat?: boolean
+          category: string
+          city?: string | null
+          created_at?: string
+          custom_category?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          price_range?: string | null
+          provider_id: string
+          show_phone?: boolean
+          state?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          views_count?: number
+          whatsapp_number?: string | null
+        }
+        Update: {
+          allow_chat?: boolean
+          category?: string
+          city?: string | null
+          created_at?: string
+          custom_category?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          price_range?: string | null
+          provider_id?: string
+          show_phone?: boolean
+          state?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          views_count?: number
+          whatsapp_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_listings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          read_at: string | null
+          receiver_id: string
+          sender_id: string
+          service_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          read_at?: string | null
+          receiver_id: string
+          sender_id: string
+          service_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          read_at?: string | null
+          receiver_id?: string
+          sender_id?: string
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_messages_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "service_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           created_at: string

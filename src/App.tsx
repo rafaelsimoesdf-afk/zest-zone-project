@@ -32,6 +32,9 @@ import Classifieds from "./pages/Classifieds";
 import CreateListing from "./pages/CreateListing";
 import ClassifiedDetails from "./pages/ClassifiedDetails";
 import MyListings from "./pages/MyListings";
+import Services from "./pages/Services";
+import ServiceDetails from "./pages/ServiceDetails";
+import MyServices from "./pages/MyServices";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -72,6 +75,9 @@ const App = () => (
             <Route path="/classifieds/create" element={<CreateListing />} />
             <Route path="/classifieds/:id" element={<ClassifiedDetails />} />
             <Route path="/my-listings" element={<MyListings />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/:id" element={<ServiceDetails />} />
+            <Route path="/my-services" element={<MyServices />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>
