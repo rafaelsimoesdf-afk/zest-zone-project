@@ -165,6 +165,10 @@ export const useVehicles = (filters?: {
         query = query.ilike("city", cityName);
       }
 
+      if (filters?.appDriverRental) {
+        query = query.eq("app_driver_rental", true);
+      }
+
       const { data, error } = await query;
 
       if (error) throw error;
