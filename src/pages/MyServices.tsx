@@ -457,87 +457,107 @@ const MyServices = () => {
                   ))}
                 </div>
               ) : services && services.length > 0 ? (
-                <div className="space-y-4">
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                   {services.map((service) => (
-                    <Card key={service.id} className={service.status === "paused" ? "opacity-70" : ""}>
-                      <CardContent className="p-4">
-                        <div className="flex flex-col sm:flex-row items-start gap-4">
-                          {service.image_url ? (
-                            <img src={service.image_url} alt="" className="h-20 w-20 rounded-lg object-cover shrink-0" />
-                          ) : (
-                            <div className="h-20 w-20 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                              <Wrench className="w-8 h-8 text-muted-foreground/30" />
-                            </div>
+                    <Card key={service.id} className={`overflow-hidden ${service.status === "paused" ? "opacity-75" : ""}`}>
+                      {/* Image */}
+                      {service.image_url ? (
+                        <div className="relative h-40 sm:h-48 overflow-hidden">
+                          <img src={service.image_url} alt={service.title} className="w-full h-full object-cover" />
+                          <Badge
+                            variant={service.status === "active" ? "default" : "secondary"}
+                            className="absolute top-3 right-3"
+                          >
+                            {service.status === "active" ? "Ativo" : "Pausado"}
+                          </Badge>
+                        </div>
+                      ) : (
+                        <div className="relative h-40 sm:h-48 bg-muted flex items-center justify-center">
+                          <Wrench className="w-12 h-12 text-muted-foreground/20" />
+                          <Badge
+                            variant={service.status === "active" ? "default" : "secondary"}
+                            className="absolute top-3 right-3"
+                          >
+                            {service.status === "active" ? "Ativo" : "Pausado"}
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Info */}
+                      <CardContent className="p-4 space-y-3">
+                        <div>
+                          <h3 className="font-bold text-foreground text-base sm:text-lg leading-tight line-clamp-2">{service.title}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {getCategoryLabel(service.category)}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground">
+                          {service.city && (
+                            <span>{service.city}{service.state ? `/${service.state}` : ""}</span>
                           )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1 flex-wrap">
-                              <h3 className="font-semibold text-foreground truncate">{service.title}</h3>
-                              <Badge variant={service.status === "active" ? "default" : "secondary"} className="shrink-0">
-                                {service.status === "active" ? "Ativo" : "Pausado"}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-1">
-                              {getCategoryLabel(service.category)}
-                              {service.city && <> • {service.city}{service.state ? `/${service.state}` : ""}</>}
-                            </p>
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {service.views_count} views</span>
-                              {service.price_range && <span className="font-medium text-primary">{service.price_range}</span>}
-                              <span>Criado em {format(new Date(service.created_at), "dd/MM/yyyy")}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <Button
-                              size="icon"
-                              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/80 text-primary-foreground shadow-md"
-                              asChild
-                              title="Visualizar"
-                            >
-                              <Link to={`/services/${service.id}`}><Eye className="w-5 h-5" /></Link>
-                            </Button>
-                            <Button
-                              size="icon"
-                              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/80 text-primary-foreground shadow-md"
-                              onClick={() => openEdit(service)}
-                              title="Editar"
-                            >
-                              <Edit className="w-5 h-5" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              className="h-10 w-10 rounded-full bg-amber-500 hover:bg-amber-600 text-white shadow-md"
-                              onClick={() => handleToggleStatus(service)}
-                              disabled={updateService.isPending}
-                              title={service.status === "active" ? "Pausar" : "Reativar"}
-                            >
-                              {service.status === "active" ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  className="h-10 w-10 rounded-full bg-destructive hover:bg-destructive/80 text-destructive-foreground shadow-md"
-                                  title="Excluir"
-                                >
-                                  <Trash2 className="w-5 h-5" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Excluir serviço?</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    O anúncio "{service.title}" será removido permanentemente. Esta ação não pode ser desfeita.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => deleteService.mutate(service.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                    Excluir
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3.5 h-3.5" /> {service.views_count} visualizações
+                          </span>
+                          <span>Criado em {format(new Date(service.created_at), "dd/MM/yyyy")}</span>
+                        </div>
+
+                        {service.price_range && (
+                          <p className="font-semibold text-primary text-sm sm:text-base">{service.price_range}</p>
+                        )}
+
+                        {/* Action buttons with labels */}
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-9 text-xs sm:text-sm"
+                            asChild
+                          >
+                            <Link to={`/services/${service.id}`}>Visualizar</Link>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-9 text-xs sm:text-sm"
+                            onClick={() => openEdit(service)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-9 text-xs sm:text-sm text-amber-600 border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-700"
+                            onClick={() => handleToggleStatus(service)}
+                            disabled={updateService.isPending}
+                          >
+                            {service.status === "active" ? "Pausar" : "Reativar"}
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-9 text-xs sm:text-sm text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+                              >
+                                Excluir
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Excluir serviço?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  O anúncio "{service.title}" será removido permanentemente. Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteService.mutate(service.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </CardContent>
                     </Card>
