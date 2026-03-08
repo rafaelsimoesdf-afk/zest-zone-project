@@ -6,6 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { PriceFilter } from "./PriceFilter";
 import { VehicleTypeFilter } from "./VehicleTypeFilter";
 import { YearFilter } from "./YearFilter";
@@ -18,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Vehicle } from "@/hooks/useVehicles";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FilterBarProps {
   filters: {
@@ -52,7 +54,9 @@ export const FilterBar = ({
   resultsCount,
   vehicles,
 }: FilterBarProps) => {
+  const isMobile = useIsMobile();
   const [openPopover, setOpenPopover] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   // Calculate preview count for price filter
   const getPreviewCountForPrice = useCallback((minPrice: number, maxPrice: number) => {
@@ -64,7 +68,6 @@ export const FilterBar = ({
     }).length;
   }, [vehicles, filters.vehicleType, filters.minYear, filters.maxYear]);
 
-  // Calculate preview count for vehicle type filter
   const getPreviewCountForType = useCallback((types: string[]) => {
     return vehicles.filter((v) => {
       const typeMatch = types.length === 0 || types.includes(v.vehicle_type);
@@ -74,7 +77,6 @@ export const FilterBar = ({
     }).length;
   }, [vehicles, filters.minPrice, filters.maxPrice, filters.minYear, filters.maxYear]);
 
-  // Calculate preview count for year filter
   const getPreviewCountForYear = useCallback((minYear: number, maxYear: number) => {
     return vehicles.filter((v) => {
       const yearMatch = v.year >= minYear && v.year <= maxYear;
@@ -84,10 +86,8 @@ export const FilterBar = ({
     }).length;
   }, [vehicles, filters.vehicleType, filters.minPrice, filters.maxPrice]);
 
-  // Calculate preview count for brand/model filter
   const getPreviewCountForBrandModel = useCallback((brandId: string, modelId: string) => {
     return vehicles.filter((v) => {
-      // Note: We're filtering by brand name since brand_id might not be set on all vehicles
       const brandMatch = brandId === "all" || (v as any).brand_id === brandId;
       const modelMatch = modelId === "all" || (v as any).model_id === modelId;
       const typeMatch = filters.vehicleType === "all" || v.vehicle_type === filters.vehicleType;
@@ -146,6 +146,21 @@ export const FilterBar = ({
     }
   };
 
+  const resetAllFilters = () => {
+    onFiltersChange({
+      ...filters,
+      minPrice: undefined,
+      maxPrice: undefined,
+      vehicleType: "all",
+      transmission: "all",
+      fuel: "all",
+      brandId: "all",
+      modelId: "all",
+      minYear: undefined,
+      maxYear: undefined,
+    });
+  };
+
   const getPriceLabel = () => {
     if (filters.minPrice || filters.maxPrice) {
       const min = filters.minPrice || 10;
@@ -188,30 +203,175 @@ export const FilterBar = ({
         : "border-border hover:border-primary/50"
     }`;
 
+  const hasActiveFilters = !!(filters.minPrice || filters.maxPrice || filters.vehicleType !== "all" || filters.transmission !== "all" || filters.fuel !== "all" || filters.brandId !== "all" || filters.minYear || filters.maxYear);
+
+  // Mobile: Sheet with all filters inside
+  if (isMobile) {
+    return (
+      <div className="flex items-center gap-2 mb-4">
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" className="relative rounded-full gap-2">
+              <SlidersHorizontal className="w-4 h-4" />
+              Filtros
+              {hasActiveFilters && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background" />
+              )}
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>Filtros</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-6 mt-4">
+              {/* Price */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3">Preço</h4>
+                <PriceFilter
+                  minPrice={filters.minPrice || 10}
+                  maxPrice={filters.maxPrice || 500}
+                  onChange={handlePriceChange}
+                  onReset={() => resetFilter("price")}
+                  onApply={() => {}}
+                  getPreviewCount={getPreviewCountForPrice}
+                />
+              </div>
+
+              {/* Vehicle Type */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3">Tipo de Veículo</h4>
+                <VehicleTypeFilter
+                  selectedTypes={filters.vehicleType !== "all" ? [filters.vehicleType] : []}
+                  onChange={handleVehicleTypeChange}
+                  onReset={() => resetFilter("vehicleType")}
+                  onApply={() => {}}
+                  getPreviewCount={getPreviewCountForType}
+                />
+              </div>
+
+              {/* Brand & Model */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3">Marca & Modelo</h4>
+                <BrandModelFilter
+                  brandId={filters.brandId}
+                  modelId={filters.modelId}
+                  brands={brands}
+                  models={models}
+                  onBrandChange={onBrandChange}
+                  onChange={handleBrandModelChange}
+                  onReset={() => resetFilter("brandModel")}
+                  onApply={() => {}}
+                  getPreviewCount={getPreviewCountForBrandModel}
+                />
+              </div>
+
+              {/* Year */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3">Ano</h4>
+                <YearFilter
+                  minYear={filters.minYear || 2000}
+                  maxYear={filters.maxYear || new Date().getFullYear()}
+                  onChange={handleYearChange}
+                  onReset={() => resetFilter("year")}
+                  onApply={() => {}}
+                  getPreviewCount={getPreviewCountForYear}
+                />
+              </div>
+
+              {/* Transmission */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3">Transmissão</h4>
+                <div className="space-y-1">
+                  {[
+                    { value: "all", label: "Todas" },
+                    { value: "manual", label: "Manual" },
+                    { value: "automatic", label: "Automático" },
+                  ].map((option) => (
+                    <Button
+                      key={option.value}
+                      variant={filters.transmission === option.value ? "secondary" : "ghost"}
+                      className="w-full justify-start text-sm"
+                      onClick={() => onFiltersChange({ ...filters, transmission: option.value })}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fuel */}
+              <div>
+                <h4 className="text-sm font-semibold mb-3">Combustível</h4>
+                <div className="space-y-1">
+                  {[
+                    { value: "all", label: "Todos" },
+                    { value: "flex", label: "Flex" },
+                    { value: "gasoline", label: "Gasolina" },
+                    { value: "diesel", label: "Diesel" },
+                    { value: "electric", label: "Elétrico" },
+                    { value: "hybrid", label: "Híbrido" },
+                  ].map((option) => (
+                    <Button
+                      key={option.value}
+                      variant={filters.fuel === option.value ? "secondary" : "ghost"}
+                      className="w-full justify-start text-sm"
+                      onClick={() => onFiltersChange({ ...filters, fuel: option.value })}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reset & Apply */}
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" className="flex-1" onClick={resetAllFilters}>
+                  Limpar Filtros
+                </Button>
+                <Button className="flex-1" onClick={() => setSheetOpen(false)}>
+                  Ver {resultsCount} resultados
+                </Button>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        {/* Sort */}
+        <Select value={sortBy} onValueChange={onSortChange}>
+          <SelectTrigger className="h-8 w-40 rounded-full border-2 text-xs">
+            <SelectValue placeholder="Ordenar" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="relevance">Relevância</SelectItem>
+            <SelectItem value="price-low">Menor Preço</SelectItem>
+            <SelectItem value="price-high">Maior Preço</SelectItem>
+            <SelectItem value="year-new">Mais Novo</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Desktop: inline popovers
   return (
-    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 p-3 sm:p-4 bg-card border rounded-xl mb-4 sm:mb-6">
-      {/* Filter icon - hidden on mobile for more space */}
-      <div className="hidden sm:flex items-center gap-1 text-muted-foreground mr-2">
+    <div className="flex flex-wrap items-center gap-2 p-4 bg-card border rounded-xl mb-6">
+      <div className="flex items-center gap-1 text-muted-foreground mr-2">
         <SlidersHorizontal className="w-4 h-4" />
       </div>
 
-      {/* Filters grid for mobile, flex wrap for desktop */}
-      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 flex-1">
+      <div className="flex flex-wrap gap-2 flex-1">
         {/* Price Filter */}
         <Popover
           open={openPopover === "price"}
           onOpenChange={(open) => setOpenPopover(open ? "price" : null)}
         >
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={getFilterButtonClass(!!(filters.minPrice || filters.maxPrice))}
-            >
+            <Button variant="outline" className={getFilterButtonClass(!!(filters.minPrice || filters.maxPrice))}>
               <span className="truncate">{getPriceLabel()}</span>
-              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+              <ChevronDown className="w-4 h-4 shrink-0" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 p-4" align="start">
+          <PopoverContent className="w-80 p-4" align="start">
             <PriceFilter
               minPrice={filters.minPrice || 10}
               maxPrice={filters.maxPrice || 500}
@@ -229,15 +389,12 @@ export const FilterBar = ({
           onOpenChange={(open) => setOpenPopover(open ? "vehicleType" : null)}
         >
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={getFilterButtonClass(filters.vehicleType !== "all")}
-            >
+            <Button variant="outline" className={getFilterButtonClass(filters.vehicleType !== "all")}>
               <span className="truncate">{getVehicleTypeLabel()}</span>
-              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+              <ChevronDown className="w-4 h-4 shrink-0" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-[400px] p-4" align="start">
+          <PopoverContent className="w-[400px] p-4" align="start">
             <VehicleTypeFilter
               selectedTypes={filters.vehicleType !== "all" ? [filters.vehicleType] : []}
               onChange={handleVehicleTypeChange}
@@ -254,19 +411,16 @@ export const FilterBar = ({
           onOpenChange={(open) => setOpenPopover(open ? "brand" : null)}
         >
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={getFilterButtonClass(filters.brandId !== "all")}
-            >
+            <Button variant="outline" className={getFilterButtonClass(filters.brandId !== "all")}>
               <span className="truncate">
                 {filters.brandId !== "all"
                   ? brands?.find((b) => b.id === filters.brandId)?.name || "Marca"
                   : "Marca & Modelo"}
               </span>
-              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+              <ChevronDown className="w-4 h-4 shrink-0" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-72 p-4" align="start">
+          <PopoverContent className="w-72 p-4" align="start">
             <BrandModelFilter
               brandId={filters.brandId}
               modelId={filters.modelId}
@@ -287,15 +441,12 @@ export const FilterBar = ({
           onOpenChange={(open) => setOpenPopover(open ? "year" : null)}
         >
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={getFilterButtonClass(!!(filters.minYear || filters.maxYear))}
-            >
+            <Button variant="outline" className={getFilterButtonClass(!!(filters.minYear || filters.maxYear))}>
               <span className="truncate">{getYearLabel()}</span>
-              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+              <ChevronDown className="w-4 h-4 shrink-0" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[calc(100vw-2rem)] sm:w-80 p-4" align="start">
+          <PopoverContent className="w-80 p-4" align="start">
             <YearFilter
               minYear={filters.minYear || 2000}
               maxYear={filters.maxYear || new Date().getFullYear()}
@@ -313,18 +464,11 @@ export const FilterBar = ({
           onOpenChange={(open) => setOpenPopover(open ? "transmission" : null)}
         >
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={getFilterButtonClass(filters.transmission !== "all")}
-            >
+            <Button variant="outline" className={getFilterButtonClass(filters.transmission !== "all")}>
               <span className="truncate">
-                {filters.transmission === "all"
-                  ? "Transmissão"
-                  : filters.transmission === "manual"
-                  ? "Manual"
-                  : "Automático"}
+                {filters.transmission === "all" ? "Transmissão" : filters.transmission === "manual" ? "Manual" : "Automático"}
               </span>
-              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+              <ChevronDown className="w-4 h-4 shrink-0" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-48 p-2" align="start">
@@ -356,24 +500,11 @@ export const FilterBar = ({
           onOpenChange={(open) => setOpenPopover(open ? "fuel" : null)}
         >
           <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={getFilterButtonClass(filters.fuel !== "all")}
-            >
+            <Button variant="outline" className={getFilterButtonClass(filters.fuel !== "all")}>
               <span className="truncate">
-                {filters.fuel === "all"
-                  ? "Combustível"
-                  : filters.fuel === "flex"
-                  ? "Flex"
-                  : filters.fuel === "gasoline"
-                  ? "Gasolina"
-                  : filters.fuel === "diesel"
-                  ? "Diesel"
-                  : filters.fuel === "electric"
-                  ? "Elétrico"
-                  : "Híbrido"}
+                {filters.fuel === "all" ? "Combustível" : filters.fuel === "flex" ? "Flex" : filters.fuel === "gasoline" ? "Gasolina" : filters.fuel === "diesel" ? "Diesel" : filters.fuel === "electric" ? "Elétrico" : "Híbrido"}
               </span>
-              <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
+              <ChevronDown className="w-4 h-4 shrink-0" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-48 p-2" align="start">
@@ -403,10 +534,10 @@ export const FilterBar = ({
         </Popover>
       </div>
 
-      {/* Sort - full width on mobile */}
-      <div className="sm:ml-auto">
+      {/* Sort */}
+      <div className="ml-auto">
         <Select value={sortBy} onValueChange={onSortChange}>
-          <SelectTrigger className="h-8 sm:h-10 w-full sm:w-40 rounded-full border-2 text-xs sm:text-sm">
+          <SelectTrigger className="h-10 w-40 rounded-full border-2 text-sm">
             <SelectValue placeholder="Ordenar" />
           </SelectTrigger>
           <SelectContent>
