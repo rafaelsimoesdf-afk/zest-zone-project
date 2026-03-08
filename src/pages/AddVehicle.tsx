@@ -287,6 +287,11 @@ const AddVehicle = () => {
           sensor_chuva: formData.sensor_chuva,
           sensor_crepuscular: formData.sensor_crepuscular,
           
+          // App driver rental
+          app_driver_rental: formData.app_driver_rental,
+          app_driver_weekly_price: formData.app_driver_rental ? formData.app_driver_weekly_price : null,
+          app_driver_monthly_price: formData.app_driver_rental ? formData.app_driver_monthly_price : null,
+          
           // Owner and address
           owner_id: user.id,
           address_id: addressResult.id,
