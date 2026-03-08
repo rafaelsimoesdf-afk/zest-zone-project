@@ -15,7 +15,7 @@ interface VehicleCardProps {
   appDriverMode?: boolean;
 }
 
-export const VehicleCard = ({ vehicle, linkParams }: VehicleCardProps) => {
+export const VehicleCard = ({ vehicle, linkParams, appDriverMode }: VehicleCardProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
