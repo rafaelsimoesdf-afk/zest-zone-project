@@ -76,6 +76,9 @@ export interface Vehicle {
   manual_veiculo?: boolean | null;
   sensor_chuva?: boolean | null;
   sensor_crepuscular?: boolean | null;
+  app_driver_rental?: boolean | null;
+  app_driver_weekly_price?: number | null;
+  app_driver_monthly_price?: number | null;
   vehicle_images?: Array<{
     id: string;
     image_url: string;
@@ -101,6 +104,7 @@ export const useVehicles = (filters?: {
   untilTime?: string;
   minYear?: number;
   maxYear?: number;
+  appDriverRental?: boolean;
 }) => {
   return useQuery({
     queryKey: ["vehicles", filters],
@@ -159,6 +163,10 @@ export const useVehicles = (filters?: {
       if (filters?.city) {
         const cityName = filters.city.split(",")[0].trim();
         query = query.ilike("city", cityName);
+      }
+
+      if (filters?.appDriverRental) {
+        query = query.eq("app_driver_rental", true);
       }
 
       const { data, error } = await query;

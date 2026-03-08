@@ -1134,6 +1134,9 @@ export type Database = {
           android_auto: boolean | null
           ano_fabricacao: number | null
           ano_modelo: number | null
+          app_driver_monthly_price: number | null
+          app_driver_rental: boolean | null
+          app_driver_weekly_price: number | null
           apple_carplay: boolean | null
           ar_digital: boolean | null
           banco_couro: boolean | null
@@ -1206,6 +1209,9 @@ export type Database = {
           android_auto?: boolean | null
           ano_fabricacao?: number | null
           ano_modelo?: number | null
+          app_driver_monthly_price?: number | null
+          app_driver_rental?: boolean | null
+          app_driver_weekly_price?: number | null
           apple_carplay?: boolean | null
           ar_digital?: boolean | null
           banco_couro?: boolean | null
@@ -1278,6 +1284,9 @@ export type Database = {
           android_auto?: boolean | null
           ano_fabricacao?: number | null
           ano_modelo?: number | null
+          app_driver_monthly_price?: number | null
+          app_driver_rental?: boolean | null
+          app_driver_weekly_price?: number | null
           apple_carplay?: boolean | null
           ar_digital?: boolean | null
           banco_couro?: boolean | null

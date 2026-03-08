@@ -27,6 +27,7 @@ import SelfieUpload from "./pages/SelfieUpload";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OwnerWithdrawals from "./pages/OwnerWithdrawals";
+import AppDriverRentals from "./pages/AppDriverRentals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/selfie-upload/:sessionToken" element={<SelfieUpload />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/app-driver-rentals" element={<AppDriverRentals />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
             </Routes>
