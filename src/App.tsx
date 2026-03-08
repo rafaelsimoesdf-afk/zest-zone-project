@@ -27,6 +27,7 @@ import SelfieUpload from "./pages/SelfieUpload";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OwnerWithdrawals from "./pages/OwnerWithdrawals";
+import AppDriverRentals from "./pages/AppDriverRentals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
