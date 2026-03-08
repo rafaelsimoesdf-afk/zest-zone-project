@@ -54,6 +54,12 @@ const Navbar = () => {
               Como Funciona
             </Link>
             <Link
+              to="/app-driver-rentals"
+              className="text-sm font-medium text-foreground hover:text-primary transition-fast"
+            >
+              Motoristas de App
+            </Link>
+            <Link
               to="/become-owner"
               className="text-sm font-medium text-foreground hover:text-primary transition-fast"
             >
