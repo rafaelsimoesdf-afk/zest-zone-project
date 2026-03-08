@@ -62,6 +62,8 @@ serve(async (req) => {
       pickupLocation,
       notes,
       acceptances,
+      appDriver,
+      appDriverPeriod,
     } = body;
 
     logStep("Payment details received", { vehicleId, vehicleName, days, totalPrice, subtotal, insurance, extraHours, extraHoursCharge });
@@ -111,16 +113,21 @@ serve(async (req) => {
       logStep("No existing Stripe customer found");
     }
 
-    // Criar line items - Locatário paga apenas subtotal + seguro
+    // Criar line items
+    const periodLabel = appDriver
+      ? (appDriverPeriod === 'weekly' ? 'Semanal' : 'Mensal')
+      : null;
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
           currency: "brl",
           product_data: {
-            name: `Aluguel: ${vehicleName}`,
-            description: `${days} ${days === 1 ? 'dia' : 'dias'} de aluguel`,
+            name: appDriver ? `Aluguel ${periodLabel}: ${vehicleName}` : `Aluguel: ${vehicleName}`,
+            description: appDriver
+              ? `Aluguel ${periodLabel?.toLowerCase()} para motorista de app (${days} dias)`
+              : `${days} ${days === 1 ? 'dia' : 'dias'} de aluguel`,
           },
-          unit_amount: Math.round(dailySubtotal * 100), // Convert to cents
+          unit_amount: Math.round(dailySubtotal * 100),
         },
         quantity: 1,
       },
@@ -167,7 +174,7 @@ serve(async (req) => {
       line_items: lineItems,
       mode: "payment",
       success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}&days=${days}&dailyRate=${dailyRate}&extraHours=${extraHours || 0}&extraHoursCharge=${extraHoursCharge || 0}&totalPrice=${totalPrice}&ownerId=${ownerId}&pickupLocation=${encodeURIComponent(pickupLocation || '')}&notes=${encodeURIComponent(notes || '')}&acceptances=${acceptancesEncoded}`,
-      cancel_url: `${req.headers.get("origin")}/checkout?vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}`,
+      cancel_url: `${req.headers.get("origin")}/checkout?vehicleId=${vehicleId}&startDate=${startDate}&endDate=${endDate}&startTime=${startTime || ''}&endTime=${endTime || ''}${appDriver ? '&appDriver=true&appDriverPeriod=' + (appDriverPeriod || '') : ''}`,
       metadata: {
         vehicleId,
         startDate,
@@ -189,6 +196,8 @@ serve(async (req) => {
         pickupLocation: pickupLocation || '',
         notes: notes || '',
         acceptances: acceptances ? JSON.stringify(acceptances) : '',
+        appDriver: String(appDriver || false),
+        appDriverPeriod: appDriverPeriod || '',
       },
     };
 

@@ -14,6 +14,7 @@ import {
   Smartphone,
   Shield,
   MessageSquare,
+  Car,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -27,6 +28,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VerificationRequired } from "@/components/VerificationRequired";
+import { Badge } from "@/components/ui/badge";
 import { maskCPF, formatCurrencyBRL } from "@/lib/validators";
 
 const Checkout = () => {
@@ -41,6 +43,8 @@ const Checkout = () => {
   const endDate = searchParams.get("endDate");
   const startTime = searchParams.get("startTime") || "09:00";
   const endTime = searchParams.get("endTime") || "09:00";
+  const isAppDriverMode = searchParams.get("appDriver") === "true";
+  const appDriverPeriod = searchParams.get("appDriverPeriod") as "weekly" | "monthly" | null;
 
   const { data: vehicle, isLoading } = useVehicle(vehicleId || "");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -75,12 +79,18 @@ const Checkout = () => {
     return new Date(year, month - 1, day);
   };
 
-  // Calculate pricing - Locatário paga apenas subtotal + seguro
+  // Calculate pricing
   const days = startDate && endDate
     ? Math.ceil((parseDateString(endDate).getTime() - parseDateString(startDate).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
   
-  // Calculate extra hours if return time > pickup time
+  // App driver mode pricing
+  const isAppDriver = isAppDriverMode && appDriverPeriod;
+  const appDriverPrice = isAppDriver && vehicle
+    ? (appDriverPeriod === "weekly" ? (vehicle.app_driver_weekly_price || 0) : (vehicle.app_driver_monthly_price || 0))
+    : 0;
+
+  // Calculate extra hours if return time > pickup time (only for standard mode)
   const [startHour, startMinute] = startTime.split(':').map(Number);
   const [endHour, endMinute] = endTime.split(':').map(Number);
   const startMinutes = startHour * 60 + startMinute;
@@ -89,13 +99,13 @@ const Checkout = () => {
   let extraHoursCharge = 0;
   let extraHours = 0;
   
-  if (endMinutes > startMinutes && vehicle) {
+  if (!isAppDriver && endMinutes > startMinutes && vehicle) {
     extraHours = (endMinutes - startMinutes) / 60;
     const hourlyRate = vehicle.daily_price / 24;
     extraHoursCharge = hourlyRate * extraHours;
   }
   
-  const dailySubtotal = vehicle ? vehicle.daily_price * days : 0;
+  const dailySubtotal = isAppDriver ? appDriverPrice : (vehicle ? vehicle.daily_price * days : 0);
   const subtotal = dailySubtotal + extraHoursCharge;
   const insurance = days * 20;
   const totalPrice = subtotal + insurance;
@@ -211,7 +221,7 @@ const Checkout = () => {
           startTime,
           endTime,
           days,
-          dailyRate: vehicle.daily_price,
+          dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
           dailySubtotal,
           extraHours,
           extraHoursCharge,
@@ -221,6 +231,8 @@ const Checkout = () => {
           ownerId: vehicle.owner_id,
           pickupLocation: pickupLocationStr,
           notes: message || '',
+          appDriver: isAppDriver || false,
+          appDriverPeriod: appDriverPeriod || null,
           // Acceptance data for legal compliance
           acceptances: {
             owner_rules_accepted: acceptOwnerRules,
@@ -304,12 +316,25 @@ const Checkout = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-medium text-sm sm:text-base">Duração</p>
+                      <p className="font-medium text-sm sm:text-base">
+                        {isAppDriver ? "Período" : "Duração"}
+                      </p>
                       <p className="text-muted-foreground text-xs sm:text-base">
-                        {days} {days === 1 ? "dia" : "dias"}
+                        {isAppDriver
+                          ? (appDriverPeriod === "weekly" ? "Semanal (7 dias)" : "Mensal (30 dias)")
+                          : `${days} ${days === 1 ? "dia" : "dias"}`
+                        }
                       </p>
                     </div>
                   </div>
+                  {isAppDriver && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="secondary" className="text-xs">
+                        <Car className="w-3 h-3 mr-1" />
+                        Motorista de App
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -589,7 +614,10 @@ const Checkout = () => {
                     <div className="space-y-2 sm:space-y-3 text-sm sm:text-base">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">
-                          Diária ({formatCurrencyBRL(vehicle.daily_price)} × {days})
+                          {isAppDriver
+                            ? `Aluguel ${appDriverPeriod === "weekly" ? "Semanal" : "Mensal"} (${days} dias)`
+                            : `Diária (${formatCurrencyBRL(vehicle.daily_price)} × ${days})`
+                          }
                         </span>
                         <span className="font-medium">{formatCurrencyBRL(dailySubtotal)}</span>
                       </div>

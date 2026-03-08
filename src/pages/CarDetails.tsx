@@ -54,6 +54,7 @@ const CarDetails = () => {
   const [startTime, setStartTime] = useState("10:00");
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [endTime, setEndTime] = useState("10:00");
+  const [appDriverPeriod, setAppDriverPeriod] = useState<"weekly" | "monthly">("weekly");
   const [showReputationModal, setShowReputationModal] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -808,185 +809,324 @@ const CarDetails = () => {
                     )}
                   </div>
 
-                  <div className="space-y-4 mb-6">
-                    {/* Pickup - Data e Hora */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Retirada
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">Data</label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "h-11 w-full justify-start text-left font-normal",
-                                  !startDate && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarDays className="mr-2 h-4 w-4" />
-                                {startDate ? format(startDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar"}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={startDate}
-                                onSelect={(date) => {
-                                  setStartDate(date);
-                                  // Reset end date if it's before new start date
-                                  if (date && endDate && endDate < date) {
-                                    setEndDate(undefined);
-                                  }
-                                }}
-                                disabled={isDateDisabled}
-                                initialFocus
-                                locale={ptBR}
-                                className="pointer-events-auto"
-                              />
-                            </PopoverContent>
-                          </Popover>
+                  {isAppDriverMode ? (
+                    /* App Driver Mode - Period selector + single pickup date */
+                    <div className="space-y-4 mb-6">
+                      {/* Period Selector */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Período</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {(vehicle.app_driver_weekly_price ?? 0) > 0 && (
+                            <button
+                              onClick={() => setAppDriverPeriod("weekly")}
+                              className={cn(
+                                "p-3 rounded-lg border-2 text-center transition-colors",
+                                appDriverPeriod === "weekly"
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : "border-border hover:border-primary/50"
+                              )}
+                            >
+                              <span className="font-semibold text-sm">Semanal</span>
+                              <p className="text-xs text-muted-foreground mt-0.5">7 dias</p>
+                            </button>
+                          )}
+                          {(vehicle.app_driver_monthly_price ?? 0) > 0 && (
+                            <button
+                              onClick={() => setAppDriverPeriod("monthly")}
+                              className={cn(
+                                "p-3 rounded-lg border-2 text-center transition-colors",
+                                appDriverPeriod === "monthly"
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : "border-border hover:border-primary/50"
+                              )}
+                            >
+                              <span className="font-semibold text-sm">Mensal</span>
+                              <p className="text-xs text-muted-foreground mt-0.5">30 dias</p>
+                            </button>
+                          )}
                         </div>
+                      </div>
+
+                      {/* Pickup Date & Time */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Retirada</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Data</label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "h-11 w-full justify-start text-left font-normal",
+                                    !startDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarDays className="mr-2 h-4 w-4" />
+                                  {startDate ? format(startDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={startDate}
+                                  onSelect={setStartDate}
+                                  disabled={isDateDisabled}
+                                  initialFocus
+                                  locale={ptBR}
+                                  className="pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
+                            <select
+                              className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                              value={startTime}
+                              onChange={(e) => setStartTime(e.target.value)}
+                            >
+                              {timeOptions.map((time) => (
+                                <option key={`start-${time}`} value={time}>
+                                  {time}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Calculated Return Info */}
+                      {startDate && (
                         <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
-                          <select
-                            className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                            value={startTime}
-                            onChange={(e) => setStartTime(e.target.value)}
-                          >
-                            {timeOptions.map((time) => (
-                              <option key={`start-${time}`} value={time}>
-                                {time}
-                              </option>
-                            ))}
-                          </select>
+                          <label className="text-sm font-medium mb-2 block">Devolução</label>
+                          <div className="p-3 rounded-lg bg-muted/50 text-sm">
+                            <span className="text-muted-foreground">Prevista para </span>
+                            <span className="font-semibold">
+                              {format(
+                                new Date(startDate.getTime() + (appDriverPeriod === "weekly" ? 7 : 30) * 24 * 60 * 60 * 1000),
+                                "dd/MM/yyyy",
+                                { locale: ptBR }
+                              )}
+                            </span>
+                            <span className="text-muted-foreground"> às </span>
+                            <span className="font-semibold">{startTime}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4 mb-6">
+                      {/* Pickup - Data e Hora */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          Retirada
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Data</label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "h-11 w-full justify-start text-left font-normal",
+                                    !startDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarDays className="mr-2 h-4 w-4" />
+                                  {startDate ? format(startDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={startDate}
+                                  onSelect={(date) => {
+                                    setStartDate(date);
+                                    if (date && endDate && endDate < date) {
+                                      setEndDate(undefined);
+                                    }
+                                  }}
+                                  disabled={isDateDisabled}
+                                  initialFocus
+                                  locale={ptBR}
+                                  className="pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
+                            <select
+                              className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                              value={startTime}
+                              onChange={(e) => setStartTime(e.target.value)}
+                            >
+                              {timeOptions.map((time) => (
+                                <option key={`start-${time}`} value={time}>
+                                  {time}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Return - Data e Hora */}
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          Devolução
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Data</label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "h-11 w-full justify-start text-left font-normal",
+                                    !endDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarDays className="mr-2 h-4 w-4" />
+                                  {endDate ? format(endDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={endDate}
+                                  onSelect={setEndDate}
+                                  disabled={(date) => {
+                                    if (startDate && date < startDate) return true;
+                                    return isDateDisabled(date);
+                                  }}
+                                  initialFocus
+                                  locale={ptBR}
+                                  className="pointer-events-auto"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div>
+                            <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
+                            <select
+                              className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                              value={endTime}
+                              onChange={(e) => setEndTime(e.target.value)}
+                            >
+                              {timeOptions.map((time) => (
+                                <option key={`end-${time}`} value={time}>
+                                  {time}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
+                  )}
 
-                    {/* Return - Data e Hora */}
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">
-                        Devolução
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">Data</label>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "h-11 w-full justify-start text-left font-normal",
-                                  !endDate && "text-muted-foreground"
-                                )}
-                              >
-                                <CalendarDays className="mr-2 h-4 w-4" />
-                                {endDate ? format(endDate, "dd/MM/yyyy", { locale: ptBR }) : "Selecionar"}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={endDate}
-                                onSelect={setEndDate}
-                                disabled={(date) => {
-                                  // Disable if before start date
-                                  if (startDate && date < startDate) return true;
-                                  // Also disable booked dates
-                                  return isDateDisabled(date);
-                                }}
-                                initialFocus
-                                locale={ptBR}
-                                className="pointer-events-auto"
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        </div>
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">Hora</label>
-                          <select
-                            className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                            value={endTime}
-                            onChange={(e) => setEndTime(e.target.value)}
-                          >
-                            {timeOptions.map((time) => (
-                              <option key={`end-${time}`} value={time}>
-                                {time}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Pricing Summary */}
+                  {isAppDriverMode ? (
+                    startDate && (
+                      <div className="space-y-3 mb-6 p-4 bg-muted/50 rounded-xl">
+                        {(() => {
+                          const periodDays = appDriverPeriod === "weekly" ? 7 : 30;
+                          const periodPrice = appDriverPeriod === "weekly"
+                            ? (vehicle.app_driver_weekly_price || 0)
+                            : (vehicle.app_driver_monthly_price || 0);
+                          const periodLabel = appDriverPeriod === "weekly" ? "Semanal" : "Mensal";
+                          const insurance = periodDays * 20;
+                          const total = periodPrice + insurance;
 
-                  {startDate && endDate && (
-                    <div className="space-y-3 mb-6 p-4 bg-muted/50 rounded-xl">
-                      {(() => {
-                        // Calculate full days
-                        const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-                        
-                        // Calculate extra hours if return time > pickup time
-                        const [startHour, startMinute] = startTime.split(':').map(Number);
-                        const [endHour, endMinute] = endTime.split(':').map(Number);
-                        const startMinutes = startHour * 60 + startMinute;
-                        const endMinutes = endHour * 60 + endMinute;
-                        
-                        let extraHoursCharge = 0;
-                        let extraHours = 0;
-                        
-                        // Only charge extra if return time is later than pickup time
-                        if (endMinutes > startMinutes) {
-                          extraHours = (endMinutes - startMinutes) / 60;
-                          // Calculate proportional daily rate for extra hours (hourly = daily / 24)
-                          const hourlyRate = vehicle.daily_price / 24;
-                          extraHoursCharge = hourlyRate * extraHours;
-                        }
-                        
-                        const subtotal = vehicle.daily_price * days + extraHoursCharge;
-                        const insurance = days * 20;
-                        const total = subtotal + insurance;
+                          const calcEndDate = new Date(startDate.getTime() + periodDays * 24 * 60 * 60 * 1000);
+                          const hasConflict = !isDateRangeAvailable(startDate, calcEndDate, vehicleBookings);
 
-                        // Check for date conflicts
-                        const hasConflict = !isDateRangeAvailable(startDate, endDate, vehicleBookings);
-
-                        return (
-                          <>
-                            {hasConflict && (
-                              <div className="text-destructive text-sm font-medium mb-2 p-2 bg-destructive/10 rounded-lg">
-                                ⚠️ O período selecionado conflita com uma reserva existente
-                              </div>
-                            )}
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">
-                                {formatCurrencyBRL(vehicle.daily_price)} x {days} {days === 1 ? 'dia' : 'dias'}
-                              </span>
-                              <span className="font-semibold">{formatCurrencyBRL(vehicle.daily_price * days)}</span>
-                            </div>
-                            {extraHoursCharge > 0 && (
+                          return (
+                            <>
+                              {hasConflict && (
+                                <div className="text-destructive text-sm font-medium mb-2 p-2 bg-destructive/10 rounded-lg">
+                                  ⚠️ O período selecionado conflita com uma reserva existente
+                                </div>
+                              )}
                               <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">
-                                  Horas adicionais ({extraHours.toFixed(1)}h)
+                                  Aluguel {periodLabel} ({periodDays} dias)
                                 </span>
-                                <span className="font-semibold">{formatCurrencyBRL(extraHoursCharge)}</span>
+                                <span className="font-semibold">{formatCurrencyBRL(periodPrice)}</span>
                               </div>
-                            )}
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">Seguro</span>
-                              <span className="font-semibold">{formatCurrencyBRL(insurance)}</span>
-                            </div>
-                            <Separator />
-                            <div className="flex justify-between font-bold">
-                              <span>Total</span>
-                              <span className="text-primary text-lg">{formatCurrencyBRL(total)}</span>
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Seguro</span>
+                                <span className="font-semibold">{formatCurrencyBRL(insurance)}</span>
+                              </div>
+                              <Separator />
+                              <div className="flex justify-between font-bold">
+                                <span>Total</span>
+                                <span className="text-primary text-lg">{formatCurrencyBRL(total)}</span>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )
+                  ) : (
+                    startDate && endDate && (
+                      <div className="space-y-3 mb-6 p-4 bg-muted/50 rounded-xl">
+                        {(() => {
+                          const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                          const [sH, sM] = startTime.split(':').map(Number);
+                          const [eH, eM] = endTime.split(':').map(Number);
+                          const sMin = sH * 60 + sM;
+                          const eMin = eH * 60 + eM;
+                          let exHoursCharge = 0;
+                          let exHours = 0;
+                          if (eMin > sMin) {
+                            exHours = (eMin - sMin) / 60;
+                            exHoursCharge = (vehicle.daily_price / 24) * exHours;
+                          }
+                          const subtotal = vehicle.daily_price * days + exHoursCharge;
+                          const insurance = days * 20;
+                          const total = subtotal + insurance;
+                          const hasConflict = !isDateRangeAvailable(startDate, endDate, vehicleBookings);
+
+                          return (
+                            <>
+                              {hasConflict && (
+                                <div className="text-destructive text-sm font-medium mb-2 p-2 bg-destructive/10 rounded-lg">
+                                  ⚠️ O período selecionado conflita com uma reserva existente
+                                </div>
+                              )}
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">
+                                  {formatCurrencyBRL(vehicle.daily_price)} x {days} {days === 1 ? 'dia' : 'dias'}
+                                </span>
+                                <span className="font-semibold">{formatCurrencyBRL(vehicle.daily_price * days)}</span>
+                              </div>
+                              {exHoursCharge > 0 && (
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">
+                                    Horas adicionais ({exHours.toFixed(1)}h)
+                                  </span>
+                                  <span className="font-semibold">{formatCurrencyBRL(exHoursCharge)}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Seguro</span>
+                                <span className="font-semibold">{formatCurrencyBRL(insurance)}</span>
+                              </div>
+                              <Separator />
+                              <div className="flex justify-between font-bold">
+                                <span>Total</span>
+                                <span className="text-primary text-lg">{formatCurrencyBRL(total)}</span>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )
                   )}
 
                   <Button
@@ -997,31 +1137,47 @@ const CarDetails = () => {
                         navigate("/auth");
                         return;
                       }
-                      if (!startDate || !endDate) {
-                        toast.error("Selecione as datas de retirada e devolução");
-                        return;
+
+                      if (isAppDriverMode) {
+                        if (!startDate) {
+                          toast.error("Selecione a data de retirada");
+                          return;
+                        }
+                        const periodDays = appDriverPeriod === "weekly" ? 7 : 30;
+                        const calcEndDate = new Date(startDate.getTime() + periodDays * 24 * 60 * 60 * 1000);
+
+                        if (!isDateRangeAvailable(startDate, calcEndDate, vehicleBookings)) {
+                          toast.error("O período selecionado conflita com uma reserva existente.");
+                          return;
+                        }
+
+                        const formattedStartDate = format(startDate, "yyyy-MM-dd");
+                        const formattedEndDate = format(calcEndDate, "yyyy-MM-dd");
+
+                        navigate(`/checkout?vehicleId=${vehicle.id}&startDate=${formattedStartDate}&startTime=${startTime}&endDate=${formattedEndDate}&endTime=${startTime}&appDriver=true&appDriverPeriod=${appDriverPeriod}`);
+                      } else {
+                        if (!startDate || !endDate) {
+                          toast.error("Selecione as datas de retirada e devolução");
+                          return;
+                        }
+                        const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                        if (days <= 0) {
+                          toast.error("A data de devolução deve ser posterior à data de retirada");
+                          return;
+                        }
+                        if (!isDateRangeAvailable(startDate, endDate, vehicleBookings)) {
+                          toast.error("O período selecionado conflita com uma reserva existente. Escolha outras datas.");
+                          return;
+                        }
+                        const formattedStartDate = format(startDate, "yyyy-MM-dd");
+                        const formattedEndDate = format(endDate, "yyyy-MM-dd");
+                        navigate(`/checkout?vehicleId=${vehicle.id}&startDate=${formattedStartDate}&startTime=${startTime}&endDate=${formattedEndDate}&endTime=${endTime}`);
                       }
-
-                      const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-                      if (days <= 0) {
-                        toast.error("A data de devolução deve ser posterior à data de retirada");
-                        return;
-                      }
-
-                      // Check for booking conflicts
-                      if (!isDateRangeAvailable(startDate, endDate, vehicleBookings)) {
-                        toast.error("O período selecionado conflita com uma reserva existente. Escolha outras datas.");
-                        return;
-                      }
-
-                      // Format dates as ISO strings for URL
-                      const formattedStartDate = format(startDate, "yyyy-MM-dd");
-                      const formattedEndDate = format(endDate, "yyyy-MM-dd");
-
-                      // Navigate to checkout with booking data including time
-                      navigate(`/checkout?vehicleId=${vehicle.id}&startDate=${formattedStartDate}&startTime=${startTime}&endDate=${formattedEndDate}&endTime=${endTime}`);
                     }}
-                    disabled={!startDate || !endDate || (startDate && endDate && !isDateRangeAvailable(startDate, endDate, vehicleBookings))}
+                    disabled={isAppDriverMode
+                      ? !startDate || (startDate && !isDateRangeAvailable(startDate, new Date(startDate.getTime() + (appDriverPeriod === "weekly" ? 7 : 30) * 24 * 60 * 60 * 1000), vehicleBookings))
+                      : !startDate || !endDate || (startDate && endDate && !isDateRangeAvailable(startDate, endDate, vehicleBookings))
+                    }
                   >
                     {!user ? "Faça login para reservar" : "Reservar Agora"}
                   </Button>
