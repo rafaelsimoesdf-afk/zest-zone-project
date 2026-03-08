@@ -130,11 +130,13 @@ const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/my-bookings" className="cursor-pointer">
+                      <CalendarDays className="mr-2 h-4 w-4" />
                       Minhas Reservas
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/my-vehicles" className="cursor-pointer">
+                      <Car className="mr-2 h-4 w-4" />
                       Meus Veículos
                     </Link>
                   </DropdownMenuItem>
