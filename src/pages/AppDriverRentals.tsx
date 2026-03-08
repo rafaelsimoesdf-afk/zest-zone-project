@@ -176,6 +176,7 @@ const AppDriverRentals = () => {
                     <VehicleCard
                       vehicle={vehicle}
                       linkParams={carLinkParams.toString()}
+                      appDriverMode
                     />
                     {/* Price badges for weekly/monthly */}
                     <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
