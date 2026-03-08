@@ -28,6 +28,10 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OwnerWithdrawals from "./pages/OwnerWithdrawals";
 import AppDriverRentals from "./pages/AppDriverRentals";
+import Classifieds from "./pages/Classifieds";
+import CreateListing from "./pages/CreateListing";
+import ClassifiedDetails from "./pages/ClassifiedDetails";
+import MyListings from "./pages/MyListings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
