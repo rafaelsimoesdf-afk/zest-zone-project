@@ -77,12 +77,18 @@ const Checkout = () => {
     return new Date(year, month - 1, day);
   };
 
-  // Calculate pricing - Locatário paga apenas subtotal + seguro
+  // Calculate pricing
   const days = startDate && endDate
     ? Math.ceil((parseDateString(endDate).getTime() - parseDateString(startDate).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
   
-  // Calculate extra hours if return time > pickup time
+  // App driver mode pricing
+  const isAppDriver = isAppDriverMode && appDriverPeriod;
+  const appDriverPrice = isAppDriver && vehicle
+    ? (appDriverPeriod === "weekly" ? (vehicle.app_driver_weekly_price || 0) : (vehicle.app_driver_monthly_price || 0))
+    : 0;
+
+  // Calculate extra hours if return time > pickup time (only for standard mode)
   const [startHour, startMinute] = startTime.split(':').map(Number);
   const [endHour, endMinute] = endTime.split(':').map(Number);
   const startMinutes = startHour * 60 + startMinute;
@@ -91,13 +97,13 @@ const Checkout = () => {
   let extraHoursCharge = 0;
   let extraHours = 0;
   
-  if (endMinutes > startMinutes && vehicle) {
+  if (!isAppDriver && endMinutes > startMinutes && vehicle) {
     extraHours = (endMinutes - startMinutes) / 60;
     const hourlyRate = vehicle.daily_price / 24;
     extraHoursCharge = hourlyRate * extraHours;
   }
   
-  const dailySubtotal = vehicle ? vehicle.daily_price * days : 0;
+  const dailySubtotal = isAppDriver ? appDriverPrice : (vehicle ? vehicle.daily_price * days : 0);
   const subtotal = dailySubtotal + extraHoursCharge;
   const insurance = days * 20;
   const totalPrice = subtotal + insurance;
