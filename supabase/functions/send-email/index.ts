@@ -522,6 +522,33 @@ const templates: Record<string, (data: Record<string, string>) => { subject: str
     `, `Reserva finalizada — ${data.vehicleName}`, `Sua reserva de ${data.netRevenue} foi concluída e registrada.`),
   }),
 
+  booking_confirmed_owner: (data) => ({
+    subject: `Reserva aprovada — ${data.vehicleName}`,
+    html: baseTemplate(`
+      <p class="greeting">Reserva confirmada, ${data.ownerName}! ✅</p>
+      <p class="message">
+        Você aprovou a reserva do seu <strong>${data.vehicleName}</strong> com <strong>${data.customerName}</strong>.
+        O locatário já foi notificado.
+      </p>
+      <div class="success-box">
+        ✅ Reserva confirmada com sucesso! O locatário será informado.
+      </div>
+      <div class="info-box">
+        <div class="info-box-title">📋 Detalhes da reserva</div>
+        <div class="info-row"><span class="info-label">Locatário</span><span class="info-value">${data.customerName}</span></div>
+        <div class="info-row"><span class="info-label">Veículo</span><span class="info-value">${data.vehicleName}</span></div>
+        <div class="info-row"><span class="info-label">Período</span><span class="info-value">${data.startDate} → ${data.endDate}</span></div>
+        <div class="info-row"><span class="info-label">Duração</span><span class="info-value">${data.totalDays} ${parseInt(data.totalDays) === 1 ? 'dia' : 'dias'}</span></div>
+        <div class="info-row"><span class="info-label">Valor bruto</span><span class="info-value">${data.totalPrice}</span></div>
+        <div class="info-row"><span class="info-label">Sua receita líquida</span><span class="info-value highlight">${data.netRevenue}</span></div>
+      </div>
+      <div class="tip-box">
+        <strong>Próximos passos:</strong> Entre em contato com o locatário pelo chat para combinar os detalhes de entrega do veículo.
+      </div>
+      <a href="${SITE_URL}/owner-dashboard" class="cta-button">Ver painel do proprietário</a>
+    `, `Reserva aprovada — ${data.vehicleName}`, `Você confirmou a reserva do ${data.vehicleName} com ${data.customerName}.`),
+  }),
+
   // ============================================================
   // MENSAGENS
   // ============================================================

@@ -381,6 +381,19 @@ export const useUpdateWithdrawalStatus = () => {
             action_url: "/owner-withdrawals",
           });
         }
+
+        // Send withdrawal completed email
+        if (status === "completed") {
+          const ownerData = await getUserEmailData(data.owner_id);
+          if (ownerData) {
+            sendWithdrawalCompletedEmail({
+              ownerEmail: ownerData.email,
+              ownerName: ownerData.name,
+              netAmount: Number(data.net_amount),
+              pixKey: data.pix_key,
+            });
+          }
+        }
       }
 
       return data;
