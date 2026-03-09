@@ -281,6 +281,80 @@ export const sendPaymentConfirmedEmail = async (params: {
 };
 
 // ============================================================
+// WITHDRAWAL EMAILS
+// ============================================================
+
+export const sendWithdrawalRequestedEmail = async (params: {
+  ownerEmail: string;
+  ownerName: string;
+  amount: number;
+  platformFee: number;
+  netAmount: number;
+  pixKey: string;
+}) => {
+  sendEmail(params.ownerEmail, "withdrawal_requested", {
+    ownerName: params.ownerName,
+    amount: formatCurrency(params.amount),
+    platformFee: formatCurrency(params.platformFee),
+    netAmount: formatCurrency(params.netAmount),
+    pixKey: params.pixKey,
+  });
+};
+
+export const sendWithdrawalCompletedEmail = async (params: {
+  ownerEmail: string;
+  ownerName: string;
+  netAmount: number;
+  pixKey: string;
+}) => {
+  sendEmail(params.ownerEmail, "withdrawal_completed", {
+    ownerName: params.ownerName,
+    netAmount: formatCurrency(params.netAmount),
+    pixKey: params.pixKey,
+  });
+};
+
+// ============================================================
+// WELCOME EMAIL
+// ============================================================
+
+export const sendWelcomeEmail = async (params: {
+  userEmail: string;
+  userName: string;
+}) => {
+  sendEmail(params.userEmail, "welcome", {
+    userName: params.userName,
+  });
+};
+
+// ============================================================
+// BOOKING CONFIRMED — OWNER
+// ============================================================
+
+export const sendBookingConfirmedOwnerEmail = async (params: {
+  ownerEmail: string;
+  ownerName: string;
+  customerName: string;
+  vehicleName: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  totalPrice: number;
+  netRevenue: number;
+}) => {
+  sendEmail(params.ownerEmail, "booking_confirmed_owner", {
+    ownerName: params.ownerName,
+    customerName: params.customerName,
+    vehicleName: params.vehicleName,
+    startDate: formatDate(params.startDate),
+    endDate: formatDate(params.endDate),
+    totalDays: String(params.totalDays),
+    totalPrice: formatCurrency(params.totalPrice),
+    netRevenue: formatCurrency(params.netRevenue),
+  });
+};
+
+// ============================================================
 // HELPER: busca dados do usuário para email
 // ============================================================
 
