@@ -84,6 +84,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
 
+      // Send welcome email to new user
+      if (data.user && !data.user.identities?.length || data.user?.identities?.length === 1) {
+        sendWelcomeEmail({
+          userEmail: email,
+          userName: firstName,
+        });
+      }
+
       return { error: null };
     } catch (error: any) {
       toast.error(error.message || 'Erro ao criar conta');
