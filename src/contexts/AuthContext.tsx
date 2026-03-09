@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { sendWelcomeEmail } from '@/hooks/useEmailNotifications';
-import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
