@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { sendWelcomeEmail } from '@/hooks/useEmailNotifications';
 
 interface AuthContextType {
   user: User | null;
@@ -81,6 +82,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) throw error;
+
+      // Send welcome email to new user
+      if (data.user && !data.user.identities?.length || data.user?.identities?.length === 1) {
+        sendWelcomeEmail({
+          userEmail: email,
+          userName: firstName,
+        });
+      }
 
       return { error: null };
     } catch (error: any) {

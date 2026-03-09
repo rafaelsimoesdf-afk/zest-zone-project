@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { sendWithdrawalRequestedEmail, sendWithdrawalCompletedEmail, getUserEmailData } from "@/hooks/useEmailNotifications";
 
 export interface OwnerBalance {
   total_earnings: number;
@@ -187,9 +188,22 @@ export const useRequestWithdrawal = () => {
 
       if (error) throw error;
 
+      // Send withdrawal requested email
+      const ownerData = await getUserEmailData(user.id);
+      if (ownerData) {
+        sendWithdrawalRequestedEmail({
+          ownerEmail: ownerData.email,
+          ownerName: ownerData.name,
+          amount,
+          platformFee: withdrawalFee,
+          netAmount,
+          pixKey: profile.cpf,
+        });
+      }
+
       // Notify admins about new withdrawal request if not auto-approved
       if (!autoApproved) {
-        // We don't need to notify individual admins - they'll see it in the panel
+        // They'll see it in the panel
       }
 
       return { data, autoApproved };
@@ -356,6 +370,19 @@ export const useUpdateWithdrawalStatus = () => {
             message,
             action_url: "/owner-withdrawals",
           });
+        }
+
+        // Send withdrawal completed email
+        if (status === "completed") {
+          const ownerData = await getUserEmailData(data.owner_id);
+          if (ownerData) {
+            sendWithdrawalCompletedEmail({
+              ownerEmail: ownerData.email,
+              ownerName: ownerData.name,
+              netAmount: Number(data.net_amount),
+              pixKey: data.pix_key,
+            });
+          }
         }
       }
 
