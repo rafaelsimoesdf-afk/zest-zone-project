@@ -13,7 +13,7 @@ import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard,
 import { formatCurrencyBRL } from "@/lib/validators";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import InspectionSection from "@/components/inspection/InspectionSection";
-import { useBookingInspections } from "@/hooks/useVehicleInspections";
+
 
 const statusLabels: Record<string, string> = {
   pending: "Pendente",
