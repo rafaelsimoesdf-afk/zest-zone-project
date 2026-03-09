@@ -188,9 +188,32 @@ export const useRequestWithdrawal = () => {
 
       if (error) throw error;
 
+      // Send withdrawal requested email
+      sendWithdrawalRequestedEmail({
+        ownerEmail: "", // will be fetched below
+        ownerName: `${profile.first_name} ${profile.last_name}`,
+        amount,
+        platformFee: withdrawalFee,
+        netAmount,
+        pixKey: profile.cpf,
+      });
+
+      // Fetch email and send
+      const ownerData = await getUserEmailData(user.id);
+      if (ownerData) {
+        sendWithdrawalRequestedEmail({
+          ownerEmail: ownerData.email,
+          ownerName: ownerData.name,
+          amount,
+          platformFee: withdrawalFee,
+          netAmount,
+          pixKey: profile.cpf,
+        });
+      }
+
       // Notify admins about new withdrawal request if not auto-approved
       if (!autoApproved) {
-        // We don't need to notify individual admins - they'll see it in the panel
+        // They'll see it in the panel
       }
 
       return { data, autoApproved };
