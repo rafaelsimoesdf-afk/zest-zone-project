@@ -208,6 +208,41 @@ export const useConfirmInspection = () => {
               .from("bookings")
               .update({ status: "completed" })
               .eq("id", bookingId);
+
+            // Send completion emails to both parties
+            const { data: bookingDetails } = await supabase
+              .from("bookings")
+              .select("customer_id, owner_id, start_date, end_date, total_days, total_price, daily_rate, vehicles(brand, model)")
+              .eq("id", bookingId)
+              .single();
+
+            if (bookingDetails) {
+              const [customerData, ownerData] = await Promise.all([
+                getUserEmailData(bookingDetails.customer_id),
+                getUserEmailData(bookingDetails.owner_id),
+              ]);
+
+              const vInfo = bookingDetails.vehicles as any;
+              const vName = vInfo ? `${vInfo.brand} ${vInfo.model}` : "veículo";
+
+              if (customerData && ownerData) {
+                sendBookingStatusEmail({
+                  status: "completed",
+                  customerEmail: customerData.email,
+                  customerName: customerData.name,
+                  ownerEmail: ownerData.email,
+                  ownerName: ownerData.name,
+                  ownerPhone: ownerData.phone,
+                  vehicleName: vName,
+                  startDate: bookingDetails.start_date,
+                  endDate: bookingDetails.end_date,
+                  totalDays: bookingDetails.total_days,
+                  totalPrice: bookingDetails.total_price,
+                  dailyRate: bookingDetails.daily_rate,
+                  bookingId,
+                });
+              }
+            }
           }
         }
       }
