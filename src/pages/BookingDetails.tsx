@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBooking } from "@/hooks/useBookings";
 import { useExistingReview } from "@/hooks/useReviews";
-import { useUpdateOwnerBookingStatus } from "@/hooks/useOwnerDashboard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
