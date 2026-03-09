@@ -215,6 +215,8 @@ export const useConfirmInspection = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["vehicle-inspections", variables.bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["booking", variables.bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
       toast.success("Inspeção confirmada com sucesso!");
     },
     onError: (error: Error) => {
