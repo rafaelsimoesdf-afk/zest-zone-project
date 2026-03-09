@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBooking } from "@/hooks/useBookings";
 import { useExistingReview } from "@/hooks/useReviews";
-import { useUpdateOwnerBookingStatus } from "@/hooks/useOwnerDashboard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +13,7 @@ import { Calendar, MapPin, Car, User, Phone, Mail, ArrowLeft, Clock, CreditCard,
 import { formatCurrencyBRL } from "@/lib/validators";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import InspectionSection from "@/components/inspection/InspectionSection";
-import { useBookingInspections } from "@/hooks/useVehicleInspections";
+
 
 const statusLabels: Record<string, string> = {
   pending: "Pendente",
@@ -30,44 +29,6 @@ const statusVariants: Record<string, "default" | "secondary" | "destructive" | "
   completed: "outline",
 };
 
-const OwnerCompleteButton = ({ bookingId }: { bookingId: string }) => {
-  const updateStatus = useUpdateOwnerBookingStatus();
-  const { data: inspections, isLoading: inspLoading } = useBookingInspections(bookingId);
-
-  const pickupInspection = inspections?.find((i) => i.inspection_type === "pickup");
-  const returnInspection = inspections?.find((i) => i.inspection_type === "return");
-  const bothConfirmed = pickupInspection?.status === "confirmed" && returnInspection?.status === "confirmed";
-
-  const handleComplete = () => {
-    updateStatus.mutate({ bookingId, status: "completed" });
-  };
-
-  if (inspLoading) return null;
-
-  return (
-    <div className="space-y-2">
-      <Button 
-        className="w-full bg-blue-600 hover:bg-blue-700" 
-        onClick={handleComplete}
-        disabled={updateStatus.isPending || !bothConfirmed}
-      >
-        <CheckCircle className="w-4 h-4 mr-2" />
-        {updateStatus.isPending ? "Finalizando..." : "Finalizar Reserva"}
-      </Button>
-      {!bothConfirmed && (
-        <p className="text-xs text-muted-foreground text-center">
-          {!pickupInspection
-            ? "⚠️ Inspeção de entrega pendente"
-            : pickupInspection.status !== "confirmed"
-            ? "⚠️ Inspeção de entrega aguardando confirmação"
-            : !returnInspection
-            ? "⚠️ Inspeção de devolução pendente"
-            : "⚠️ Inspeção de devolução aguardando confirmação"}
-        </p>
-      )}
-    </div>
-  );
-};
 
 const BookingDetails = () => {
   const { id } = useParams();
@@ -508,9 +469,6 @@ const BookingDetails = () => {
                     <Button className="w-full">Confirmar Reserva</Button>
                     <Button variant="destructive" className="w-full">Recusar Reserva</Button>
                   </>
-                )}
-                {['confirmed', 'in_progress'].includes(booking.status) && isOwner && (
-                  <OwnerCompleteButton bookingId={booking.id} />
                 )}
                 {booking.status === 'completed' && isOwner && (
                   <Button className="w-full" variant="outline" disabled>

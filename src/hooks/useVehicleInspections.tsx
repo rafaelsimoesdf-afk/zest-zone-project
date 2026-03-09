@@ -189,12 +189,34 @@ export const useConfirmInspection = () => {
           message: `A inspeção de ${typeLabel} foi confirmada pela outra parte.`,
           action_url: `/booking/${bookingId}`,
         });
+
+        // Auto-complete booking when return inspection is confirmed
+        if (inspection.inspection_type === "return") {
+          // Verify pickup is also confirmed
+          const { data: allInspections } = await supabase
+            .from("vehicle_inspections")
+            .select("inspection_type, status")
+            .eq("booking_id", bookingId);
+
+          const pickupConfirmed = allInspections?.some(
+            (i) => i.inspection_type === "pickup" && i.status === "confirmed"
+          );
+
+          if (pickupConfirmed) {
+            await supabase
+              .from("bookings")
+              .update({ status: "completed" })
+              .eq("id", bookingId);
+          }
+        }
       }
 
       return { inspectionId };
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["vehicle-inspections", variables.bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["booking", variables.bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
       toast.success("Inspeção confirmada com sucesso!");
     },
     onError: (error: Error) => {
