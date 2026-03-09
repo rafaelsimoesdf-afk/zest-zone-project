@@ -451,6 +451,22 @@ export const useUpdateOwnerBookingStatus = () => {
           reason,
           bookingId,
         });
+
+        // Send confirmation email to owner when they approve
+        if (status === "confirmed") {
+          const netRevenue = booking.total_price * 0.85;
+          sendBookingConfirmedOwnerEmail({
+            ownerEmail: ownerData.email,
+            ownerName: ownerData.name,
+            customerName: customerData.name,
+            vehicleName,
+            startDate: booking.start_date,
+            endDate: booking.end_date,
+            totalDays: booking.total_days,
+            totalPrice: booking.total_price,
+            netRevenue,
+          });
+        }
       }
 
       return data;
