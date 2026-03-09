@@ -471,9 +471,6 @@ const BookingDetails = () => {
                     <Button variant="destructive" className="w-full">Recusar Reserva</Button>
                   </>
                 )}
-                {['confirmed', 'in_progress'].includes(booking.status) && isOwner && (
-                  <OwnerCompleteButton bookingId={booking.id} />
-                )}
                 {booking.status === 'completed' && isOwner && (
                   <Button className="w-full" variant="outline" disabled>
                     <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
