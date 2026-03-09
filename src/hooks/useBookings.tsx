@@ -237,10 +237,10 @@ async function createBookingFn(bookingData: CreateBookingData) {
   }
 
   // Create notification for the vehicle owner
+  const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
+  const customerName = customerProfile ? `${customerProfile.first_name} ${customerProfile.last_name}` : "Um usuário";
+
   if (bookingData.owner_id && bookingId) {
-    const vehicleName = vehicleInfo ? `${vehicleInfo.brand} ${vehicleInfo.model}` : "veículo";
-    const customerName = customerProfile ? `${customerProfile.first_name} ${customerProfile.last_name}` : "Um usuário";
-    
     await supabase.from("notifications").insert({
       user_id: bookingData.owner_id,
       notification_type: "booking",
@@ -248,6 +248,34 @@ async function createBookingFn(bookingData: CreateBookingData) {
       message: `${customerName} quer alugar seu ${vehicleName} de ${new Date(bookingData.start_date).toLocaleDateString('pt-BR')} a ${new Date(bookingData.end_date).toLocaleDateString('pt-BR')}. Clique para revisar e aprovar!`,
       action_url: `/owner-dashboard`,
     });
+  }
+
+  // Send booking created emails to both customer and owner
+  if (bookingId) {
+    const [customerEmailData, ownerEmailData] = await Promise.all([
+      getUserEmailData(user.id),
+      getUserEmailData(bookingData.owner_id),
+    ]);
+
+    if (customerEmailData && ownerEmailData) {
+      const netRevenue = bookingData.total_price * 0.85;
+      sendBookingCreatedEmails({
+        customerEmail: customerEmailData.email,
+        customerName: customerEmailData.name,
+        ownerEmail: ownerEmailData.email,
+        ownerName: ownerEmailData.name,
+        vehicleName,
+        startDate: bookingData.start_date,
+        endDate: bookingData.end_date,
+        totalDays: bookingData.total_days,
+        dailyRate: bookingData.daily_rate,
+        totalPrice: bookingData.total_price,
+        netRevenue,
+        pickupLocation: bookingData.pickup_location,
+        notes: bookingData.notes,
+        bookingId: bookingId as string,
+      });
+    }
   }
 
   return { id: bookingId };
