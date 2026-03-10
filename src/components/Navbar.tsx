@@ -330,6 +330,12 @@ const Navbar = () => {
                         </Link>
                       </Button>
                     )}
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/support" onClick={() => setMobileMenuOpen(false)}>
+                        <HelpCircle className="w-4 h-4 mr-2" />
+                        Central de Ajuda
+                      </Link>
+                    </Button>
                     <Button
                       variant="outline"
                       className="w-full"
