@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench, CalendarDays, Car } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench, CalendarDays, Car, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
