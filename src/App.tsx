@@ -35,6 +35,8 @@ import MyListings from "./pages/MyListings";
 import Services from "./pages/Services";
 import ServiceDetails from "./pages/ServiceDetails";
 import MyServices from "./pages/MyServices";
+import Support from "./pages/Support";
+import TicketDetail from "./pages/TicketDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
