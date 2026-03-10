@@ -606,6 +606,10 @@ const Admin = () => {
           <TabsContent value="collaborators">
             <CollaboratorsTab />
           </TabsContent>
+
+          <TabsContent value="support">
+            <SupportTab />
+          </TabsContent>
         </Tabs>
       </main>
 
