@@ -259,6 +259,11 @@ const Admin = () => {
               <span className="hidden sm:inline">Colaboradores</span>
               <span className="sm:hidden">Colab.</span>
             </TabsTrigger>
+            <TabsTrigger value="support" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <Headphones className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Suporte</span>
+              <span className="sm:hidden">Suporte</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* User Verifications */}
