@@ -343,6 +343,42 @@ export type Database = {
         }
         Relationships: []
       }
+      faq_articles: {
+        Row: {
+          category: Database["public"]["Enums"]["ticket_category"]
+          content: string
+          created_at: string
+          display_order: number
+          id: string
+          is_published: boolean
+          keywords: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["ticket_category"]
+          content: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_published?: boolean
+          keywords?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["ticket_category"]
+          content?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_published?: boolean
+          keywords?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -1030,38 +1066,260 @@ export type Database = {
       }
       support_tickets: {
         Row: {
+          assigned_to: string | null
+          booking_id: string | null
+          category: Database["public"]["Enums"]["ticket_category"]
+          closed_at: string | null
           created_at: string
           id: string
           message: string
+          priority: Database["public"]["Enums"]["ticket_priority"]
           resolved_at: string | null
+          sla_deadline: string | null
           status: string
           subject: string
+          ticket_number: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          assigned_to?: string | null
+          booking_id?: string | null
+          category?: Database["public"]["Enums"]["ticket_category"]
+          closed_at?: string | null
           created_at?: string
           id?: string
           message: string
+          priority?: Database["public"]["Enums"]["ticket_priority"]
           resolved_at?: string | null
+          sla_deadline?: string | null
           status?: string
           subject: string
+          ticket_number?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          assigned_to?: string | null
+          booking_id?: string | null
+          category?: Database["public"]["Enums"]["ticket_category"]
+          closed_at?: string | null
           created_at?: string
           id?: string
           message?: string
+          priority?: Database["public"]["Enums"]["ticket_priority"]
           resolved_at?: string | null
+          sla_deadline?: string | null
           status?: string
           subject?: string
+          ticket_number?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
+            foreignKeyName: "support_tickets_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_type: string | null
+          file_url: string
+          id: string
+          message_id: string | null
+          ticket_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_type?: string | null
+          file_url: string
+          id?: string
+          message_id?: string | null
+          ticket_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          message_id?: string | null
+          ticket_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_attachments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          performed_by: string | null
+          ticket_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          performed_by?: string | null
+          ticket_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          performed_by?: string | null
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_audit_log_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_audit_log_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_from_support: boolean
+          sender_id: string
+          ticket_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_from_support?: boolean
+          sender_id: string
+          ticket_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_from_support?: boolean
+          sender_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          resolved_problem: string | null
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          resolved_problem?: string | null
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          resolved_problem?: string | null
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_ratings_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: true
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_ratings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -1925,6 +2183,23 @@ export type Database = {
         | "fatura_cartao"
         | "extrato_bancario"
         | "outro"
+      ticket_category:
+        | "account"
+        | "payment"
+        | "booking"
+        | "vehicle_issue"
+        | "owner_issue"
+        | "renter_issue"
+        | "accident"
+        | "technical"
+        | "other"
+      ticket_priority: "low" | "medium" | "high" | "emergency"
+      ticket_status:
+        | "open"
+        | "in_progress"
+        | "waiting_customer"
+        | "resolved"
+        | "closed"
       transmission_type: "manual" | "automatic" | "cvt"
       user_status: "pending" | "verified" | "suspended" | "banned"
       vehicle_status:
@@ -2122,6 +2397,25 @@ export const Constants = {
         "fatura_cartao",
         "extrato_bancario",
         "outro",
+      ],
+      ticket_category: [
+        "account",
+        "payment",
+        "booking",
+        "vehicle_issue",
+        "owner_issue",
+        "renter_issue",
+        "accident",
+        "technical",
+        "other",
+      ],
+      ticket_priority: ["low", "medium", "high", "emergency"],
+      ticket_status: [
+        "open",
+        "in_progress",
+        "waiting_customer",
+        "resolved",
+        "closed",
       ],
       transmission_type: ["manual", "automatic", "cvt"],
       user_status: ["pending", "verified", "suspended", "banned"],
