@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCreateTicket, categoryLabels, priorityLabels, type TicketCategory, type TicketPriority, slaLabels } from "@/hooks/useSupportTickets";
-import { useBookings } from "@/hooks/useBookings";
+// Bookings are optional for ticket creation
 import { AlertCircle, Clock } from "lucide-react";
 
 interface CreateTicketFormProps {

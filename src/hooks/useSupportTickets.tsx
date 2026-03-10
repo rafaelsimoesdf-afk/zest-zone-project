@@ -325,9 +325,9 @@ export const useAllSupportTickets = (filters?: {
         .select("*, profiles!support_tickets_user_id_fkey(first_name, last_name, email)")
         .order("created_at", { ascending: false });
 
-      if (filters?.status) query = query.eq("status", filters.status);
-      if (filters?.priority) query = query.eq("priority", filters.priority);
-      if (filters?.category) query = query.eq("category", filters.category);
+      if (filters?.status) query = query.eq("status", filters.status as any);
+      if (filters?.priority) query = query.eq("priority", filters.priority as any);
+      if (filters?.category) query = query.eq("category", filters.category as any);
 
       const { data, error } = await query;
       if (error) throw error;
