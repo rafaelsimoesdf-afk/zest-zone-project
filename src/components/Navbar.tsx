@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench, CalendarDays, Car } from "lucide-react";
+import { Menu, User, LogOut, LayoutDashboard, Heart, MessageSquare, Shield, Bell, Wallet, Tag, Wrench, CalendarDays, Car, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -168,6 +168,13 @@ const Navbar = () => {
                       </DropdownMenuItem>
                     </>
                   )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/support" className="cursor-pointer">
+                      <HelpCircle className="mr-2 h-4 w-4" />
+                      Central de Ajuda
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="cursor-pointer">
@@ -323,6 +330,12 @@ const Navbar = () => {
                         </Link>
                       </Button>
                     )}
+                    <Button variant="outline" className="w-full" size="sm" asChild>
+                      <Link to="/support" onClick={() => setMobileMenuOpen(false)}>
+                        <HelpCircle className="w-4 h-4 mr-2" />
+                        Central de Ajuda
+                      </Link>
+                    </Button>
                     <Button
                       variant="outline"
                       className="w-full"

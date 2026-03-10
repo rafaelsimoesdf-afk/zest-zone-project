@@ -17,8 +17,9 @@ import CollaboratorsTab from "@/components/admin/CollaboratorsTab";
 import UserVerificationTab from "@/components/admin/UserVerificationTab";
 import VehicleVerificationTab from "@/components/admin/VehicleVerificationTab";
 import EditVehicleModal from "@/components/admin/EditVehicleModal";
-import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck, FileText, ExternalLink, Banknote } from "lucide-react";
+import { CheckCircle, XCircle, Users, Car, Calendar, Clock, Trash2, Edit, UserCheck, Shield, FileCheck, FileText, ExternalLink, Banknote, Headphones } from "lucide-react";
 import WithdrawalsTab from "@/components/admin/WithdrawalsTab";
+import SupportTab from "@/components/admin/SupportTab";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { formatCurrencyBRL } from "@/lib/validators";
@@ -257,6 +258,11 @@ const Admin = () => {
               <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Colaboradores</span>
               <span className="sm:hidden">Colab.</span>
+            </TabsTrigger>
+            <TabsTrigger value="support" className="flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2">
+              <Headphones className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Suporte</span>
+              <span className="sm:hidden">Suporte</span>
             </TabsTrigger>
           </TabsList>
 
@@ -599,6 +605,10 @@ const Admin = () => {
           {/* Collaborators */}
           <TabsContent value="collaborators">
             <CollaboratorsTab />
+          </TabsContent>
+
+          <TabsContent value="support">
+            <SupportTab />
           </TabsContent>
         </Tabs>
       </main>
