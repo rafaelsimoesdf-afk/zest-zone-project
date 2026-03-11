@@ -175,78 +175,90 @@ const SupportTab = () => {
           </DialogHeader>
 
           {selectedTicket && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge className={statusColor[selectedTicket.status] || ""} variant="secondary">
-                  {statusLabels[selectedTicket.status] || selectedTicket.status}
-                </Badge>
-                <Badge className={priorityColor[selectedTicket.priority] || ""} variant="secondary">
-                  {priorityLabels[selectedTicket.priority as TicketPriority] || selectedTicket.priority}
-                </Badge>
-                {selectedTicket.sla_deadline && (
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    SLA: {new Date(selectedTicket.sla_deadline).toLocaleString("pt-BR")}
-                  </span>
-                )}
-              </div>
-
-              <div className="p-3 bg-muted rounded-md text-sm">
-                <p className="text-xs text-muted-foreground mb-1">
-                  {selectedTicket.profiles?.first_name} {selectedTicket.profiles?.last_name}
-                </p>
-                {selectedTicket.message}
-              </div>
-
-              {/* Status actions */}
-              <div className="flex gap-2 flex-wrap">
-                {Object.entries(statusLabels).map(([key, label]) => (
-                  <Button
-                    key={key}
-                    size="sm"
-                    variant={selectedTicket.status === key ? "default" : "outline"}
-                    onClick={() => handleStatusChange(selectedTicket.id, key)}
-                    disabled={updateStatus.isPending}
-                  >
-                    {label}
-                  </Button>
-                ))}
-              </div>
-
-              {/* Messages */}
-              <ScrollArea className="h-[200px] border rounded-md p-3">
-                <div className="space-y-2">
-                  {messages?.map((msg: any) => (
-                    <div key={msg.id} className={`flex ${msg.is_from_support ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[80%] rounded-lg p-2 text-sm ${
-                        msg.is_from_support
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-foreground"
-                      }`}>
-                        <p className="whitespace-pre-wrap">{msg.content}</p>
-                        <span className="text-[10px] opacity-70 block mt-1">
-                          {new Date(msg.created_at).toLocaleString("pt-BR")}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  {(!messages || messages.length === 0) && (
-                    <p className="text-center text-muted-foreground text-xs">Nenhuma mensagem</p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Main content */}
+              <div className="lg:col-span-2 space-y-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className={statusColor[selectedTicket.status] || ""} variant="secondary">
+                    {statusLabels[selectedTicket.status] || selectedTicket.status}
+                  </Badge>
+                  <Badge className={priorityColor[selectedTicket.priority] || ""} variant="secondary">
+                    {priorityLabels[selectedTicket.priority as TicketPriority] || selectedTicket.priority}
+                  </Badge>
+                  {selectedTicket.sla_deadline && (
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      SLA: {new Date(selectedTicket.sla_deadline).toLocaleString("pt-BR")}
+                    </span>
                   )}
                 </div>
-              </ScrollArea>
 
-              {/* Reply */}
-              <div className="flex gap-2">
-                <Textarea
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="Responder ao chamado..."
-                  rows={2}
-                />
-                <Button onClick={handleReply} disabled={sendReply.isPending || !replyContent.trim()}>
-                  <Send className="h-4 w-4" />
-                </Button>
+                <div className="p-3 bg-muted rounded-md text-sm">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {selectedTicket.profiles?.first_name} {selectedTicket.profiles?.last_name}
+                  </p>
+                  {selectedTicket.message}
+                </div>
+
+                {/* Status actions */}
+                <div className="flex gap-2 flex-wrap">
+                  {Object.entries(statusLabels).map(([key, label]) => (
+                    <Button
+                      key={key}
+                      size="sm"
+                      variant={selectedTicket.status === key ? "default" : "outline"}
+                      onClick={() => handleStatusChange(selectedTicket.id, key)}
+                      disabled={updateStatus.isPending}
+                    >
+                      {label}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Messages */}
+                <ScrollArea className="h-[200px] border rounded-md p-3">
+                  <div className="space-y-2">
+                    {messages?.map((msg: any) => (
+                      <div key={msg.id} className={`flex ${msg.is_from_support ? "justify-end" : "justify-start"}`}>
+                        <div className={`max-w-[80%] rounded-lg p-2 text-sm ${
+                          msg.is_from_support
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-foreground"
+                        }`}>
+                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                          <span className="text-[10px] opacity-70 block mt-1">
+                            {new Date(msg.created_at).toLocaleString("pt-BR")}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                    {(!messages || messages.length === 0) && (
+                      <p className="text-center text-muted-foreground text-xs">Nenhuma mensagem</p>
+                    )}
+                  </div>
+                </ScrollArea>
+
+                {/* Reply */}
+                <div className="flex gap-2">
+                  <Textarea
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    placeholder="Responder ao chamado..."
+                    rows={2}
+                  />
+                  <Button onClick={handleReply} disabled={sendReply.isPending || !replyContent.trim()}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Customer History sidebar */}
+              <div className="lg:col-span-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Histórico do Cliente</span>
+                </div>
+                <CustomerHistoryPanel userId={selectedTicket.user_id} />
               </div>
             </div>
           )}
