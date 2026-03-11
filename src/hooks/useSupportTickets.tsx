@@ -223,6 +223,26 @@ export const useCreateTicket = () => {
         action_url: `/support/ticket/${(data as any).id}`,
       });
 
+      // Send email notification
+      const { sendTicketOpenedEmail, getUserEmailData } = await import("@/hooks/useEmailNotifications");
+      const userData = await getUserEmailData(user.id);
+      if (userData) {
+        const ticket = data as any;
+        const slaMap: Record<string, string> = { emergency: "5 minutos", high: "30 minutos", medium: "2 horas", low: "24 horas" };
+        const catMap: Record<string, string> = { account: "Conta", payment: "Pagamento", booking: "Reserva", vehicle_issue: "Problema com veículo", owner_issue: "Problema com proprietário", renter_issue: "Problema com locatário", accident: "Acidente ou dano", technical: "Problema técnico", other: "Outros" };
+        const priMap: Record<string, string> = { low: "Baixa", medium: "Média", high: "Alta", emergency: "Emergencial" };
+        sendTicketOpenedEmail({
+          userEmail: userData.email,
+          userName: userData.name,
+          ticketNumber: ticket.ticket_number || "",
+          subject: params.subject,
+          category: catMap[params.category] || params.category,
+          priority: priMap[params.priority] || params.priority,
+          slaTime: slaMap[params.priority] || "24 horas",
+          ticketId: ticket.id,
+        });
+      }
+
       return data as unknown as SupportTicket;
     },
     onSuccess: () => {
