@@ -29,3 +29,9 @@ verify_jwt = false
 
 [functions.check-service-subscription]
 verify_jwt = false
+
+[functions.create-zapsign-document]
+verify_jwt = false
+
+[functions.zapsign-webhook]
+verify_jwt = false
