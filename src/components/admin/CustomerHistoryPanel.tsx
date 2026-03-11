@@ -111,7 +111,7 @@ const CustomerHistoryPanel = ({ userId }: CustomerHistoryPanelProps) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <span>{formatCurrency(b.total_price)}</span>
-                      <Badge className={statusColors[b.status] || ""} variant="secondary" className="text-[10px] px-1.5 py-0">
+                      <Badge className={`text-[10px] px-1.5 py-0 ${statusColors[b.status] || ""}`} variant="secondary">
                         {b.status}
                       </Badge>
                     </div>
