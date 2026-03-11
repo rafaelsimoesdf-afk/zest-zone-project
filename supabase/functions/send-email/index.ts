@@ -906,6 +906,76 @@ const templates: Record<string, (data: Record<string, string>) => { subject: str
       <a href="${SITE_URL}/owner-withdrawals" class="cta-button">Ver histórico de saques</a>
     `, `Saque concluído`, `Seu saque de ${data.netAmount} foi depositado na sua conta.`),
   }),
+
+  // ============================================================
+  // SUPORTE — TICKET EMAILS
+  // ============================================================
+
+  ticket_opened: (data) => ({
+    subject: `Chamado aberto — ${data.ticketNumber}`,
+    html: baseTemplate(`
+      <p class="greeting">Olá, ${data.userName}!</p>
+      <p class="message">
+        Seu chamado foi aberto com sucesso. Nossa equipe analisará sua solicitação o mais breve possível.
+      </p>
+      <div class="info-box">
+        <div class="info-box-title">🎫 Detalhes do chamado</div>
+        <div class="info-row"><span class="info-label">Número</span><span class="info-value" style="font-family: monospace;">${data.ticketNumber}</span></div>
+        <div class="info-row"><span class="info-label">Assunto</span><span class="info-value">${data.subject}</span></div>
+        <div class="info-row"><span class="info-label">Categoria</span><span class="info-value">${data.category}</span></div>
+        <div class="info-row"><span class="info-label">Prioridade</span><span class="info-value">${data.priority}</span></div>
+        <div class="info-row"><span class="info-label">Tempo estimado</span><span class="info-value highlight">${data.slaTime}</span></div>
+      </div>
+      <div class="tip-box">
+        Você pode acompanhar o status e enviar mensagens diretamente pelo app.
+      </div>
+      <a href="${data.ticketUrl}" class="cta-button">Acompanhar chamado</a>
+    `, `Chamado aberto — ${data.ticketNumber}`, `Seu chamado ${data.ticketNumber} foi aberto com sucesso.`),
+  }),
+
+  ticket_replied: (data) => ({
+    subject: `Nova resposta do suporte — ${data.ticketNumber}`,
+    html: baseTemplate(`
+      <p class="greeting">Olá, ${data.userName}!</p>
+      <p class="message">
+        O suporte respondeu ao seu chamado <strong>${data.ticketNumber}</strong>.
+      </p>
+      <div class="info-box">
+        <div class="info-box-title">💬 Resposta do suporte</div>
+        <div class="message-quote">"${data.messageContent}"</div>
+        <div style="margin-top: 12px; font-size: 12px; color: #9ca3af;">Equipe de Suporte · ${data.repliedAt}</div>
+      </div>
+      <div class="tip-box">
+        Responda diretamente pelo app para manter a conversa organizada.
+      </div>
+      <a href="${data.ticketUrl}" class="cta-button">Responder</a>
+    `, `Resposta do suporte — ${data.ticketNumber}`, `O suporte respondeu ao seu chamado ${data.ticketNumber}.`),
+  }),
+
+  ticket_status_updated: (data) => ({
+    subject: `Chamado ${data.statusLabel} — ${data.ticketNumber}`,
+    html: baseTemplate(`
+      <p class="greeting">Olá, ${data.userName}!</p>
+      <p class="message">
+        O status do seu chamado <strong>${data.ticketNumber}</strong> foi atualizado.
+      </p>
+      <div class="${data.status === 'resolved' ? 'success-box' : 'tip-box'}">
+        ${data.status === 'resolved' ? '✅ Seu chamado foi resolvido!' : `📋 Status atualizado para: <strong>${data.statusLabel}</strong>`}
+      </div>
+      <div class="info-box">
+        <div class="info-box-title">🎫 Chamado</div>
+        <div class="info-row"><span class="info-label">Número</span><span class="info-value" style="font-family: monospace;">${data.ticketNumber}</span></div>
+        <div class="info-row"><span class="info-label">Assunto</span><span class="info-value">${data.subject}</span></div>
+        <div class="info-row"><span class="info-label">Novo status</span><span class="info-value"><span class="status-badge ${data.status === 'resolved' ? 'status-confirmed' : 'status-pending'}">${data.statusLabel}</span></span></div>
+      </div>
+      ${data.status === 'resolved' ? `
+      <div class="tip-box">
+        Se o problema foi resolvido, por favor avalie o atendimento! Sua opinião nos ajuda a melhorar.
+      </div>
+      ` : ''}
+      <a href="${data.ticketUrl}" class="cta-button">${data.status === 'resolved' ? 'Avaliar atendimento' : 'Ver chamado'}</a>
+    `, `Chamado ${data.statusLabel} — ${data.ticketNumber}`, `Seu chamado ${data.ticketNumber} foi atualizado para ${data.statusLabel}.`),
+  }),
 };
 
 serve(async (req) => {

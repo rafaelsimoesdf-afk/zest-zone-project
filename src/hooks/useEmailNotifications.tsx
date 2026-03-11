@@ -358,7 +358,88 @@ export const sendBookingConfirmedOwnerEmail = async (params: {
 // HELPER: busca dados do usuário para email
 // ============================================================
 
+// ============================================================
+// SUPPORT TICKET EMAILS
+// ============================================================
+
+export const sendTicketOpenedEmail = async (params: {
+  userEmail: string;
+  userName: string;
+  ticketNumber: string;
+  subject: string;
+  category: string;
+  priority: string;
+  slaTime: string;
+  ticketId: string;
+}) => {
+  sendEmail(params.userEmail, "ticket_opened", {
+    userName: params.userName,
+    ticketNumber: params.ticketNumber,
+    subject: params.subject,
+    category: params.category,
+    priority: params.priority,
+    slaTime: params.slaTime,
+    ticketUrl: `${window.location.origin}/support/ticket/${params.ticketId}`,
+  });
+};
+
+export const sendTicketRepliedEmail = async (params: {
+  userEmail: string;
+  userName: string;
+  ticketNumber: string;
+  messageContent: string;
+  ticketId: string;
+}) => {
+  sendEmail(params.userEmail, "ticket_replied", {
+    userName: params.userName,
+    ticketNumber: params.ticketNumber,
+    messageContent: params.messageContent.substring(0, 300) + (params.messageContent.length > 300 ? "..." : ""),
+    repliedAt: new Date().toLocaleString("pt-BR"),
+    ticketUrl: `${window.location.origin}/support/ticket/${params.ticketId}`,
+  });
+};
+
+export const sendTicketStatusEmail = async (params: {
+  userEmail: string;
+  userName: string;
+  ticketNumber: string;
+  subject: string;
+  status: string;
+  statusLabel: string;
+  ticketId: string;
+}) => {
+  sendEmail(params.userEmail, "ticket_status_updated", {
+    userName: params.userName,
+    ticketNumber: params.ticketNumber,
+    subject: params.subject,
+    status: params.status,
+    statusLabel: params.statusLabel,
+    ticketUrl: `${window.location.origin}/support/ticket/${params.ticketId}`,
+  });
+};
+
+// ============================================================
+// HELPER: busca dados do usuário para email
+// ============================================================
+
 export const getUserEmailData = async (userId: string): Promise<{ email: string; name: string; phone?: string | null } | null> => {
+  try {
+    const { data } = await supabase
+      .from("profiles")
+      .select("email, first_name, last_name, phone_number")
+      .eq("id", userId)
+      .single();
+
+    if (!data) return null;
+    return {
+      email: data.email,
+      name: `${data.first_name} ${data.last_name}`,
+      phone: data.phone_number,
+    };
+  } catch {
+    return null;
+  }
+};
   try {
     const { data } = await supabase
       .from("profiles")

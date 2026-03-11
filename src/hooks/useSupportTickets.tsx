@@ -436,7 +436,7 @@ export const useSendAdminTicketMessage = () => {
       // Notify ticket owner
       const { data: ticket } = await supabase
         .from("support_tickets")
-        .select("user_id, subject")
+        .select("user_id, subject, ticket_number")
         .eq("id", params.ticketId)
         .single();
 
@@ -448,6 +448,19 @@ export const useSendAdminTicketMessage = () => {
           notification_type: "system" as any,
           action_url: `/support/ticket/${params.ticketId}`,
         });
+
+        // Send email
+        const { sendTicketRepliedEmail, getUserEmailData } = await import("@/hooks/useEmailNotifications");
+        const userData = await getUserEmailData(ticket.user_id);
+        if (userData) {
+          sendTicketRepliedEmail({
+            userEmail: userData.email,
+            userName: userData.name,
+            ticketNumber: ticket.ticket_number || "",
+            messageContent: params.content,
+            ticketId: params.ticketId,
+          });
+        }
       }
     },
     onSuccess: (_, vars) => {
