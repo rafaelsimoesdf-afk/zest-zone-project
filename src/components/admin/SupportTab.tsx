@@ -19,7 +19,8 @@ import {
   type TicketCategory,
   type TicketPriority,
 } from "@/hooks/useSupportTickets";
-import { MessageSquare, Send, Filter, Clock } from "lucide-react";
+import { MessageSquare, Send, Filter, Clock, User } from "lucide-react";
+import CustomerHistoryPanel from "./CustomerHistoryPanel";
 
 const priorityColor: Record<string, string> = {
   low: "bg-muted text-muted-foreground",
