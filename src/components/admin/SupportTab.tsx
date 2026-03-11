@@ -166,7 +166,7 @@ const SupportTab = () => {
 
       {/* Ticket detail modal */}
       <Dialog open={!!selectedTicketId} onOpenChange={(open) => !open && setSelectedTicketId(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh]">
+        <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <span className="font-mono text-sm text-muted-foreground">{selectedTicket?.ticket_number}</span>
