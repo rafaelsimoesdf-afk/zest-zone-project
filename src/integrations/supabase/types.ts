@@ -343,6 +343,66 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_signatures: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          sign_order: number
+          signed_at: string | null
+          signer_id: string
+          signer_role: string
+          status: string
+          updated_at: string
+          zapsign_sign_url: string | null
+          zapsign_signer_token: string | null
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          sign_order: number
+          signed_at?: string | null
+          signer_id: string
+          signer_role: string
+          status?: string
+          updated_at?: string
+          zapsign_sign_url?: string | null
+          zapsign_signer_token?: string | null
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          sign_order?: number
+          signed_at?: string | null
+          signer_id?: string
+          signer_role?: string
+          status?: string
+          updated_at?: string
+          zapsign_sign_url?: string | null
+          zapsign_signer_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_signatures_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "rental_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contract_signatures_signer_id_fkey"
+            columns: ["signer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       faq_articles: {
         Row: {
           category: Database["public"]["Enums"]["ticket_category"]
@@ -822,6 +882,69 @@ export type Database = {
           verified_at?: string | null
         }
         Relationships: []
+      }
+      rental_contracts: {
+        Row: {
+          audit_trail_url: string | null
+          booking_id: string
+          completed_at: string | null
+          contract_data: Json | null
+          created_at: string
+          document_hash: string | null
+          id: string
+          inspection_id: string | null
+          signed_pdf_url: string | null
+          status: string
+          updated_at: string
+          zapsign_doc_id: string | null
+          zapsign_doc_token: string | null
+        }
+        Insert: {
+          audit_trail_url?: string | null
+          booking_id: string
+          completed_at?: string | null
+          contract_data?: Json | null
+          created_at?: string
+          document_hash?: string | null
+          id?: string
+          inspection_id?: string | null
+          signed_pdf_url?: string | null
+          status?: string
+          updated_at?: string
+          zapsign_doc_id?: string | null
+          zapsign_doc_token?: string | null
+        }
+        Update: {
+          audit_trail_url?: string | null
+          booking_id?: string
+          completed_at?: string | null
+          contract_data?: Json | null
+          created_at?: string
+          document_hash?: string | null
+          id?: string
+          inspection_id?: string | null
+          signed_pdf_url?: string | null
+          status?: string
+          updated_at?: string
+          zapsign_doc_id?: string | null
+          zapsign_doc_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_contracts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rental_contracts_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_inspections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
