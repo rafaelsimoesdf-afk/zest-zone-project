@@ -1,6 +1,7 @@
 import { useBookingInspections } from "@/hooks/useVehicleInspections";
 import InspectionForm from "./InspectionForm";
 import InspectionView from "./InspectionView";
+import ContractSection from "@/components/contract/ContractSection";
 import { Card, CardContent } from "@/components/ui/card";
 import { Shield } from "lucide-react";
 
@@ -72,6 +73,19 @@ const InspectionSection = ({
             </CardContent>
           </Card>
         )
+      )}
+
+      {/* Contract Section - shown after pickup inspection is submitted */}
+      {pickupInspection && (
+        <ContractSection
+          bookingId={bookingId}
+          bookingStatus={bookingStatus}
+          isOwner={isOwner}
+          isCustomer={isCustomer}
+          userId={userId}
+          pickupInspectionId={pickupInspection.id}
+          pickupInspectionStatus={pickupInspection.status}
+        />
       )}
 
       {/* Return Inspection - only show after pickup is confirmed */}
