@@ -440,20 +440,3 @@ export const getUserEmailData = async (userId: string): Promise<{ email: string;
     return null;
   }
 };
-  try {
-    const { data } = await supabase
-      .from("profiles")
-      .select("email, first_name, last_name, phone_number")
-      .eq("id", userId)
-      .single();
-
-    if (!data) return null;
-    return {
-      email: data.email,
-      name: `${data.first_name} ${data.last_name}`,
-      phone: data.phone_number,
-    };
-  } catch {
-    return null;
-  }
-};
