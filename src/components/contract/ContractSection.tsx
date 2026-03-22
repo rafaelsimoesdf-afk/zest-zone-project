@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -73,10 +73,14 @@ const ContractSection = ({
   const syncContract = useSyncContractStatus();
   const [signDialogOpen, setSignDialogOpen] = useState(false);
   const [currentSignUrl, setCurrentSignUrl] = useState<string | null>(null);
+  const hasSynced = useRef(false);
 
   const config = contract ? statusConfig[contract.status] || statusConfig.draft : null;
+  
+  // Allow creating contract when inspection exists (any status) and no contract yet
   const canCreateContract =
-    !contract && pickupInspectionStatus === "pending" && (isCustomer || isOwner);
+    !contract && !!pickupInspectionId && (isCustomer || isOwner);
+  
   const mySignature = signatures?.find((signature) => signature.signer_id === userId);
   const mySignUrl =
     mySignature?.zapsign_sign_url || buildFallbackSignerUrl(mySignature?.zapsign_signer_token);
@@ -86,6 +90,7 @@ const ContractSection = ({
     ((isCustomer && contract.status === "waiting_renter_signature") ||
       (isOwner && contract.status === "waiting_owner_signature"));
 
+  // Realtime subscription for contract updates
   useEffect(() => {
     if (!contract?.id) return;
 
@@ -106,10 +111,20 @@ const ContractSection = ({
     };
   }, [contract?.id, refetchContract, refetchSignatures]);
 
+  // Auto-sync contract status once on mount (not in a loop)
   useEffect(() => {
-    if (!contract?.id || contract.status === "completed" || syncContract.isPending) return;
-    syncContract.mutate({ bookingId, contractId: contract.id });
-  }, [bookingId, contract?.id, contract?.status, syncContract.isPending]);
+    if (!contract?.id || contract.status === "completed" || hasSynced.current) return;
+    hasSynced.current = true;
+    syncContract.mutate(
+      { bookingId, contractId: contract.id },
+      {
+        onSuccess: () => {
+          refetchContract();
+          refetchSignatures();
+        },
+      }
+    );
+  }, [contract?.id]);
 
   if (!["confirmed", "in_progress", "completed"].includes(bookingStatus)) return null;
   if (!pickupInspectionId) return null;
@@ -120,21 +135,25 @@ const ContractSection = ({
       toast.error("O link de assinatura ainda não foi gerado. Atualize o contrato e tente novamente.");
       return;
     }
-
     setCurrentSignUrl(signUrl);
     setSignDialogOpen(true);
   };
 
   const handleCreateContract = async () => {
-    const response = await createContract.mutateAsync({
-      bookingId,
-      inspectionId: pickupInspectionId,
-    });
+    try {
+      const response = await createContract.mutateAsync({
+        bookingId,
+        inspectionId: pickupInspectionId,
+      });
 
-    await Promise.all([refetchContract(), refetchSignatures()]);
+      await Promise.all([refetchContract(), refetchSignatures()]);
 
-    if (isCustomer && response.currentSignerUrl) {
-      openSignature(response.currentSignerUrl);
+      // Auto-open signature dialog for renter after creation
+      if (isCustomer && response.currentSignerUrl) {
+        openSignature(response.currentSignerUrl);
+      }
+    } catch (err) {
+      // Error already handled by mutation onError
     }
   };
 
@@ -146,20 +165,28 @@ const ContractSection = ({
 
     if (!contract?.id) return;
 
-    const syncResponse = await syncContract.mutateAsync({
-      bookingId,
-      contractId: contract.id,
-    });
+    try {
+      const syncResponse = await syncContract.mutateAsync({
+        bookingId,
+        contractId: contract.id,
+      });
 
-    await Promise.all([refetchContract(), refetchSignatures()]);
-    openSignature(syncResponse.currentSignerUrl);
+      await Promise.all([refetchContract(), refetchSignatures()]);
+      openSignature(syncResponse.currentSignerUrl);
+    } catch (err) {
+      toast.error("Erro ao preparar assinatura. Tente novamente.");
+    }
   };
 
   const handleDialogChange = async (open: boolean) => {
     setSignDialogOpen(open);
 
     if (!open && contract?.id) {
-      await syncContract.mutateAsync({ bookingId, contractId: contract.id }).catch(() => null);
+      try {
+        await syncContract.mutateAsync({ bookingId, contractId: contract.id });
+      } catch {
+        // ignore
+      }
       refetchContract();
       refetchSignatures();
     }
@@ -186,7 +213,7 @@ const ContractSection = ({
             <div>
               <h4 className="font-semibold text-sm sm:text-base">Gerar Contrato de Locação</h4>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                Após a inspeção de entrega, gere o contrato digital para assinatura de ambas as partes.
+                Gere o contrato digital para assinatura de ambas as partes.
               </p>
             </div>
             <Button
@@ -280,7 +307,20 @@ const ContractSection = ({
                 {!syncContract.isPending && (
                   <Button
                     variant="outline"
-                    onClick={() => contract?.id && syncContract.mutate({ bookingId, contractId: contract.id })}
+                    onClick={() => {
+                      if (contract?.id) {
+                        hasSynced.current = false;
+                        syncContract.mutate(
+                          { bookingId, contractId: contract.id },
+                          {
+                            onSuccess: () => {
+                              refetchContract();
+                              refetchSignatures();
+                            },
+                          }
+                        );
+                      }
+                    }}
                     className="w-full sm:w-auto"
                   >
                     Atualizar contrato
