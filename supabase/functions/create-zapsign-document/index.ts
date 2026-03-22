@@ -264,7 +264,7 @@ Deno.serve(async (req) => {
   }
 });
 
-function generateContractHtml(data: {
+function generateContractPdfBase64(data: {
   customerName: string;
   customerCpf: string;
   customerEmail: string;
@@ -285,75 +285,137 @@ function generateContractHtml(data: {
   bookingId: string;
 }): string {
   const today = new Date().toLocaleDateString("pt-BR");
+  const lines = [
+    "CONTRATO DE LOCAÇÃO DE VEÍCULO",
+    "Plataforma Infinite Drive",
+    `Contrato nº ${data.bookingId.slice(0, 8).toUpperCase()} | Data: ${today}`,
+    "",
+    "1. DAS PARTES",
+    `LOCADOR (Proprietário): ${data.ownerName}`,
+    `CPF: ${data.ownerCpf}`,
+    `E-mail: ${data.ownerEmail}`,
+    `Telefone: ${data.ownerPhone}`,
+    "",
+    `LOCATÁRIO: ${data.customerName}`,
+    `CPF: ${data.customerCpf}`,
+    `E-mail: ${data.customerEmail}`,
+    `Telefone: ${data.customerPhone}`,
+    "",
+    "2. DO OBJETO",
+    `Veículo: ${data.vehicleName}`,
+    `Placa: ${data.vehiclePlate}`,
+    `Cor: ${data.vehicleColor}`,
+    `Quilometragem na entrega: ${data.vehicleMileage.toLocaleString("pt-BR")} km`,
+    "",
+    "3. DO PERÍODO",
+    `Início: ${data.startDate}`,
+    `Término: ${data.endDate}`,
+    `Total: ${data.totalDays} dia(s)`,
+    "",
+    "4. DO VALOR",
+    `Valor da diária: ${data.dailyRate}`,
+    `Valor total: ${data.totalPrice}`,
+    "",
+    "5. OBRIGAÇÕES DO LOCATÁRIO",
+    "• Utilizar o veículo de forma prudente e conforme a legislação.",
+    "• Devolver o veículo nas mesmas condições, salvo desgaste natural.",
+    "• Responder por multas, infrações e danos durante a locação.",
+    "• Não sublocar ou ceder o veículo a terceiros.",
+    "• Registrar a vistoria de entrega e devolução na plataforma.",
+    "",
+    "6. OBRIGAÇÕES DO LOCADOR",
+    "• Entregar o veículo em perfeitas condições de uso.",
+    "• Garantir documentação regular e seguro vigente.",
+    "• Disponibilizar o veículo no local e horário acordados.",
+    "",
+    "7. DA VISTORIA",
+    "As partes declaram que realizaram a vistoria do veículo com registro fotográfico e observações na plataforma Infinite Drive.",
+    "",
+    "8. DAS DISPOSIÇÕES GERAIS",
+    "Este contrato observa a MP 2.200-2/2001, garantindo autenticidade, integridade e validade jurídica do documento eletrônico.",
+    "As assinaturas eletrônicas apostas possuem validade jurídica equivalente à assinatura manuscrita.",
+    "",
+    "9. DO FORO",
+    "Fica eleito o foro da comarca do domicílio do locatário para dirimir quaisquer questões oriundas deste contrato.",
+    "",
+    `Documento gerado eletronicamente pela plataforma Infinite Drive em ${today}.`,
+  ];
 
-  return `
-<html>
-<body style="font-family: Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px;">
-<h1 style="text-align: center; color: #1a1a2e; font-size: 18px;">CONTRATO DE LOCAÇÃO DE VEÍCULO</h1>
-<h2 style="text-align: center; color: #666; font-size: 14px;">Plataforma Infinite Drive</h2>
-<p style="text-align: center; color: #999; font-size: 11px;">Contrato nº ${data.bookingId.slice(0, 8).toUpperCase()} | Data: ${today}</p>
-<hr style="border: 1px solid #ddd;">
+  const wrappedLines = lines.flatMap((line) => wrapPdfText(line, PDF_MAX_CHARS_PER_LINE));
+  const pages = chunkArray(wrappedLines, PDF_LINES_PER_PAGE);
+  const objects: string[] = [];
+  const pageObjectIds: number[] = [];
+  const contentObjectIds: number[] = [];
+  const fontObjectId = 3 + pages.length * 2;
 
-<h3>1. DAS PARTES</h3>
-<p><strong>LOCADOR (Proprietário):</strong></p>
-<ul>
-  <li>Nome: ${data.ownerName}</li>
-  <li>CPF: ${data.ownerCpf}</li>
-  <li>E-mail: ${data.ownerEmail}</li>
-  <li>Telefone: ${data.ownerPhone}</li>
-</ul>
+  pages.forEach((pageLines, index) => {
+    const pageObjectId = 3 + index * 2;
+    const contentObjectId = pageObjectId + 1;
+    pageObjectIds.push(pageObjectId);
+    contentObjectIds.push(contentObjectId);
 
-<p><strong>LOCATÁRIO:</strong></p>
-<ul>
-  <li>Nome: ${data.customerName}</li>
-  <li>CPF: ${data.customerCpf}</li>
-  <li>E-mail: ${data.customerEmail}</li>
-  <li>Telefone: ${data.customerPhone}</li>
-</ul>
+    const streamLines = ["BT", `/F1 ${PDF_FONT_SIZE} Tf`, `${PDF_LEFT_MARGIN} ${PDF_TOP_START} Td`];
+    pageLines.forEach((line, lineIndex) => {
+      if (lineIndex > 0) streamLines.push(`0 -${PDF_LINE_HEIGHT} Td`);
+      streamLines.push(`(${escapePdfText(line)}) Tj`);
+    });
+    streamLines.push("ET");
 
-<h3>2. DO OBJETO</h3>
-<p>O presente contrato tem por objeto a locação do veículo:</p>
-<ul>
-  <li>Veículo: ${data.vehicleName}</li>
-  <li>Placa: ${data.vehiclePlate}</li>
-  <li>Cor: ${data.vehicleColor}</li>
-  <li>Quilometragem na entrega: ${data.vehicleMileage.toLocaleString("pt-BR")} km</li>
-</ul>
+    const stream = streamLines.join("\n");
+    objects.push(`${pageObjectId} 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PDF_PAGE_WIDTH} ${PDF_PAGE_HEIGHT}] /Contents ${contentObjectId} 0 R /Resources << /Font << /F1 ${fontObjectId} 0 R >> >> >>\nendobj`);
+    objects.push(`${contentObjectId} 0 obj\n<< /Length ${stream.length} >>\nstream\n${stream}\nendstream\nendobj`);
+  });
 
-<h3>3. DO PERÍODO</h3>
-<p>A locação terá início em <strong>${data.startDate}</strong> e término em <strong>${data.endDate}</strong>, totalizando <strong>${data.totalDays} dia(s)</strong>.</p>
+  objects.unshift(`2 0 obj\n<< /Type /Pages /Count ${pages.length} /Kids [${pageObjectIds.map((id) => `${id} 0 R`).join(" ")}] >>\nendobj`);
+  objects.unshift(`1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj`);
+  objects.push(`${fontObjectId} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj`);
 
-<h3>4. DO VALOR</h3>
-<p>O valor da diária é de <strong>${data.dailyRate}</strong>, totalizando <strong>${data.totalPrice}</strong> pelo período contratado.</p>
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  for (const object of objects) {
+    offsets.push(pdf.length);
+    pdf += `${object}\n`;
+  }
 
-<h3>5. DAS OBRIGAÇÕES DO LOCATÁRIO</h3>
-<ul>
-  <li>Utilizar o veículo de forma prudente e em conformidade com a legislação de trânsito;</li>
-  <li>Devolver o veículo nas mesmas condições em que o recebeu, salvo desgaste natural;</li>
-  <li>Responsabilizar-se por multas, infrações e danos ocorridos durante o período de locação;</li>
-  <li>Não sublocar ou ceder o veículo a terceiros;</li>
-  <li>Registrar a inspeção de entrega e devolução na plataforma Infinite Drive.</li>
-</ul>
+  const xrefStart = pdf.length;
+  pdf += `xref\n0 ${objects.length + 1}\n`;
+  pdf += "0000000000 65535 f \n";
+  for (let i = 1; i < offsets.length; i++) {
+    pdf += `${offsets[i].toString().padStart(10, "0")} 00000 n \n`;
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
 
-<h3>6. DAS OBRIGAÇÕES DO LOCADOR</h3>
-<ul>
-  <li>Entregar o veículo em perfeitas condições de uso e com documentação regular;</li>
-  <li>Garantir que o veículo possua seguro vigente;</li>
-  <li>Disponibilizar o veículo no local e horário acordados.</li>
-</ul>
+  return btoa(pdf);
+}
 
-<h3>7. DA VISTORIA</h3>
-<p>As partes declaram que realizaram a vistoria do veículo por meio da plataforma Infinite Drive, com registro fotográfico e observações sobre o estado do veículo, servindo como prova documental das condições na entrega.</p>
+function wrapPdfText(text: string, maxChars: number): string[] {
+  if (!text) return [""];
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let currentLine = "";
 
-<h3>8. DAS DISPOSIÇÕES GERAIS</h3>
-<p>Este contrato é celebrado em conformidade com a Medida Provisória nº 2.200-2/2001, que institui a Infraestrutura de Chaves Públicas Brasileira - ICP-Brasil, garantindo a autenticidade, integridade e validade jurídica dos documentos em forma eletrônica.</p>
-<p>As assinaturas eletrônicas apostas neste documento têm validade jurídica e são equivalentes às assinaturas manuscritas para todos os fins de direito.</p>
+  for (const word of words) {
+    const candidate = currentLine ? `${currentLine} ${word}` : word;
+    if (candidate.length <= maxChars) {
+      currentLine = candidate;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  }
 
-<h3>9. DO FORO</h3>
-<p>Fica eleito o foro da comarca do domicílio do locatário para dirimir quaisquer questões oriundas deste contrato.</p>
+  if (currentLine) lines.push(currentLine);
+  return lines.length ? lines : [text];
+}
 
-<br>
-<p style="text-align: center; color: #999; font-size: 10px;">Documento gerado eletronicamente pela plataforma Infinite Drive em ${today}.</p>
-</body>
-</html>`;
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size));
+  }
+  return chunks;
+}
+
+function escapePdfText(text: string): string {
+  return text.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
 }
