@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -30,6 +30,23 @@ export interface ContractSignature {
   signed_at: string | null;
   ip_address: string | null;
   created_at: string;
+}
+
+interface ContractFunctionResponse {
+  success: boolean;
+  contractId: string;
+  status?: string;
+  contractStatus?: string;
+  currentSignerUrl?: string | null;
+  signers?: Array<{
+    signer_id: string;
+    signer_role: string;
+    sign_order: number;
+    signer_token: string | null;
+    sign_url: string | null;
+    status: string;
+  }>;
+  error?: string;
 }
 
 export const useBookingContract = (bookingId: string) => {
@@ -66,6 +83,38 @@ export const useContractSignatures = (contractId: string) => {
   });
 };
 
+async function invokeAuthedFunction<TResponse>(
+  functionName: string,
+  body: Record<string, unknown>
+): Promise<TResponse> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    throw new Error("Faça login para continuar");
+  }
+
+  const { data, error } = await supabase.functions.invoke(functionName, {
+    body,
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+  });
+
+  if (error) {
+    const errorBody = await error.context?.json?.().catch(() => null);
+    throw new Error(errorBody?.error || error.message || "Erro ao processar contrato");
+  }
+
+  const typedData = data as TResponse & { success?: boolean; error?: string };
+  if (!typedData?.success) {
+    throw new Error(typedData?.error || "Erro ao processar contrato");
+  }
+
+  return typedData as TResponse;
+}
+
 export const useCreateContract = () => {
   const queryClient = useQueryClient();
 
@@ -77,44 +126,43 @@ export const useCreateContract = () => {
       bookingId: string;
       inspectionId?: string;
     }) => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        throw new Error("Faça login para gerar o contrato");
-      }
-
-      const { data, error } = await supabase.functions.invoke(
-        "create-zapsign-document",
-        {
-          body: { bookingId, inspectionId },
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        }
-      );
-
-      if (error) {
-        const errorBody = await error.context?.json?.().catch(() => null);
-        throw new Error(
-          errorBody?.error || error.message || "Erro ao criar contrato"
-        );
-      }
-      if (!data?.success) throw new Error(data?.error || "Erro ao criar contrato");
-      return data;
+      return invokeAuthedFunction<ContractFunctionResponse>("create-zapsign-document", {
+        bookingId,
+        inspectionId,
+      });
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["rental-contract", variables.bookingId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["contract-signatures"],
-      });
-      toast.success("Contrato criado com sucesso! Pronto para assinatura.");
+      queryClient.invalidateQueries({ queryKey: ["rental-contract", variables.bookingId] });
+      queryClient.invalidateQueries({ queryKey: ["contract-signatures"] });
+      toast.success("Contrato criado com sucesso!");
     },
     onError: (error: Error) => {
       toast.error(error.message || "Erro ao criar contrato");
+    },
+  });
+};
+
+export const useSyncContractStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      bookingId,
+      contractId,
+    }: {
+      bookingId: string;
+      contractId?: string;
+    }) => {
+      return invokeAuthedFunction<ContractFunctionResponse>("sync-zapsign-contract", {
+        bookingId,
+        contractId,
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["rental-contract", variables.bookingId] });
+      if (variables.contractId) {
+        queryClient.invalidateQueries({ queryKey: ["contract-signatures", variables.contractId] });
+      }
     },
   });
 };

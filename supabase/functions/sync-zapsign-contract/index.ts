@@ -20,40 +20,58 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    const payload = await req.json();
-    console.log("ZapSign webhook received:", JSON.stringify(payload));
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) throw new Error("Missing authorization header");
 
-    const docToken = payload.doc?.token || payload.token;
-    if (!docToken) {
-      return jsonResponse({ success: true, ignored: true, reason: "Missing doc token" });
+    const {
+      data: { user },
+      error: authError,
+    } = await createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    }).auth.getUser();
+
+    if (authError || !user) throw new Error("Unauthorized");
+
+    const { contractId, bookingId } = await req.json();
+    if (!contractId && !bookingId) {
+      throw new Error("contractId or bookingId is required");
     }
 
-    const { data: contract } = await supabase
+    let contractQuery = supabase
       .from("rental_contracts")
-      .select("*, bookings(customer_id, owner_id, vehicles(brand, model))")
-      .eq("zapsign_doc_token", docToken)
-      .maybeSingle();
+      .select("*, bookings(customer_id, owner_id, vehicles(brand, model))");
 
-    if (!contract) {
-      console.warn("No contract found for ZapSign token", docToken);
-      return jsonResponse({ success: true, ignored: true, reason: "Contract not found" });
+    if (contractId) {
+      contractQuery = contractQuery.eq("id", contractId);
+    } else {
+      contractQuery = contractQuery.eq("booking_id", bookingId);
     }
+
+    const { data: contract, error: contractError } = await contractQuery.maybeSingle();
+    if (contractError || !contract) throw new Error("Contract not found");
 
     const booking = contract.bookings as any;
-    const docData = await fetchZapSignDocument(docToken, ZAPSIGN_API_KEY);
+    const isParticipant = user.id === booking?.customer_id || user.id === booking?.owner_id;
+    if (!isParticipant) throw new Error("Unauthorized");
+    if (!contract.zapsign_doc_token) throw new Error("Contract without ZapSign token");
+
+    const docData = await fetchZapSignDocument(contract.zapsign_doc_token, ZAPSIGN_API_KEY);
     const result = await syncContractFromDocument(supabase, contract, booking, docData);
 
     return jsonResponse({
       success: true,
       contractId: contract.id,
+      bookingId: contract.booking_id,
       contractStatus: result.contractStatus,
+      currentSignerUrl: getCurrentSignerUrlForUser(result.signatureRows, user.id, result.contractStatus),
       signers: serializeSigners(result.signatureRows),
     });
   } catch (error: any) {
-    console.error("Webhook error:", error);
-    return jsonResponse({ success: false, error: error.message }, 500);
+    console.error("Error syncing ZapSign contract:", error);
+    return jsonResponse({ success: false, error: error.message }, 400);
   }
 });
 
@@ -133,7 +151,6 @@ async function syncContractFromDocument(
       const vehicleName = booking?.vehicles
         ? `${booking.vehicles.brand} ${booking.vehicles.model}`
         : "veículo";
-
       await Promise.all(
         [booking.customer_id, booking.owner_id].map((userId: string) =>
           supabase.from("notifications").insert({
@@ -235,6 +252,21 @@ function mapSignerStatus(status?: string | null) {
   if (status === "signed") return "signed";
   if (status === "refused") return "refused";
   return "pending";
+}
+
+function getCurrentSignerUrlForUser(
+  signatureRows: Array<{ signer_id: string; signer_role: string; zapsign_sign_url: string | null; status: string }>,
+  userId: string,
+  contractStatus: string
+) {
+  return (
+    signatureRows.find((signature) => {
+      if (signature.signer_id !== userId || signature.status !== "pending") return false;
+      if (contractStatus === "waiting_renter_signature") return signature.signer_role === "renter";
+      if (contractStatus === "waiting_owner_signature") return signature.signer_role === "owner";
+      return false;
+    })?.zapsign_sign_url ?? null
+  );
 }
 
 function serializeSigners(

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,8 +18,10 @@ import {
   useBookingContract,
   useContractSignatures,
   useCreateContract,
+  useSyncContractStatus,
 } from "@/hooks/useContracts";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ContractSectionProps {
   bookingId: string;
@@ -31,13 +33,27 @@ interface ContractSectionProps {
   pickupInspectionStatus?: string;
 }
 
-const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; icon: any }> = {
+const statusConfig: Record<
+  string,
+  { label: string; variant: "default" | "secondary" | "destructive" | "outline"; icon: any }
+> = {
   draft: { label: "Rascunho", variant: "outline", icon: FileText },
-  waiting_renter_signature: { label: "Aguardando Assinatura do Locatário", variant: "secondary", icon: Pen },
-  waiting_owner_signature: { label: "Aguardando Assinatura do Proprietário", variant: "secondary", icon: Pen },
+  waiting_renter_signature: {
+    label: "Aguardando Assinatura do Locatário",
+    variant: "secondary",
+    icon: Pen,
+  },
+  waiting_owner_signature: {
+    label: "Aguardando Assinatura do Proprietário",
+    variant: "secondary",
+    icon: Pen,
+  },
   completed: { label: "Assinado", variant: "default", icon: CheckCircle },
   cancelled: { label: "Cancelado", variant: "destructive", icon: AlertCircle },
 };
+
+const buildFallbackSignerUrl = (token?: string | null) =>
+  token ? `https://sandbox.app.zapsign.com.br/verificar/${token}` : null;
 
 const ContractSection = ({
   bookingId,
@@ -48,13 +64,28 @@ const ContractSection = ({
   pickupInspectionId,
   pickupInspectionStatus,
 }: ContractSectionProps) => {
-  const { data: contract, isLoading } = useBookingContract(bookingId);
-  const { data: signatures } = useContractSignatures(contract?.id || "");
+  const { data: contract, isLoading, refetch: refetchContract } = useBookingContract(bookingId);
+  const {
+    data: signatures,
+    refetch: refetchSignatures,
+  } = useContractSignatures(contract?.id || "");
   const createContract = useCreateContract();
+  const syncContract = useSyncContractStatus();
   const [signDialogOpen, setSignDialogOpen] = useState(false);
   const [currentSignUrl, setCurrentSignUrl] = useState<string | null>(null);
 
-  // Subscribe to realtime updates
+  const config = contract ? statusConfig[contract.status] || statusConfig.draft : null;
+  const canCreateContract =
+    !contract && pickupInspectionStatus === "pending" && (isCustomer || isOwner);
+  const mySignature = signatures?.find((signature) => signature.signer_id === userId);
+  const mySignUrl =
+    mySignature?.zapsign_sign_url || buildFallbackSignerUrl(mySignature?.zapsign_signer_token);
+  const canSign =
+    !!contract &&
+    mySignature?.status === "pending" &&
+    ((isCustomer && contract.status === "waiting_renter_signature") ||
+      (isOwner && contract.status === "waiting_owner_signature"));
+
   useEffect(() => {
     if (!contract?.id) return;
 
@@ -64,7 +95,8 @@ const ContractSection = ({
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "rental_contracts", filter: `id=eq.${contract.id}` },
         () => {
-          // Refetch will happen via react-query invalidation
+          refetchContract();
+          refetchSignatures();
         }
       )
       .subscribe();
@@ -72,40 +104,64 @@ const ContractSection = ({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [contract?.id]);
+  }, [contract?.id, refetchContract, refetchSignatures]);
+
+  useEffect(() => {
+    if (!contract?.id || contract.status === "completed" || syncContract.isPending) return;
+    syncContract.mutate({ bookingId, contractId: contract.id });
+  }, [bookingId, contract?.id, contract?.status, syncContract.isPending]);
 
   if (!["confirmed", "in_progress", "completed"].includes(bookingStatus)) return null;
-
-  // Only show after pickup inspection is submitted
   if (!pickupInspectionId) return null;
-
   if (isLoading) return null;
 
-  const config = contract ? statusConfig[contract.status] || statusConfig.draft : null;
+  const openSignature = (signUrl?: string | null) => {
+    if (!signUrl) {
+      toast.error("O link de assinatura ainda não foi gerado. Atualize o contrato e tente novamente.");
+      return;
+    }
 
-  const canCreateContract =
-    !contract &&
-    pickupInspectionStatus === "pending" &&
-    (isCustomer || isOwner);
-
-  const mySignature = signatures?.find((s) => s.signer_id === userId);
-  const canSign =
-    contract &&
-    mySignature?.status === "pending" &&
-    ((isCustomer && contract.status === "waiting_renter_signature") ||
-      (isOwner && contract.status === "waiting_owner_signature"));
+    setCurrentSignUrl(signUrl);
+    setSignDialogOpen(true);
+  };
 
   const handleCreateContract = async () => {
-    await createContract.mutateAsync({
+    const response = await createContract.mutateAsync({
       bookingId,
       inspectionId: pickupInspectionId,
     });
+
+    await Promise.all([refetchContract(), refetchSignatures()]);
+
+    if (isCustomer && response.currentSignerUrl) {
+      openSignature(response.currentSignerUrl);
+    }
   };
 
-  const handleSign = () => {
-    if (mySignature?.zapsign_sign_url) {
-      setCurrentSignUrl(mySignature.zapsign_sign_url);
-      setSignDialogOpen(true);
+  const handleSign = async () => {
+    if (mySignUrl) {
+      openSignature(mySignUrl);
+      return;
+    }
+
+    if (!contract?.id) return;
+
+    const syncResponse = await syncContract.mutateAsync({
+      bookingId,
+      contractId: contract.id,
+    });
+
+    await Promise.all([refetchContract(), refetchSignatures()]);
+    openSignature(syncResponse.currentSignerUrl);
+  };
+
+  const handleDialogChange = async (open: boolean) => {
+    setSignDialogOpen(open);
+
+    if (!open && contract?.id) {
+      await syncContract.mutateAsync({ bookingId, contractId: contract.id }).catch(() => null);
+      refetchContract();
+      refetchSignatures();
     }
   };
 
@@ -133,7 +189,11 @@ const ContractSection = ({
                 Após a inspeção de entrega, gere o contrato digital para assinatura de ambas as partes.
               </p>
             </div>
-            <Button onClick={handleCreateContract} disabled={createContract.isPending} className="w-full sm:w-auto">
+            <Button
+              onClick={handleCreateContract}
+              disabled={createContract.isPending}
+              className="w-full sm:w-auto"
+            >
               {createContract.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -151,9 +211,9 @@ const ContractSection = ({
       )}
 
       {contract && config && (
-        <Card className={contract.status === "completed" ? "border-green-500/30 bg-green-500/5" : "border-amber-500/30 bg-amber-500/5"}>
+        <Card className="border-primary/30 bg-primary/5">
           <CardHeader className="p-3 sm:p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <CardTitle className="text-sm sm:text-base flex items-center gap-2">
                 <config.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 Contrato de Locação
@@ -165,50 +225,90 @@ const ContractSection = ({
             </div>
           </CardHeader>
           <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-4">
-            {/* Signatures status */}
             {signatures && signatures.length > 0 && (
               <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground">Assinaturas:</p>
-                {signatures.map((sig) => (
-                  <div
-                    key={sig.id}
-                    className="flex items-center justify-between bg-muted/50 rounded-lg p-2 sm:p-3"
-                  >
-                    <div className="flex items-center gap-2">
-                      {sig.status === "signed" ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Clock className="w-4 h-4 text-amber-500" />
-                      )}
-                      <span className="text-xs sm:text-sm font-medium">
-                        {sig.signer_role === "renter" ? "Locatário" : "Proprietário"}
-                        {sig.signer_id === userId && " (Você)"}
-                      </span>
+                {signatures.map((signature) => {
+                  const signaturePending = signature.status !== "signed";
+
+                  return (
+                    <div
+                      key={signature.id}
+                      className="flex items-center justify-between bg-muted/50 rounded-lg p-2 sm:p-3 gap-3"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        {signaturePending ? (
+                          <Clock className="w-4 h-4 text-primary shrink-0" />
+                        ) : (
+                          <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                        )}
+                        <span className="text-xs sm:text-sm font-medium truncate">
+                          {signature.signer_role === "renter" ? "Locatário" : "Proprietário"}
+                          {signature.signer_id === userId && " (Você)"}
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground text-right">
+                        {!signaturePending && signature.signed_at
+                          ? `Assinado em ${new Date(signature.signed_at).toLocaleDateString("pt-BR", {
+                              day: "2-digit",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}`
+                          : "Pendente"}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {sig.status === "signed" && sig.signed_at
-                        ? `Assinado em ${new Date(sig.signed_at).toLocaleDateString("pt-BR", {
-                            day: "2-digit",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}`
-                        : "Pendente"}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
-            {/* Sign button */}
+            {!signatures?.length && contract.status !== "completed" && (
+              <div className="rounded-lg border border-dashed border-border bg-background/70 p-3 space-y-3">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                  {syncContract.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-primary shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-primary shrink-0" />
+                  )}
+                  <span>
+                    {syncContract.isPending
+                      ? "Preparando o fluxo de assinatura..."
+                      : "Os links de assinatura ainda estão sendo sincronizados."}
+                  </span>
+                </div>
+                {!syncContract.isPending && (
+                  <Button
+                    variant="outline"
+                    onClick={() => contract?.id && syncContract.mutate({ bookingId, contractId: contract.id })}
+                    className="w-full sm:w-auto"
+                  >
+                    Atualizar contrato
+                  </Button>
+                )}
+              </div>
+            )}
+
             {canSign && (
-              <Button onClick={handleSign} className="w-full">
-                <Pen className="w-4 h-4 mr-2" />
-                Assinar Contrato
+              <Button
+                onClick={handleSign}
+                disabled={syncContract.isPending}
+                className="w-full"
+              >
+                {syncContract.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Preparando assinatura...
+                  </>
+                ) : (
+                  <>
+                    <Pen className="w-4 h-4 mr-2" />
+                    Assinar Contrato
+                  </>
+                )}
               </Button>
             )}
 
-            {/* Waiting message */}
             {contract.status === "waiting_renter_signature" && isOwner && (
               <p className="text-xs sm:text-sm text-muted-foreground text-center">
                 Aguardando o locatário assinar o contrato.
@@ -216,11 +316,10 @@ const ContractSection = ({
             )}
             {contract.status === "waiting_owner_signature" && isCustomer && (
               <p className="text-xs sm:text-sm text-muted-foreground text-center">
-                Aguardando o proprietário revisar a inspeção e assinar o contrato.
+                O locatário já assinou. Agora o proprietário precisa assinar o contrato.
               </p>
             )}
 
-            {/* Completed - download options */}
             {contract.status === "completed" && (
               <div className="space-y-2">
                 {contract.signed_pdf_url && (
@@ -247,14 +346,16 @@ const ContractSection = ({
                 )}
                 {contract.document_hash && (
                   <div className="bg-muted/50 rounded-lg p-2 sm:p-3">
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Hash do documento (SHA-256):</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">
+                      Hash do documento (SHA-256):
+                    </p>
                     <p className="text-[10px] sm:text-xs font-mono break-all text-foreground/80">
                       {contract.document_hash}
                     </p>
                   </div>
                 )}
                 {contract.completed_at && (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
+                  <p className="text-xs text-primary flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
                     Contrato concluído em{" "}
                     {new Date(contract.completed_at).toLocaleDateString("pt-BR", {
@@ -272,20 +373,30 @@ const ContractSection = ({
         </Card>
       )}
 
-      {/* Sign Dialog with embedded ZapSign */}
-      <Dialog open={signDialogOpen} onOpenChange={setSignDialogOpen}>
+      <Dialog open={signDialogOpen} onOpenChange={handleDialogChange}>
         <DialogContent className="max-w-3xl h-[85vh] p-0">
-          <DialogHeader className="p-4 pb-2">
+          <DialogHeader className="p-4 pb-2 gap-3">
             <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
               <Pen className="w-5 h-5 text-primary" />
               Assinar Contrato de Locação
             </DialogTitle>
+            {currentSignUrl && (
+              <a
+                href={currentSignUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+              >
+                <ExternalLink className="w-3 h-3" />
+                Abrir em nova aba
+              </a>
+            )}
           </DialogHeader>
           {currentSignUrl && (
             <iframe
               src={currentSignUrl}
               className="w-full flex-1 border-0"
-              style={{ height: "calc(85vh - 60px)" }}
+              style={{ height: "calc(85vh - 72px)" }}
               title="Assinatura Digital ZapSign"
               allow="camera; microphone"
             />

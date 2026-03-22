@@ -7,6 +7,7 @@ const corsHeaders = {
 };
 
 const ZAPSIGN_API_URL = "https://sandbox.api.zapsign.com.br/api/v1";
+const ZAPSIGN_SIGNER_URL_BASE = "https://sandbox.app.zapsign.com.br/verificar";
 const PDF_PAGE_WIDTH = 595;
 const PDF_PAGE_HEIGHT = 842;
 const PDF_LEFT_MARGIN = 48;
@@ -27,16 +28,16 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Authenticate user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Missing authorization header");
 
     const {
       data: { user },
       error: authError,
-    } = await createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+    } = await createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     }).auth.getUser();
 
@@ -45,7 +46,6 @@ Deno.serve(async (req) => {
     const { bookingId, inspectionId } = await req.json();
     if (!bookingId) throw new Error("bookingId is required");
 
-    // Get booking details
     const { data: booking, error: bookingErr } = await supabase
       .from("bookings")
       .select(
@@ -56,32 +56,39 @@ Deno.serve(async (req) => {
 
     if (bookingErr || !booking) throw new Error("Booking not found");
 
-    // Only booking participants can create contracts
     if (user.id !== booking.customer_id && user.id !== booking.owner_id) {
       throw new Error("Only booking participants can create contracts");
     }
 
-    // Check if contract already exists
     const { data: existingContract } = await supabase
       .from("rental_contracts")
-      .select("id, status")
+      .select("id, status, zapsign_doc_token")
       .eq("booking_id", bookingId)
       .maybeSingle();
 
-    if (existingContract && existingContract.status !== "draft") {
-      return new Response(
-        JSON.stringify({
-          success: true,
-          contractId: existingContract.id,
-          message: "Contract already exists",
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    if (existingContract?.zapsign_doc_token && existingContract.status !== "draft") {
+      const existingDoc = await fetchZapSignDocument(existingContract.zapsign_doc_token, ZAPSIGN_API_KEY);
+      const signatureRows = await replaceContractSignatures(
+        supabase,
+        existingContract.id,
+        booking,
+        existingDoc.signers || []
       );
+
+      return jsonResponse({
+        success: true,
+        contractId: existingContract.id,
+        status: existingContract.status,
+        currentSignerUrl: getCurrentSignerUrlForUser(signatureRows, user.id, existingContract.status),
+        signers: serializeSigners(signatureRows),
+        message: "Contract already exists",
+      });
     }
 
     const customer = booking.customer as any;
     const owner = booking.owner as any;
     const vehicle = booking.vehicles as any;
+    const appOrigin = req.headers.get("origin") || "https://zest-zone-project.lovable.app";
 
     const customerName = `${customer.first_name} ${customer.last_name}`;
     const ownerName = `${owner.first_name} ${owner.last_name}`;
@@ -97,7 +104,6 @@ Deno.serve(async (req) => {
       currency: "BRL",
     }).format(booking.daily_rate);
 
-    // Generate contract PDF content as base64 for ZapSign
     const contractPdfBase64 = generateContractPdfBase64({
       customerName,
       customerCpf: customer.cpf || "Não informado",
@@ -119,7 +125,6 @@ Deno.serve(async (req) => {
       bookingId,
     });
 
-    // Create document in ZapSign
     const zapsignResponse = await fetch(`${ZAPSIGN_API_URL}/docs/`, {
       method: "POST",
       headers: {
@@ -129,30 +134,33 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         name: `Contrato de Locação - ${vehicleName} - ${customerName}`,
         lang: "pt-br",
+        external_id: bookingId,
         disable_signer_emails: false,
         brand_primary_color: "#1a1a2e",
-        external_id: bookingId,
+        signature_order_active: true,
         signers: [
           {
+            external_id: "renter",
             name: customerName,
             email: customer.email,
             phone_country: "55",
             phone_number: (customer.phone_number || "").replace(/\D/g, ""),
             auth_mode: "assinaturaTela",
+            redirect_link: `${appOrigin}/booking/${bookingId}`,
             send_automatic_email: false,
             send_automatic_whatsapp: false,
-            order_group: 1,
             qualification: "Locatário",
           },
           {
+            external_id: "owner",
             name: ownerName,
             email: owner.email,
             phone_country: "55",
             phone_number: (owner.phone_number || "").replace(/\D/g, ""),
             auth_mode: "assinaturaTela",
+            redirect_link: `${appOrigin}/booking/${bookingId}`,
             send_automatic_email: false,
             send_automatic_whatsapp: false,
-            order_group: 2,
             qualification: "Proprietário",
           },
         ],
@@ -163,21 +171,19 @@ Deno.serve(async (req) => {
     if (!zapsignResponse.ok) {
       const errBody = await zapsignResponse.text();
       console.error("ZapSign API error:", errBody);
-      throw new Error(
-        `ZapSign API error [${zapsignResponse.status}]: ${errBody}`
-      );
+      throw new Error(`ZapSign API error [${zapsignResponse.status}]: ${errBody}`);
     }
 
-    const zapsignDoc = await zapsignResponse.json();
-    console.log("ZapSign response keys:", Object.keys(zapsignDoc));
-    console.log("ZapSign signers:", JSON.stringify(zapsignDoc.signers));
+    const createdDoc = await zapsignResponse.json();
+    const detailedDoc = createdDoc?.token
+      ? await fetchZapSignDocument(createdDoc.token, ZAPSIGN_API_KEY).catch(() => createdDoc)
+      : createdDoc;
 
-    // Store contract data
     const contractData = {
       booking_id: bookingId,
       inspection_id: inspectionId || null,
-      zapsign_doc_id: zapsignDoc.open_id?.toString() || zapsignDoc.token,
-      zapsign_doc_token: zapsignDoc.token,
+      zapsign_doc_id: createdDoc.open_id?.toString() || createdDoc.token,
+      zapsign_doc_token: createdDoc.token,
       status: "waiting_renter_signature",
       contract_data: {
         customerName,
@@ -195,10 +201,11 @@ Deno.serve(async (req) => {
     let contractId: string;
 
     if (existingContract) {
-      await supabase
+      const { error: updateErr } = await supabase
         .from("rental_contracts")
         .update(contractData)
         .eq("id", existingContract.id);
+      if (updateErr) throw updateErr;
       contractId = existingContract.id;
     } else {
       const { data: newContract, error: insertErr } = await supabase
@@ -210,35 +217,13 @@ Deno.serve(async (req) => {
       contractId = newContract.id;
     }
 
-    // Store signer data from ZapSign response
-    const signers = zapsignDoc.signers || [];
-    console.log("Number of signers from ZapSign:", signers.length);
-    
-    if (signers.length === 0) {
-      console.warn("No signers returned from ZapSign! Full response:", JSON.stringify(zapsignDoc).substring(0, 500));
-    }
+    const signatureRows = await replaceContractSignatures(
+      supabase,
+      contractId,
+      booking,
+      detailedDoc.signers || createdDoc.signers || []
+    );
 
-    for (let i = 0; i < signers.length; i++) {
-      const signer = signers[i];
-      const isRenter = i === 0; // First signer is always the renter (order_group 1)
-      console.log(`Inserting signer ${i}: role=${isRenter ? 'renter' : 'owner'}, token=${signer.token}, sign_url=${signer.sign_url}`);
-      
-      const { error: sigError } = await supabase.from("contract_signatures").insert({
-        contract_id: contractId,
-        signer_id: isRenter ? booking.customer_id : booking.owner_id,
-        signer_role: isRenter ? "renter" : "owner",
-        sign_order: i + 1,
-        zapsign_signer_token: signer.token,
-        zapsign_sign_url: signer.sign_url,
-        status: "pending",
-      });
-      
-      if (sigError) {
-        console.error(`Error inserting signer ${i}:`, sigError);
-      }
-    }
-
-    // Create notification for renter to sign
     await supabase.from("notifications").insert({
       user_id: booking.customer_id,
       notification_type: "booking",
@@ -247,29 +232,129 @@ Deno.serve(async (req) => {
       action_url: `/booking/${bookingId}`,
     });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        contractId,
-        signers: signers.map((s: any) => ({
-          token: s.token,
-          sign_url: s.sign_url,
-          order_group: s.order_group,
-        })),
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({
+      success: true,
+      contractId,
+      status: "waiting_renter_signature",
+      currentSignerUrl: getCurrentSignerUrlForUser(signatureRows, user.id, "waiting_renter_signature"),
+      signers: serializeSigners(signatureRows),
+    });
   } catch (error: any) {
     console.error("Error creating ZapSign document:", error);
-    return new Response(
-      JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return jsonResponse({ success: false, error: error.message }, 400);
   }
 });
+
+function jsonResponse(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+async function fetchZapSignDocument(docToken: string, apiKey: string) {
+  const response = await fetch(`${ZAPSIGN_API_URL}/docs/${docToken}/`, {
+    headers: { Authorization: `Bearer ${apiKey}` },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch ZapSign document [${response.status}]: ${errorText}`);
+  }
+
+  return await response.json();
+}
+
+async function replaceContractSignatures(
+  supabase: any,
+  contractId: string,
+  booking: any,
+  signers: any[]
+) {
+  const normalizedSigners = Array.isArray(signers) ? signers.slice(0, 2) : [];
+
+  const { error: deleteError } = await supabase
+    .from("contract_signatures")
+    .delete()
+    .eq("contract_id", contractId);
+  if (deleteError) throw deleteError;
+
+  const signatureRows = normalizedSigners.map((signer, index) => {
+    const signerRole = getSignerRole(signer, index);
+    const signerId = signerRole === "renter" ? booking.customer_id : booking.owner_id;
+
+    return {
+      contract_id: contractId,
+      signer_id: signerId,
+      signer_role: signerRole,
+      sign_order: signerRole === "renter" ? 1 : 2,
+      zapsign_signer_token: signer.token ?? null,
+      zapsign_sign_url: signer.sign_url ?? buildSignerUrl(signer.token),
+      status: mapSignerStatus(signer.status),
+      signed_at: signer.signed_at ?? null,
+    };
+  });
+
+  if (signatureRows.length > 0) {
+    const { error: insertError } = await supabase
+      .from("contract_signatures")
+      .insert(signatureRows);
+    if (insertError) throw insertError;
+  }
+
+  return signatureRows;
+}
+
+function getSignerRole(signer: any, index: number) {
+  if (signer?.external_id === "owner") return "owner";
+  if (signer?.external_id === "renter") return "renter";
+  return index === 0 ? "renter" : "owner";
+}
+
+function buildSignerUrl(token?: string | null) {
+  return token ? `${ZAPSIGN_SIGNER_URL_BASE}/${token}` : null;
+}
+
+function mapSignerStatus(status?: string | null) {
+  if (status === "signed") return "signed";
+  if (status === "refused") return "refused";
+  return "pending";
+}
+
+function getCurrentSignerUrlForUser(
+  signatureRows: Array<{ signer_id: string; signer_role: string; zapsign_sign_url: string | null; status: string }>,
+  userId: string,
+  contractStatus: string
+) {
+  return (
+    signatureRows.find((signature) => {
+      if (signature.signer_id !== userId || signature.status !== "pending") return false;
+      if (contractStatus === "waiting_renter_signature") return signature.signer_role === "renter";
+      if (contractStatus === "waiting_owner_signature") return signature.signer_role === "owner";
+      return false;
+    })?.zapsign_sign_url ?? null
+  );
+}
+
+function serializeSigners(
+  signatureRows: Array<{
+    signer_id: string;
+    signer_role: string;
+    sign_order: number;
+    zapsign_signer_token: string | null;
+    zapsign_sign_url: string | null;
+    status: string;
+  }>
+) {
+  return signatureRows.map((signature) => ({
+    signer_id: signature.signer_id,
+    signer_role: signature.signer_role,
+    sign_order: signature.sign_order,
+    signer_token: signature.zapsign_signer_token,
+    sign_url: signature.zapsign_sign_url,
+    status: signature.status,
+  }));
+}
 
 function generateContractPdfBase64(data: {
   customerName: string;
@@ -352,14 +437,12 @@ function generateContractPdfBase64(data: {
   const pages = chunkArray(wrappedLines, PDF_LINES_PER_PAGE);
   const objects: string[] = [];
   const pageObjectIds: number[] = [];
-  const contentObjectIds: number[] = [];
   const fontObjectId = 3 + pages.length * 2;
 
   pages.forEach((pageLines, index) => {
     const pageObjectId = 3 + index * 2;
     const contentObjectId = pageObjectId + 1;
     pageObjectIds.push(pageObjectId);
-    contentObjectIds.push(contentObjectId);
 
     const streamLines = ["BT", `/F1 ${PDF_FONT_SIZE} Tf`, `${PDF_LEFT_MARGIN} ${PDF_TOP_START} Td`];
     pageLines.forEach((line, lineIndex) => {
@@ -374,7 +457,7 @@ function generateContractPdfBase64(data: {
   });
 
   objects.unshift(`2 0 obj\n<< /Type /Pages /Count ${pages.length} /Kids [${pageObjectIds.map((id) => `${id} 0 R`).join(" ")}] >>\nendobj`);
-  objects.unshift(`1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj`);
+  objects.unshift("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj");
   objects.push(`${fontObjectId} 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj`);
 
   let pdf = "%PDF-1.4\n";
@@ -392,7 +475,6 @@ function generateContractPdfBase64(data: {
   }
   pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
 
-  // Encode to base64 handling non-Latin1 chars
   const encoder = new TextEncoder();
   const uint8 = encoder.encode(pdf);
   let binary = "";
