@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -74,6 +74,18 @@ const ContractSection = ({
   const [signDialogOpen, setSignDialogOpen] = useState(false);
   const [currentSignUrl, setCurrentSignUrl] = useState<string | null>(null);
 
+  const config = contract ? statusConfig[contract.status] || statusConfig.draft : null;
+  const canCreateContract =
+    !contract && pickupInspectionStatus === "pending" && (isCustomer || isOwner);
+  const mySignature = signatures?.find((signature) => signature.signer_id === userId);
+  const mySignUrl =
+    mySignature?.zapsign_sign_url || buildFallbackSignerUrl(mySignature?.zapsign_signer_token);
+  const canSign =
+    !!contract &&
+    mySignature?.status === "pending" &&
+    ((isCustomer && contract.status === "waiting_renter_signature") ||
+      (isOwner && contract.status === "waiting_owner_signature"));
+
   useEffect(() => {
     if (!contract?.id) return;
 
@@ -95,33 +107,13 @@ const ContractSection = ({
   }, [contract?.id, refetchContract, refetchSignatures]);
 
   useEffect(() => {
-    if (!contract?.id || contract.status === "completed") return;
+    if (!contract?.id || contract.status === "completed" || syncContract.isPending) return;
     syncContract.mutate({ bookingId, contractId: contract.id });
-  }, [bookingId, contract?.id, contract?.status]);
+  }, [bookingId, contract?.id, contract?.status, syncContract.isPending]);
 
   if (!["confirmed", "in_progress", "completed"].includes(bookingStatus)) return null;
   if (!pickupInspectionId) return null;
   if (isLoading) return null;
-
-  const config = contract ? statusConfig[contract.status] || statusConfig.draft : null;
-
-  const canCreateContract =
-    !contract &&
-    pickupInspectionStatus === "pending" &&
-    (isCustomer || isOwner);
-
-  const mySignature = useMemo(
-    () => signatures?.find((signature) => signature.signer_id === userId),
-    [signatures, userId]
-  );
-
-  const mySignUrl = mySignature?.zapsign_sign_url || buildFallbackSignerUrl(mySignature?.zapsign_signer_token);
-
-  const canSign =
-    !!contract &&
-    mySignature?.status === "pending" &&
-    ((isCustomer && contract.status === "waiting_renter_signature") ||
-      (isOwner && contract.status === "waiting_owner_signature"));
 
   const openSignature = (signUrl?: string | null) => {
     if (!signUrl) {
@@ -219,13 +211,7 @@ const ContractSection = ({
       )}
 
       {contract && config && (
-        <Card
-          className={
-            contract.status === "completed"
-              ? "border-green-500/30 bg-green-500/5"
-              : "border-amber-500/30 bg-amber-500/5"
-          }
-        >
+        <Card className="border-primary/30 bg-primary/5">
           <CardHeader className="p-3 sm:p-6">
             <div className="flex items-center justify-between gap-3">
               <CardTitle className="text-sm sm:text-base flex items-center gap-2">
@@ -252,9 +238,9 @@ const ContractSection = ({
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         {signaturePending ? (
-                          <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                          <Clock className="w-4 h-4 text-primary shrink-0" />
                         ) : (
-                          <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-primary shrink-0" />
                         )}
                         <span className="text-xs sm:text-sm font-medium truncate">
                           {signature.signer_role === "renter" ? "Locatário" : "Proprietário"}
@@ -369,7 +355,7 @@ const ContractSection = ({
                   </div>
                 )}
                 {contract.completed_at && (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
+                  <p className="text-xs text-primary flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
                     Contrato concluído em{" "}
                     {new Date(contract.completed_at).toLocaleDateString("pt-BR", {

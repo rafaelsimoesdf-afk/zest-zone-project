@@ -83,10 +83,10 @@ export const useContractSignatures = (contractId: string) => {
   });
 };
 
-const invokeAuthedFunction = async <TResponse>(
+async function invokeAuthedFunction<TResponse>(
   functionName: string,
   body: Record<string, unknown>
-): Promise<TResponse> => {
+): Promise<TResponse> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -113,7 +113,7 @@ const invokeAuthedFunction = async <TResponse>(
   }
 
   return typedData as TResponse;
-};
+}
 
 export const useCreateContract = () => {
   const queryClient = useQueryClient();
