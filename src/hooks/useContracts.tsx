@@ -103,13 +103,28 @@ async function invokeAuthedFunction<TResponse>(
   });
 
   if (error) {
-    const errorBody = await error.context?.json?.().catch(() => null);
-    throw new Error(errorBody?.error || error.message || "Erro ao processar contrato");
+    // Try to extract error message from different error shapes
+    let errorMessage = "Erro ao processar contrato";
+    try {
+      if (typeof error === "object" && error !== null) {
+        if ("message" in error) errorMessage = (error as any).message;
+        if ("context" in error) {
+          const ctx = (error as any).context;
+          if (ctx && typeof ctx.json === "function") {
+            const body = await ctx.json().catch(() => null);
+            if (body?.error) errorMessage = body.error;
+          }
+        }
+      }
+    } catch {
+      // fallback
+    }
+    throw new Error(errorMessage);
   }
 
   const typedData = data as TResponse & { success?: boolean; error?: string };
-  if (!typedData?.success) {
-    throw new Error(typedData?.error || "Erro ao processar contrato");
+  if (typedData && typedData.success === false) {
+    throw new Error(typedData.error || "Erro ao processar contrato");
   }
 
   return typedData as TResponse;
