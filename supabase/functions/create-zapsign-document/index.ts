@@ -97,8 +97,8 @@ Deno.serve(async (req) => {
       currency: "BRL",
     }).format(booking.daily_rate);
 
-    // Generate contract HTML content
-    const contractHtml = generateContractHtml({
+    // Generate contract PDF content as base64 for ZapSign
+    const contractPdfBase64 = generateContractPdfBase64({
       customerName,
       customerCpf: customer.cpf || "Não informado",
       customerEmail: customer.email,
@@ -127,7 +127,6 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        sandbox: true,
         name: `Contrato de Locação - ${vehicleName} - ${customerName}`,
         lang: "pt-br",
         disable_signer_emails: false,
@@ -157,7 +156,7 @@ Deno.serve(async (req) => {
             qualification: "Proprietário",
           },
         ],
-        doc_html: contractHtml,
+        base64_pdf: contractPdfBase64,
       }),
     });
 
