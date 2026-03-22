@@ -169,6 +169,8 @@ Deno.serve(async (req) => {
     }
 
     const zapsignDoc = await zapsignResponse.json();
+    console.log("ZapSign response keys:", Object.keys(zapsignDoc));
+    console.log("ZapSign signers:", JSON.stringify(zapsignDoc.signers));
 
     // Store contract data
     const contractData = {
@@ -208,19 +210,32 @@ Deno.serve(async (req) => {
       contractId = newContract.id;
     }
 
-    // Store signer data
+    // Store signer data from ZapSign response
     const signers = zapsignDoc.signers || [];
-    for (const signer of signers) {
-      const isRenter = signer.order_group === 1;
-      await supabase.from("contract_signatures").insert({
+    console.log("Number of signers from ZapSign:", signers.length);
+    
+    if (signers.length === 0) {
+      console.warn("No signers returned from ZapSign! Full response:", JSON.stringify(zapsignDoc).substring(0, 500));
+    }
+
+    for (let i = 0; i < signers.length; i++) {
+      const signer = signers[i];
+      const isRenter = i === 0; // First signer is always the renter (order_group 1)
+      console.log(`Inserting signer ${i}: role=${isRenter ? 'renter' : 'owner'}, token=${signer.token}, sign_url=${signer.sign_url}`);
+      
+      const { error: sigError } = await supabase.from("contract_signatures").insert({
         contract_id: contractId,
         signer_id: isRenter ? booking.customer_id : booking.owner_id,
         signer_role: isRenter ? "renter" : "owner",
-        sign_order: signer.order_group,
+        sign_order: i + 1,
         zapsign_signer_token: signer.token,
         zapsign_sign_url: signer.sign_url,
         status: "pending",
       });
+      
+      if (sigError) {
+        console.error(`Error inserting signer ${i}:`, sigError);
+      }
     }
 
     // Create notification for renter to sign
@@ -230,14 +245,6 @@ Deno.serve(async (req) => {
       title: "Contrato pronto para assinatura",
       message: `O contrato de locação do ${vehicleName} está pronto. Assine para prosseguir com a reserva.`,
       action_url: `/booking/${bookingId}`,
-    });
-
-    // Log in audit
-    await supabase.from("ticket_audit_log").insert({
-      ticket_id: contractId,
-      action: "contract_created",
-      new_value: `Contract created for booking ${bookingId}`,
-      performed_by: user.id,
     });
 
     return new Response(
