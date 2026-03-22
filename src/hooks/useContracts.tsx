@@ -77,14 +77,30 @@ export const useCreateContract = () => {
       bookingId: string;
       inspectionId?: string;
     }) => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error("Faça login para gerar o contrato");
+      }
+
       const { data, error } = await supabase.functions.invoke(
         "create-zapsign-document",
         {
           body: { bookingId, inspectionId },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         }
       );
 
-      if (error) throw new Error(error.message || "Erro ao criar contrato");
+      if (error) {
+        const errorBody = await error.context?.json?.().catch(() => null);
+        throw new Error(
+          errorBody?.error || error.message || "Erro ao criar contrato"
+        );
+      }
       if (!data?.success) throw new Error(data?.error || "Erro ao criar contrato");
       return data;
     },
