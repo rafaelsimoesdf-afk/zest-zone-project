@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { MapPin } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { brazilianStates, citiesByState } from "@/hooks/useBrazilLocations";
 
 interface CityAutocompleteProps {
   value: string;
@@ -11,125 +11,32 @@ interface CityAutocompleteProps {
   hideIcon?: boolean;
 }
 
-interface Prediction {
-  place_id: string;
-  description: string;
-  structured_formatting: {
-    main_text: string;
-    secondary_text: string;
-  };
-  terms: Array<{ offset: number; value: string }>;
+interface CityResult {
+  city: string;
+  state: string;
+  stateCode: string;
+  label: string;
 }
 
-// Função para formatar a localização no formato "Cidade, UF, BR"
-const formatLocation = (prediction: Prediction): string => {
-  const terms = prediction.terms || [];
-  
-  // Encontrar o estado na lista de terms (será uma sigla de 2 letras ou nome completo de estado)
-  let cityName = '';
-  let stateAbbrev = '';
-  
-  for (let i = 0; i < terms.length; i++) {
-    const termValue = terms[i]?.value || '';
-    
-    // Verificar se é uma sigla de estado (2 letras) ou nome de estado brasileiro
-    const abbrev = getStateAbbreviation(termValue);
-    if (abbrev.length === 2 && abbrev !== termValue.substring(0, 2)) {
-      // É um nome de estado que foi convertido para sigla
-      stateAbbrev = abbrev;
-      // A cidade é o termo anterior (se não for bairro/subdivisão)
-      if (i > 0) {
-        cityName = terms[i - 1]?.value || '';
-      }
-      break;
-    } else if (termValue.length === 2 && /^[A-Z]{2}$/.test(termValue)) {
-      // É uma sigla de estado diretamente
-      stateAbbrev = termValue;
-      // A cidade é o termo anterior
-      if (i > 0) {
-        cityName = terms[i - 1]?.value || '';
-      }
-      break;
+// Build a flat list of all cities with state info
+const allCities: CityResult[] = (() => {
+  const results: CityResult[] = [];
+  for (const state of brazilianStates) {
+    const cities = citiesByState[state.code] || [];
+    for (const city of cities) {
+      results.push({
+        city,
+        state: state.name,
+        stateCode: state.code,
+        label: `${city}, ${state.code}`,
+      });
     }
   }
-  
-  // Se não encontrou, pegar o primeiro termo como cidade
-  if (!cityName && terms.length > 0) {
-    cityName = terms[0]?.value || '';
-  }
-  
-  if (cityName && stateAbbrev) {
-    return `${cityName}, ${stateAbbrev}, BR`;
-  }
-  
-  // Fallback: usar o main_text
-  return prediction.structured_formatting.main_text;
-};
-
-// Mapeamento de estados brasileiros para siglas
-const getStateAbbreviation = (stateName: string): string => {
-  const stateMap: Record<string, string> = {
-    'Acre': 'AC',
-    'Alagoas': 'AL',
-    'Amapá': 'AP',
-    'Amazonas': 'AM',
-    'Bahia': 'BA',
-    'Ceará': 'CE',
-    'Distrito Federal': 'DF',
-    'Espírito Santo': 'ES',
-    'Goiás': 'GO',
-    'Maranhão': 'MA',
-    'Mato Grosso': 'MT',
-    'Mato Grosso do Sul': 'MS',
-    'Minas Gerais': 'MG',
-    'Pará': 'PA',
-    'Paraíba': 'PB',
-    'Paraná': 'PR',
-    'Pernambuco': 'PE',
-    'Piauí': 'PI',
-    'Rio de Janeiro': 'RJ',
-    'Rio Grande do Norte': 'RN',
-    'Rio Grande do Sul': 'RS',
-    'Rondônia': 'RO',
-    'Roraima': 'RR',
-    'Santa Catarina': 'SC',
-    'São Paulo': 'SP',
-    'Sergipe': 'SE',
-    'Tocantins': 'TO',
-    'State of Acre': 'AC',
-    'State of Alagoas': 'AL',
-    'State of Amapá': 'AP',
-    'State of Amazonas': 'AM',
-    'State of Bahia': 'BA',
-    'State of Ceará': 'CE',
-    'State of Espírito Santo': 'ES',
-    'State of Goiás': 'GO',
-    'State of Maranhão': 'MA',
-    'State of Mato Grosso': 'MT',
-    'State of Mato Grosso do Sul': 'MS',
-    'State of Minas Gerais': 'MG',
-    'State of Pará': 'PA',
-    'State of Paraíba': 'PB',
-    'State of Paraná': 'PR',
-    'State of Pernambuco': 'PE',
-    'State of Piauí': 'PI',
-    'State of Rio de Janeiro': 'RJ',
-    'State of Rio Grande do Norte': 'RN',
-    'State of Rio Grande do Sul': 'RS',
-    'State of Rondônia': 'RO',
-    'State of Roraima': 'RR',
-    'State of Santa Catarina': 'SC',
-    'State of São Paulo': 'SP',
-    'State of Sergipe': 'SE',
-    'State of Tocantins': 'TO',
-  };
-  return stateMap[stateName] || stateName;
-};
+  return results;
+})();
 
 export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou endereço...", className, hideIcon = false }: CityAutocompleteProps) => {
-  const [suggestions, setSuggestions] = useState<Prediction[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -144,45 +51,30 @@ export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou end
         setShowSuggestions(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (!value || value.length < 3) {
-        setSuggestions([]);
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase.functions.invoke('google-places-autocomplete', {
-          body: { input: value, type: 'city' }
-        });
-
-        if (error) throw error;
-        
-        setSuggestions(data.predictions || []);
-        setShowSuggestions(true);
-      } catch (error) {
-        console.error('Error fetching city suggestions:', error);
-        setSuggestions([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    const debounceTimer = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(debounceTimer);
+  const filtered = useMemo(() => {
+    if (!value || value.length < 2) return [];
+    const q = value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return allCities
+      .filter(c => {
+        const normalized = c.label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return normalized.includes(q);
+      })
+      .slice(0, 10);
   }, [value]);
 
-  const handleSelectSuggestion = (prediction: Prediction) => {
-    const formattedLocation = formatLocation(prediction);
-    onChange(formattedLocation);
+  useEffect(() => {
+    if (filtered.length > 0 && value.length >= 2) {
+      setShowSuggestions(true);
+    }
+  }, [filtered, value]);
+
+  const handleSelect = (result: CityResult) => {
+    onChange(result.label);
     setShowSuggestions(false);
-    setSuggestions([]);
   };
 
   return (
@@ -199,30 +91,22 @@ export const CityAutocomplete = ({ value, onChange, placeholder = "Cidade ou end
         className={className}
       />
       
-      {showSuggestions && suggestions.length > 0 && (
+      {showSuggestions && filtered.length > 0 && (
         <div
           ref={suggestionsRef}
-          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
+          className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto"
         >
-          {suggestions.map((prediction) => {
-            const formattedLocation = formatLocation(prediction);
-            return (
-              <button
-                key={prediction.place_id}
-                type="button"
-                onClick={() => handleSelectSuggestion(prediction)}
-                className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors"
-              >
-                <span className="font-medium text-gray-900">{formattedLocation}</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-      
-      {isLoading && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-          <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+          {filtered.map((result) => (
+            <button
+              key={`${result.stateCode}-${result.city}`}
+              type="button"
+              onClick={() => handleSelect(result)}
+              className="w-full px-4 py-2 text-left hover:bg-accent transition-colors"
+            >
+              <span className="font-medium text-foreground">{result.city}</span>
+              <span className="text-sm text-muted-foreground ml-2">{result.stateCode}</span>
+            </button>
+          ))}
         </div>
       )}
     </div>
