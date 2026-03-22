@@ -385,7 +385,14 @@ function generateContractPdfBase64(data: {
   }
   pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
 
-  return btoa(pdf);
+  // Encode to base64 handling non-Latin1 chars
+  const encoder = new TextEncoder();
+  const uint8 = encoder.encode(pdf);
+  let binary = "";
+  for (let i = 0; i < uint8.length; i++) {
+    binary += String.fromCharCode(uint8[i]);
+  }
+  return btoa(binary);
 }
 
 function wrapPdfText(text: string, maxChars: number): string[] {
