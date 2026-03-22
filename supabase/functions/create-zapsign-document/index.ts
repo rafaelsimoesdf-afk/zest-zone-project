@@ -7,10 +7,18 @@ const corsHeaders = {
 };
 
 const ZAPSIGN_API_URL = "https://sandbox.api.zapsign.com.br/api/v1";
+const PDF_PAGE_WIDTH = 595;
+const PDF_PAGE_HEIGHT = 842;
+const PDF_LEFT_MARGIN = 48;
+const PDF_TOP_START = 790;
+const PDF_LINE_HEIGHT = 16;
+const PDF_FONT_SIZE = 11;
+const PDF_MAX_CHARS_PER_LINE = 88;
+const PDF_LINES_PER_PAGE = 44;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
