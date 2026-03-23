@@ -363,26 +363,41 @@ const ContractSection = ({
             {contract.status === "completed" && (
               <div className="space-y-2">
                 {contract.signed_pdf_url && (
-                  <a
-                    href={contract.signed_pdf_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-xs sm:text-sm text-primary hover:underline"
+                  <button
+                    onClick={async () => {
+                      try {
+                        toast.info("Obtendo link do contrato...");
+                        const result = await syncContract.mutateAsync({ bookingId, contractId: contract.id });
+                        const freshUrl = (result as any)?.signedPdfUrl || contract.signed_pdf_url;
+                        window.open(freshUrl, "_blank");
+                      } catch {
+                        // Fallback to stored URL
+                        window.open(contract.signed_pdf_url!, "_blank");
+                      }
+                    }}
+                    className="flex items-center gap-2 text-xs sm:text-sm text-primary hover:underline cursor-pointer bg-transparent border-none p-0"
                   >
                     <Download className="w-4 h-4" />
                     Baixar contrato assinado (PDF)
-                  </a>
+                  </button>
                 )}
                 {contract.audit_trail_url && (
-                  <a
-                    href={contract.audit_trail_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-xs sm:text-sm text-primary hover:underline"
+                  <button
+                    onClick={async () => {
+                      try {
+                        toast.info("Obtendo link...");
+                        const result = await syncContract.mutateAsync({ bookingId, contractId: contract.id });
+                        const freshUrl = (result as any)?.auditTrailUrl || contract.audit_trail_url;
+                        window.open(freshUrl, "_blank");
+                      } catch {
+                        window.open(contract.audit_trail_url!, "_blank");
+                      }
+                    }}
+                    className="flex items-center gap-2 text-xs sm:text-sm text-primary hover:underline cursor-pointer bg-transparent border-none p-0"
                   >
                     <ExternalLink className="w-4 h-4" />
                     Trilha de auditoria
-                  </a>
+                  </button>
                 )}
                 {contract.document_hash && (
                   <div className="bg-muted/50 rounded-lg p-2 sm:p-3">

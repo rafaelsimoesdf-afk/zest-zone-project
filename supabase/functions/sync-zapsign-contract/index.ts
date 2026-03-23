@@ -61,11 +61,16 @@ Deno.serve(async (req) => {
     const docData = await fetchZapSignDocument(contract.zapsign_doc_token, ZAPSIGN_API_KEY);
     const result = await syncContractFromDocument(supabase, contract, booking, docData);
 
+    const signedPdfUrl = docData.signed_file || contract.signed_pdf_url || null;
+    const auditTrailUrl = docData.signature_report || contract.audit_trail_url || null;
+
     return jsonResponse({
       success: true,
       contractId: contract.id,
       bookingId: contract.booking_id,
       contractStatus: result.contractStatus,
+      signedPdfUrl,
+      auditTrailUrl,
       currentSignerUrl: getCurrentSignerUrlForUser(result.signatureRows, user.id, result.contractStatus),
       signers: serializeSigners(result.signatureRows),
     });
