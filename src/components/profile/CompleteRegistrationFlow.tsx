@@ -7,8 +7,6 @@ import { Profile, useUpdateProfile } from "@/hooks/useProfile";
 import { useDefaultAddress, useCreateAddress, useUpdateAddress } from "@/hooks/useAddresses";
 import {
   useSaveCNHDetails,
-  useSaveIdentityDocument,
-  useSaveSelfieVerification,
   useSaveProofOfResidence,
   useSubmitVerification,
   uploadDocument,
@@ -18,18 +16,16 @@ import { validateCPF, validatePhone, validateCEP, calculateAge, isCNHExpired } f
 import { ProgressBar } from "@/components/registration/ProgressBar";
 import { StepPersonalData } from "@/components/registration/StepPersonalData";
 import { StepAddress } from "@/components/registration/StepAddress";
-import { StepIdentityDocuments } from "@/components/registration/StepIdentityDocuments";
+import { StepDiditVerification } from "@/components/registration/StepDiditVerification";
 import { StepCNH } from "@/components/registration/StepCNH";
-import { StepSelfieQRCode } from "@/components/registration/StepSelfieQRCode";
 import { StepProofOfResidence } from "@/components/registration/StepProofOfResidence";
 import { StepReview } from "@/components/registration/StepReview";
 
 const STEPS = [
   "Dados Pessoais",
   "Endereço",
-  "Documentos",
+  "Verificação de Identidade",
   "CNH",
-  "Selfie",
   "Comprovante",
   "Revisão",
 ];
@@ -45,8 +41,6 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
   const createAddress = useCreateAddress();
   const updateAddress = useUpdateAddress();
   const saveCNH = useSaveCNHDetails();
-  const saveIdentity = useSaveIdentityDocument();
-  const saveSelfie = useSaveSelfieVerification();
   const saveProof = useSaveProofOfResidence();
   const submitVerification = useSubmitVerification();
 
@@ -54,6 +48,7 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [diditVerified, setDiditVerified] = useState(false);
 
   // Form state
   const [personalData, setPersonalData] = useState({
@@ -74,16 +69,6 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
     state: "",
   });
 
-  const [identityData, setIdentityData] = useState({
-    document_type: "rg" as "rg" | "cnh",
-    front_image: null as File | null,
-    back_image: null as File | null,
-    digital_image: null as File | null,
-    front_preview: "",
-    back_preview: "",
-    digital_preview: "",
-  });
-
   const [cnhData, setCnhData] = useState({
     cnh_number: "",
     category: "",
@@ -95,11 +80,6 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
     front_preview: "",
     back_preview: "",
     digital_preview: "",
-  });
-
-  const [selfieData, setSelfieData] = useState({
-    selfie_image: null as File | null,
-    selfie_preview: "",
   });
 
   const [proofData, setProofData] = useState({
@@ -167,17 +147,8 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         break;
 
       case 3:
-        // For RG: require front + back
-        // For CNH: require (front + back) OR digital
-        if (identityData.document_type === 'rg') {
-          if (!identityData.front_image) newErrors.front_image = "Frente do documento é obrigatória";
-          if (!identityData.back_image) newErrors.back_image = "Verso do documento é obrigatório";
-        } else {
-          const hasPhysical = identityData.front_image && identityData.back_image;
-          const hasDigital = identityData.digital_image;
-          if (!hasPhysical && !hasDigital) {
-            newErrors.identity_documents = "Envie a CNH Frente + Verso OU a CNH Digital";
-          }
+        if (!diditVerified) {
+          newErrors.didit_verification = "Complete a verificação de identidade para continuar";
         }
         break;
 
@@ -190,7 +161,6 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         } else if (isCNHExpired(new Date(cnhData.expiry_date))) {
           newErrors.expiry_date = "CNH está vencida";
         }
-        // Validate: Either (front + back) OR digital
         const hasFrontAndBack = cnhData.front_image && cnhData.back_image;
         const hasDigital = cnhData.digital_image;
         if (!hasFrontAndBack && !hasDigital) {
@@ -199,18 +169,11 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         break;
 
       case 5:
-        // Allow either selfie_image (File) or selfie_preview (URL from mobile upload)
-        if (!selfieData.selfie_image && !selfieData.selfie_preview) {
-          newErrors.selfie_image = "Selfie é obrigatória";
-        }
-        break;
-
-      case 6:
         if (!proofData.document_type) newErrors.document_type = "Tipo de comprovante é obrigatório";
         if (!proofData.document_image) newErrors.document_image = "Comprovante é obrigatório";
         break;
 
-      case 7:
+      case 6:
         if (!confirmations.data_accuracy) newErrors.data_accuracy = "Confirmação obrigatória";
         if (!confirmations.lgpd) newErrors.lgpd = "Confirmação obrigatória";
         if (!confirmations.terms) newErrors.terms = "Confirmação obrigatória";
@@ -236,7 +199,7 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(7)) return;
+    if (!validateStep(6)) return;
 
     setIsSubmitting(true);
     try {
@@ -269,28 +232,7 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         await createAddress.mutateAsync(addressPayload);
       }
 
-      // 3. Upload and save identity documents
-      let identityFrontUrl = "";
-      let identityBackUrl = "";
-      
-      if (identityData.document_type === 'rg' || (identityData.front_image && identityData.back_image)) {
-        // RG or CNH with physical documents
-        identityFrontUrl = await uploadDocument(identityData.front_image!, "identity");
-        identityBackUrl = await uploadDocument(identityData.back_image!, "identity");
-      } else if (identityData.digital_image) {
-        // CNH Digital for identity
-        const digitalUrl = await uploadDocument(identityData.digital_image, "identity");
-        identityFrontUrl = digitalUrl;
-        identityBackUrl = digitalUrl;
-      }
-      
-      await saveIdentity.mutateAsync({
-        document_type: identityData.document_type,
-        front_image_url: identityFrontUrl,
-        back_image_url: identityBackUrl,
-      });
-
-      // 4. Upload and save CNH (either front+back OR digital)
+      // 3. Upload and save CNH (either front+back OR digital)
       let cnhFrontUrl = "";
       let cnhBackUrl = "";
       let cnhDigitalUrl: string | null = null;
@@ -302,7 +244,6 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
       
       if (cnhData.digital_image) {
         cnhDigitalUrl = await uploadDocument(cnhData.digital_image, "cnh");
-        // If only digital, use digital URL for front/back as placeholder
         if (!cnhFrontUrl) cnhFrontUrl = cnhDigitalUrl;
         if (!cnhBackUrl) cnhBackUrl = cnhDigitalUrl;
       }
@@ -317,30 +258,21 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
         digital_image_url: cnhDigitalUrl,
       });
 
-      // 5. Upload and save selfie (may already be a URL from mobile upload)
-      let selfieUrl: string;
-      if (selfieData.selfie_image) {
-        selfieUrl = await uploadDocument(selfieData.selfie_image, "selfie");
-      } else {
-        // Already uploaded via mobile, use the preview URL
-        selfieUrl = selfieData.selfie_preview;
-      }
-      await saveSelfie.mutateAsync(selfieUrl);
-
-      // 6. Upload and save proof of residence
+      // 4. Upload and save proof of residence
       const proofUrl = await uploadDocument(proofData.document_image!, "proof");
       await saveProof.mutateAsync({
         document_type: proofData.document_type,
         document_url: proofUrl,
       });
 
-      // 7. Submit for verification
+      // 5. Submit for verification
       await submitVerification.mutateAsync();
 
       setIsSuccess(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Registration error:", error);
-      toast.error(error.message || "Erro ao enviar cadastro. Tente novamente.");
+      const msg = error instanceof Error ? error.message : "Erro ao enviar cadastro. Tente novamente.";
+      toast.error(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -388,25 +320,36 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
             <StepAddress data={addressData} onChange={setAddressData} errors={errors} />
           )}
           {currentStep === 3 && (
-            <StepIdentityDocuments data={identityData} onChange={setIdentityData} errors={errors} />
+            <StepDiditVerification 
+              onVerificationComplete={() => setDiditVerified(true)} 
+              errors={errors} 
+            />
           )}
           {currentStep === 4 && (
             <StepCNH data={cnhData} onChange={setCnhData} errors={errors} />
           )}
           {currentStep === 5 && (
-            <StepSelfieQRCode data={selfieData} onChange={setSelfieData} errors={errors} />
-          )}
-          {currentStep === 6 && (
             <StepProofOfResidence data={proofData} onChange={setProofData} errors={errors} />
           )}
-          {currentStep === 7 && (
+          {currentStep === 6 && (
             <StepReview
               data={{
                 personalData,
                 addressData,
-                identityData,
+                identityData: {
+                  document_type: "cnh",
+                  front_image: null,
+                  back_image: null,
+                  digital_image: null,
+                  front_preview: "",
+                  back_preview: "",
+                  digital_preview: "",
+                },
                 cnhData,
-                selfieData,
+                selfieData: {
+                  selfie_image: null,
+                  selfie_preview: diditVerified ? "✓ Verificado via Didit" : "",
+                },
                 proofData,
               }}
               confirmations={confirmations}
@@ -426,7 +369,7 @@ const CompleteRegistrationFlow = ({ profile, onBack }: CompleteRegistrationFlowP
             </Button>
 
             {currentStep < STEPS.length ? (
-              <Button onClick={handleNext}>
+              <Button onClick={handleNext} disabled={currentStep === 3 && !diditVerified}>
                 Próximo
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
