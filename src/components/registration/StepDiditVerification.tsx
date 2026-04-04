@@ -50,32 +50,26 @@ export const StepDiditVerification = ({ onVerificationComplete, errors }: StepDi
 
   const checkExistingSession = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
-        .from("didit_verification_sessions" as string)
-        .select("status, session_url")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .rpc("get_didit_session_status" as never, { _user_id: user.id } as never) as { data: { status: string; session_url: string } | null; error: unknown };
 
-      if (error) {
-        console.error("Error checking session:", error);
-        return;
-      }
+      if (error || !data) return;
 
-      if (data) {
-        const sessionStatus = (data as Record<string, unknown>).status as string;
-        const url = (data as Record<string, unknown>).session_url as string;
-        if (sessionStatus === "Approved") {
-          setStatus("approved");
-          onVerificationComplete();
-        } else if (sessionStatus === "Declined") {
-          setStatus("declined");
-        } else if (sessionStatus === "In Review") {
-          setStatus("in_review");
-        } else if (sessionStatus === "In Progress" || sessionStatus === "Not Started") {
-          setStatus("pending");
-          setSessionUrl(url);
-        }
+      const sessionStatus = data.status;
+      const url = data.session_url;
+      if (sessionStatus === "Approved") {
+        setStatus("approved");
+        onVerificationComplete();
+      } else if (sessionStatus === "Declined") {
+        setStatus("declined");
+      } else if (sessionStatus === "In Review") {
+        setStatus("in_review");
+      } else if (sessionStatus === "In Progress" || sessionStatus === "Not Started") {
+        setStatus("pending");
+        setSessionUrl(url);
       }
     } catch (err) {
       console.error("Error checking existing session:", err);
