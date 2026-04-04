@@ -403,6 +403,48 @@ export type Database = {
           },
         ]
       }
+      didit_verification_sessions: {
+        Row: {
+          created_at: string
+          decision: Json | null
+          id: string
+          session_id: string
+          session_token: string | null
+          session_url: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          vendor_data: string | null
+          workflow_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          decision?: Json | null
+          id?: string
+          session_id: string
+          session_token?: string | null
+          session_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          vendor_data?: string | null
+          workflow_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          decision?: Json | null
+          id?: string
+          session_id?: string
+          session_token?: string | null
+          session_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vendor_data?: string | null
+          workflow_id?: string | null
+        }
+        Relationships: []
+      }
       faq_articles: {
         Row: {
           category: Database["public"]["Enums"]["ticket_category"]
