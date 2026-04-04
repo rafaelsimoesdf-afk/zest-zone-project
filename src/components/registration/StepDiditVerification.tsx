@@ -80,17 +80,16 @@ export const StepDiditVerification = ({ onVerificationComplete, errors }: StepDi
     let attempts = 0;
     const maxAttempts = 30;
     
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
     const poll = async () => {
       attempts++;
       const { data } = await supabase
-        .from("didit_verification_sessions" as string)
-        .select("status")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .rpc("get_didit_session_status" as never, { _user_id: user.id } as never) as { data: { status: string } | null; error: unknown };
 
       if (data) {
-        const sessionStatus = (data as Record<string, unknown>).status as string;
+        const sessionStatus = data.status;
         if (sessionStatus === "Approved") {
           setStatus("approved");
           onVerificationComplete();
