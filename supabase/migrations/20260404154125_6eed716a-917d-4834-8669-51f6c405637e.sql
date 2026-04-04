@@ -1,0 +1,1 @@
+UPDATE profiles SET verification_status = 'pending', verification_validated_at = NULL, verification_submitted_at = NULL WHERE id = '92874796-c4a2-4111-a2f2-ded38b9e21f8'
