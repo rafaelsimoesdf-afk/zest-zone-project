@@ -2280,6 +2280,13 @@ export type Database = {
           profile_image: string
         }[]
       }
+      get_didit_session_status: {
+        Args: { _user_id: string }
+        Returns: {
+          session_url: string
+          status: string
+        }[]
+      }
       get_owner_balance: {
         Args: { _owner_id: string }
         Returns: {
