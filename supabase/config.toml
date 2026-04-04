@@ -35,3 +35,9 @@ verify_jwt = false
 
 [functions.zapsign-webhook]
 verify_jwt = false
+
+[functions.create-didit-session]
+verify_jwt = false
+
+[functions.didit-webhook]
+verify_jwt = false
