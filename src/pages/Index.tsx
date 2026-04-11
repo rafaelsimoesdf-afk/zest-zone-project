@@ -45,34 +45,40 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      {/* Mobile: Pill Search Bar (Airbnb style) */}
-      <div className="md:hidden pt-[72px] px-4 py-3">
-        <Link
-          to="/browse"
-          className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3.5 shadow-airbnb"
-        >
-          <Search className="w-5 h-5 text-foreground" />
-          <span className="text-sm text-muted-foreground">Inicie sua busca</span>
-        </Link>
-      </div>
-
-      {/* Mobile: Quick Navigation Links */}
-      <div className="md:hidden border-b border-border">
-        <div className="flex items-center justify-around px-4 py-3">
-          {quickLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className="flex flex-col items-center gap-1.5 min-w-[56px] group"
-            >
-              <link.icon className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-fast" />
-              <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground whitespace-nowrap transition-fast">
-                {link.label}
-              </span>
-            </Link>
-          ))}
+      {/* Mobile: Fixed top section */}
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-background transition-all duration-300">
+        <Navbar />
+        {/* Search bar */}
+        <div className="px-4 py-2">
+          <Link
+            to="/browse"
+            className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3 shadow-airbnb"
+          >
+            <Search className="w-5 h-5 text-foreground" />
+            <span className="text-sm text-muted-foreground">Inicie sua busca</span>
+          </Link>
+        </div>
+        {/* Quick nav - icons collapse on scroll */}
+        <div className={`border-b border-border transition-all duration-300 overflow-hidden ${scrolled ? "max-h-8 py-1" : "max-h-20 py-3"}`}>
+          <div className="flex items-center justify-around px-4">
+            {quickLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="flex flex-col items-center gap-1 min-w-[56px] group"
+              >
+                <link.icon className={`text-muted-foreground group-hover:text-foreground transition-all duration-300 ${scrolled ? "w-0 h-0 opacity-0" : "w-6 h-6 opacity-100"}`} />
+                <span className={`font-medium text-muted-foreground group-hover:text-foreground whitespace-nowrap transition-fast ${scrolled ? "text-xs" : "text-[11px]"}`}>
+                  {link.label}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Mobile spacer */}
+      <div className={`md:hidden transition-all duration-300 ${scrolled ? "h-[140px]" : "h-[185px]"}`} />
 
       {/* Desktop Hero */}
       <section className="hidden md:block pt-[72px]">
