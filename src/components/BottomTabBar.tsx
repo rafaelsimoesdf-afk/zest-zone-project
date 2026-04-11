@@ -11,7 +11,6 @@ const tabs = [
 
 const BottomTabBar = () => {
   const location = useLocation();
-  const { data: unreadCount } = useUnreadMessagesCount();
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border pb-[env(safe-area-inset-bottom)]">
