@@ -27,13 +27,11 @@ const Index = () => {
   const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(8);
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  const categories = [
-    { icon: Car, label: "Sedans", type: "sedan" },
-    { icon: Zap, label: "SUVs", type: "suv" },
-    { icon: Key, label: "Hatches", type: "hatch" },
-    { icon: Car, label: "Pickups", type: "pickup" },
-    { icon: Star, label: "Esportivos", type: "sports" },
-    { icon: Users, label: "Vans", type: "van" },
+  const quickLinks = [
+    { icon: Search, label: "Buscar Carros", to: "/browse" },
+    { icon: CarFront, label: "Motoristas", to: "/app-driver-rentals" },
+    { icon: Newspaper, label: "Classificados", to: "/classifieds" },
+    { icon: Wrench, label: "Serviços", to: "/services" },
   ];
 
   return (
