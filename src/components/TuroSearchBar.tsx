@@ -28,6 +28,14 @@ const timeOptions = [
   "22:00", "22:30", "23:00", "23:30"
 ];
 
+interface SearchParams {
+  city: string;
+  fromDate?: string;
+  untilDate?: string;
+  fromTime: string;
+  untilTime: string;
+}
+
 interface TuroSearchBarProps {
   initialLocation?: string;
   initialFromDate?: string;
@@ -35,6 +43,7 @@ interface TuroSearchBarProps {
   initialFromTime?: string;
   initialUntilTime?: string;
   compact?: boolean;
+  onSearch?: (params: SearchParams) => void;
 }
 
 export function TuroSearchBar({
