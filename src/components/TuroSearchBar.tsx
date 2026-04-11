@@ -65,6 +65,20 @@ export function TuroSearchBar({
   const [fromTime, setFromTime] = useState(initialFromTime);
   const [untilTime, setUntilTime] = useState(initialUntilTime);
 
+  const handleSearchInternal = () => {
+    if (onSearch) {
+      onSearch({
+        city: location,
+        fromDate: fromDate ? format(fromDate, "yyyy-MM-dd") : undefined,
+        untilDate: untilDate ? format(untilDate, "yyyy-MM-dd") : undefined,
+        fromTime,
+        untilTime,
+      });
+      return;
+    }
+    handleSearch();
+  };
+
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (location) params.set("city", location);
