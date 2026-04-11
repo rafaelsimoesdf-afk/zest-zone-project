@@ -50,17 +50,14 @@ const Index = () => {
 
       {/* Mobile: Category Tabs with icons */}
       <div className="md:hidden border-b border-border">
-        <div className="flex items-center gap-6 px-4 py-3 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
           {categories.map((cat) => (
             <Link
-              key={cat.type}
-              to={`/browse?type=${cat.type}`}
-              className="flex flex-col items-center gap-1.5 min-w-[56px] group"
+              key={cat.to}
+              to={cat.to}
+              className="px-4 py-2 rounded-full border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground whitespace-nowrap transition-fast"
             >
-              <cat.icon className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-fast" />
-              <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground whitespace-nowrap transition-fast">
-                {cat.label}
-              </span>
+              {cat.label}
             </Link>
           ))}
         </div>
@@ -84,20 +81,16 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Desktop Category Filter */}
         <div className="border-b border-border">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-8 py-4 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-3 py-4 overflow-x-auto scrollbar-hide">
               {categories.map((cat) => (
                 <Link
-                  key={cat.type}
-                  to={`/browse?type=${cat.type}`}
-                  className="flex flex-col items-center gap-1.5 min-w-[56px] group"
+                  key={cat.to}
+                  to={cat.to}
+                  className="px-5 py-2 rounded-full border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground whitespace-nowrap transition-fast"
                 >
-                  <cat.icon className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-fast" />
-                  <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground whitespace-nowrap transition-fast">
-                    {cat.label}
-                  </span>
+                  {cat.label}
                 </Link>
               ))}
             </div>
