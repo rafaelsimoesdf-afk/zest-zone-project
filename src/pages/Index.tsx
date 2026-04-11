@@ -35,7 +35,7 @@ const Index = () => {
   return (
     <div className="flex flex-col bg-background">
       {/* Mobile: Pill Search Bar (Airbnb style) */}
-      <div className="md:hidden  px-4 py-3">
+      <div className="md:hidden px-4 py-3">
         <Link
           to="/browse"
           className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3.5 shadow-airbnb"
@@ -65,7 +65,7 @@ const Index = () => {
       </div>
 
       {/* Desktop Hero */}
-      <section className="hidden md:block ">
+      <section className="hidden md:block">
         <div className="bg-muted/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
             <div className="max-w-3xl mx-auto text-center mb-8">
