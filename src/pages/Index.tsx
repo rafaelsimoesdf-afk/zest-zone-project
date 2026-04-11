@@ -50,12 +50,12 @@ const Index = () => {
 
       {/* Mobile: Category Tabs with icons */}
       <div className="md:hidden border-b border-border">
-        <div className="flex items-center gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
+        <div className="grid grid-cols-4 gap-1.5 px-3 py-3">
           {categories.map((cat) => (
             <Link
               key={cat.to}
               to={cat.to}
-              className="px-4 py-2 rounded-full border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground whitespace-nowrap transition-fast"
+              className="flex items-center justify-center px-1 py-2 rounded-full border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground text-center transition-fast"
             >
               {cat.label}
             </Link>
