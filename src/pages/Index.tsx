@@ -48,14 +48,18 @@ const Index = () => {
         </Link>
       </div>
 
-      {/* Mobile: Category Tabs with icons */}
+      {/* Mobile: Category Tabs - Airbnb style */}
       <div className="md:hidden border-b border-border">
-        <div className="grid grid-cols-4 gap-1.5 px-3 py-3">
-          {categories.map((cat) => (
+        <div className="flex items-center justify-around px-4">
+          {categories.map((cat, index) => (
             <Link
               key={cat.to}
               to={cat.to}
-              className="flex items-center justify-center px-1 py-2 rounded-full border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground text-center transition-fast"
+              className={`relative py-3 text-sm font-medium transition-fast ${
+                index === 0
+                  ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
               {cat.label}
             </Link>
@@ -83,12 +87,16 @@ const Index = () => {
 
         <div className="border-b border-border">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-3 py-4 overflow-x-auto scrollbar-hide">
-              {categories.map((cat) => (
+            <div className="flex items-center gap-8 py-0">
+              {categories.map((cat, index) => (
                 <Link
                   key={cat.to}
                   to={cat.to}
-                  className="px-5 py-2 rounded-full border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground whitespace-nowrap transition-fast"
+                  className={`relative py-4 text-sm font-medium whitespace-nowrap transition-fast ${
+                    index === 0
+                      ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
                 >
                   {cat.label}
                 </Link>
