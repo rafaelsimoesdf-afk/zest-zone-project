@@ -11,6 +11,7 @@ import {
   Zap,
   Key,
   Search,
+  Smartphone,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -18,17 +19,18 @@ import BottomTabBar from "@/components/BottomTabBar";
 import { Button } from "@/components/ui/button";
 import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
+import { useAppDriverVehicles } from "@/hooks/useAppDriverVehicles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleCard } from "@/components/browse/VehicleCard";
 import { useRef } from "react";
 
 const Index = () => {
   const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(8);
+  const { data: appDriverVehicles, isLoading: isLoadingAppDriver } = useAppDriverVehicles(4);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const categories = [
     { label: "Veículos", to: "/browse" },
-    { label: "Motoristas de App", to: "/app-driver-rentals" },
     { label: "Classificados", to: "/classifieds" },
     { label: "Serviços", to: "/services" },
   ];
@@ -172,6 +174,88 @@ const Index = () => {
                 <p className="text-muted-foreground">Nenhum veículo disponível no momento.</p>
                 <Button className="mt-4" asChild>
                   <Link to="/become-owner">Seja o primeiro a anunciar!</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* App Driver Vehicles */}
+      <section className="py-6 md:py-12 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Smartphone className="w-4 h-4 text-primary" />
+              </div>
+              <h2 className="text-lg md:text-2xl font-semibold text-foreground">
+                Para motoristas de app
+              </h2>
+            </div>
+            <Link
+              to="/app-driver-rentals"
+              className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:shadow-md transition-fast md:w-auto md:h-auto md:border-0 md:rounded-none"
+            >
+              <ArrowRight className="w-4 h-4 md:hidden" />
+              <span className="hidden md:flex items-center gap-1 text-sm font-semibold text-foreground hover:underline">
+                Ver todos
+                <ArrowRight className="w-4 h-4" />
+              </span>
+            </Link>
+          </div>
+
+          <p className="text-sm text-muted-foreground mb-4 -mt-2">
+            Carros disponíveis para locação semanal e mensal para Uber, 99 e outros apps.
+          </p>
+
+          {/* Mobile: 2-column grid */}
+          <div className="grid grid-cols-2 gap-3 md:hidden">
+            {isLoadingAppDriver ? (
+              Array.from({ length: 2 }).map((_, index) => (
+                <div key={index}>
+                  <Skeleton className="aspect-[4/3] rounded-xl mb-2" />
+                  <Skeleton className="h-3.5 w-3/4 mb-1" />
+                  <Skeleton className="h-3 w-1/2 mb-1" />
+                  <Skeleton className="h-3.5 w-1/3" />
+                </div>
+              ))
+            ) : appDriverVehicles && appDriverVehicles.length > 0 ? (
+              appDriverVehicles.slice(0, 4).map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            ) : (
+              <div className="col-span-2 text-center py-8">
+                <Smartphone className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">Nenhum veículo para motoristas de app no momento.</p>
+                <Button variant="outline" size="sm" className="mt-3" asChild>
+                  <Link to="/app-driver-rentals">Saiba mais</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop grid */}
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {isLoadingAppDriver ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index}>
+                  <Skeleton className="aspect-[4/3] rounded-xl mb-2.5" />
+                  <Skeleton className="h-4 w-3/4 mb-1" />
+                  <Skeleton className="h-3.5 w-1/2 mb-1" />
+                  <Skeleton className="h-4 w-1/3" />
+                </div>
+              ))
+            ) : appDriverVehicles && appDriverVehicles.length > 0 ? (
+              appDriverVehicles.slice(0, 4).map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8">
+                <Smartphone className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">Nenhum veículo para motoristas de app no momento.</p>
+                <Button variant="outline" size="sm" className="mt-3" asChild>
+                  <Link to="/app-driver-rentals">Saiba mais</Link>
                 </Button>
               </div>
             )}
