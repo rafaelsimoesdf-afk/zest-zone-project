@@ -2,8 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useListing, useListingMessages, useSendListingMessage, useUpdateListing, useDeleteListing } from "@/hooks/useClassifieds";
 import { useAuth } from "@/contexts/AuthContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -106,24 +104,20 @@ const ClassifiedDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
+      <div className="flex flex-col">
         <main className="flex-1 pt-24 flex items-center justify-center">
           <p className="text-muted-foreground">Carregando anúncio...</p>
         </main>
-        <Footer />
       </div>
     );
   }
 
   if (!listing) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
+      <div className="flex flex-col">
         <main className="flex-1 pt-24 flex items-center justify-center">
           <p className="text-muted-foreground">Anúncio não encontrado.</p>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -188,8 +182,7 @@ const ClassifiedDetails = () => {
   const hasAnyAccessory = safetyItems.length > 0 || comfortItems.length > 0 || techItems.length > 0 || exteriorItems.length > 0 || otherItems.length > 0;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="flex flex-col">
       <main className="flex-1 pt-20 sm:pt-24 pb-20">
         <div className="container mx-auto px-3 sm:px-6 lg:px-8">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4 -ml-2">
@@ -610,7 +603,6 @@ const ClassifiedDetails = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useVehicles } from "@/hooks/useVehicles";
 import { useBrands, useModels } from "@/hooks/useBrands";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { FilterBar } from "@/components/browse/FilterBar";
 import { VehicleCard } from "@/components/browse/VehicleCard";
@@ -75,9 +73,7 @@ const AppDriverRentals = () => {
   });
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
+    <div className="flex flex-col">
       <main className="flex-1 pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -201,8 +197,6 @@ const AppDriverRentals = () => {
           )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

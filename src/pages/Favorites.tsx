@@ -1,7 +1,4 @@
 import { Link, Navigate } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import BottomTabBar from '@/components/BottomTabBar';
 import { useFavorites, useRemoveFavorite } from '@/hooks/useFavorites';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,8 +26,7 @@ const Favorites = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <div className="bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -51,10 +47,9 @@ const Favorites = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       {/* Desktop Navbar */}
       <div className="hidden md:block">
-        <Navbar />
       </div>
 
       {/* Mobile Header */}
@@ -152,11 +147,6 @@ const Favorites = () => {
           </div>
         )}
       </main>
-
-      <div className="hidden md:block">
-        <Footer />
-      </div>
-      <BottomTabBar />
     </div>
   );
 };

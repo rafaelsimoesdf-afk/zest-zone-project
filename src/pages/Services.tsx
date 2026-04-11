@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, MapPin, Wrench, Car, Camera, Navigation, Shield, FileText, Truck, Sparkles, Users, Phone, SlidersHorizontal, X, Star } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -184,8 +182,7 @@ const Services = () => {
   const activeFilterLabel = category !== "all" ? getCategoryLabel(category) : null;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="bg-background">
       <div className="pt-20 pb-12">
         {/* Hero */}
         <div className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-12">
@@ -357,7 +354,6 @@ const Services = () => {
           )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

@@ -2,9 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyBookings } from "@/hooks/useBookings";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import BottomTabBar from "@/components/BottomTabBar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,10 +21,9 @@ const MyBookings = () => {
   } | null>(null);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="bg-background flex flex-col">
       {/* Desktop Navbar */}
       <div className="hidden md:block">
-        <Navbar />
       </div>
 
       {/* Mobile Header */}
@@ -109,11 +105,6 @@ const MyBookings = () => {
           />
         )}
       </main>
-
-      <div className="hidden md:block">
-        <Footer />
-      </div>
-      <BottomTabBar />
     </div>
   );
 };

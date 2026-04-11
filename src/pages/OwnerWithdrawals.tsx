@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useSearchParams } from "react-router-dom";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -98,7 +96,7 @@ const OwnerWithdrawals = () => {
 
   if (authLoading || checkingVehicles) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary" />
       </div>
     );
@@ -131,8 +129,7 @@ const OwnerWithdrawals = () => {
   const hasCpf = !!profile?.cpf;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="bg-background flex flex-col">
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         <div className="max-w-5xl mx-auto">
           <div className="mb-6 sm:mb-8">
@@ -443,7 +440,6 @@ const OwnerWithdrawals = () => {
           </Tabs>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

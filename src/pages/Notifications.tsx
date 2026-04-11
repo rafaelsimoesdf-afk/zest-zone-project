@@ -15,8 +15,6 @@ import {
   CheckCheck,
   ExternalLink
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -103,8 +101,7 @@ const Notifications = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <div className="bg-background">
         <div className="container mx-auto px-4 pt-24 pb-16">
           <Skeleton className="h-10 w-48 mb-6" />
           <div className="space-y-4">
@@ -120,8 +117,7 @@ const Notifications = () => {
   const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="bg-background">
       <main className="container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
@@ -266,7 +262,6 @@ const Notifications = () => {
           )}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

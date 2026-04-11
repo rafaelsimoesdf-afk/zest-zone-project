@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useListings } from "@/hooks/useClassifieds";
 import { useAuth } from "@/contexts/AuthContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { ClassifiedCard } from "@/components/classifieds/ClassifiedCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,8 +43,7 @@ const Classifieds = () => {
   }) : [];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
+    <div className="flex flex-col">
       <main className="flex-1 pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -222,7 +219,6 @@ const Classifieds = () => {
           )}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

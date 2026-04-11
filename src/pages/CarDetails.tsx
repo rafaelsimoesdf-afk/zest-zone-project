@@ -27,8 +27,6 @@ import {
   Radio,
   Cog,
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -148,20 +146,17 @@ const CarDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
+      <div className="flex flex-col">
         <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
           <p className="text-muted-foreground">Carregando...</p>
         </main>
-        <Footer />
       </div>
     );
   }
 
   if (!vehicle) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
+      <div className="flex flex-col">
         <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
           <div className="text-center">
             <p className="text-muted-foreground mb-4">Veículo não encontrado</p>
@@ -170,7 +165,6 @@ const CarDetails = () => {
             </Button>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -180,9 +174,7 @@ const CarDetails = () => {
   const address = vehicle.addresses as any;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
+    <div className="flex flex-col">
       <main className="flex-1 pt-20 sm:pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
@@ -1192,8 +1184,6 @@ const CarDetails = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

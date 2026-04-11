@@ -3,8 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Send, MessageSquare, ArrowLeft, Car, Calendar, User, Search, Settings } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import BottomTabBar from "@/components/BottomTabBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -87,21 +85,19 @@ const Messages = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <div className="bg-background">
         <div className="container mx-auto px-4 py-16 text-center">
           <MessageSquare className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
           <h1 className="text-2xl font-bold mb-2">Faça login para ver suas mensagens</h1>
           <p className="text-muted-foreground">Você precisa estar logado para acessar suas conversas.</p>
         </div>
-        <BottomTabBar />
       </div>
     );
   }
 
   // Mobile conversation list (no booking selected)
   const MobileConversationList = () => (
-    <div className="md:hidden min-h-screen bg-background pb-16">
+    <div className="md:hidden bg-background pb-16">
       {/* Header */}
       <div className="px-4 pt-14 pb-2">
         <div className="flex items-center justify-between mb-4">
@@ -192,8 +188,6 @@ const Messages = () => {
           ))}
         </div>
       )}
-
-      <BottomTabBar />
     </div>
   );
 
@@ -306,8 +300,7 @@ const Messages = () => {
       </div>
 
       {/* Desktop */}
-      <div className="hidden md:flex min-h-screen bg-background flex-col">
-        <Navbar />
+      <div className="hidden md:flex bg-background flex-col">
         <div className="flex-1 flex overflow-hidden pt-16">
           {/* Conversations List */}
           <div className="w-80 lg:w-96 border-r border-border flex flex-col bg-card">

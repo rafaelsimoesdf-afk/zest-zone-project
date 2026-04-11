@@ -4,8 +4,6 @@ import {
   Plus, Wrench, Pause, Play, Trash2, Eye, CreditCard, Crown,
   Upload, Edit, RefreshCw, AlertCircle, CheckCircle2
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -297,21 +295,18 @@ const MyServices = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navbar />
+      <div className="bg-background flex flex-col">
         <div className="flex-1 pt-24 container mx-auto px-4 text-center py-20">
           <Wrench className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
           <h2 className="text-2xl font-bold mb-4 text-foreground">Faça login para gerenciar seus serviços</h2>
           <Button asChild><Link to="/auth">Entrar</Link></Button>
         </div>
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="bg-background flex flex-col">
       <main className="flex-1 pt-20 pb-12">
         <div className="container mx-auto px-4 max-w-5xl">
           {/* Header */}
@@ -609,7 +604,6 @@ const MyServices = () => {
           </Dialog>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

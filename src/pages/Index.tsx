@@ -13,9 +13,6 @@ import {
   Search,
   Smartphone,
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import BottomTabBar from "@/components/BottomTabBar";
 import { Button } from "@/components/ui/button";
 import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
@@ -36,11 +33,9 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-
+    <div className="flex flex-col bg-background">
       {/* Mobile: Pill Search Bar (Airbnb style) */}
-      <div className="md:hidden pt-[72px] px-4 py-3">
+      <div className="md:hidden  px-4 py-3">
         <Link
           to="/browse"
           className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3.5 shadow-airbnb"
@@ -70,7 +65,7 @@ const Index = () => {
       </div>
 
       {/* Desktop Hero */}
-      <section className="hidden md:block pt-[72px]">
+      <section className="hidden md:block ">
         <div className="bg-muted/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
             <div className="max-w-3xl mx-auto text-center mb-8">
@@ -364,14 +359,7 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      <div className="hidden md:block">
-        <Footer />
-      </div>
-
       {/* Mobile bottom spacing for tab bar */}
-      <div className="h-14 md:hidden" />
-      <BottomTabBar />
     </div>
   );
 };
