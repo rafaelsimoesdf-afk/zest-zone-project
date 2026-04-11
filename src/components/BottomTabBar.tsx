@@ -1,14 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Search, Heart, Car, MessageSquare, User } from "lucide-react";
-import { useUnreadMessagesCount } from "@/hooks/useMessages";
+import { Search, CarFront, Newspaper, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { to: "/", icon: Search, label: "Explorar" },
-  { to: "/favorites", icon: Heart, label: "Favoritos" },
-  { to: "/my-bookings", icon: Car, label: "Viagens" },
-  { to: "/messages", icon: MessageSquare, label: "Mensagens" },
-  { to: "/profile", icon: User, label: "Perfil" },
+  { to: "/browse", icon: Search, label: "Buscar Carros" },
+  { to: "/app-driver-rentals", icon: CarFront, label: "Motoristas" },
+  { to: "/classifieds", icon: Newspaper, label: "Classificados" },
+  { to: "/services", icon: Wrench, label: "Serviços" },
 ];
 
 const BottomTabBar = () => {
