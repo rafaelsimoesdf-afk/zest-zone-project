@@ -11,6 +11,12 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Label } from "@/components/ui/label";
 import { CurrencyInput } from "@/components/ui/currency-input";
 
+const categories = [
+  { label: "Veículos", to: "/browse" },
+  { label: "Classificados", to: "/classifieds" },
+  { label: "Serviços", to: "/services" },
+];
+
 const Classifieds = () => {
   const { user } = useAuth();
   const [filters, setFilters] = useState({
@@ -44,8 +50,43 @@ const Classifieds = () => {
 
   return (
     <div className="flex flex-col">
-      <main className="flex-1 pt-24 pb-20">
+      {/* Mobile: Pill Search Bar */}
+      <div className="md:hidden px-4 py-3">
+        <div className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3.5 shadow-airbnb">
+          <Search className="w-5 h-5 text-foreground" />
+          <input
+            type="text"
+            placeholder="Buscar por cidade ou veículo..."
+            value={searchCity}
+            onChange={(e) => setSearchCity(e.target.value)}
+            className="flex-1 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+          />
+        </div>
+      </div>
+
+      {/* Category Tabs - Airbnb style */}
+      <div className="border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-around md:justify-start md:gap-8">
+            {categories.map((cat) => (
+              <Link
+                key={cat.to}
+                to={cat.to}
+                className={`relative py-3 md:py-4 text-sm font-medium whitespace-nowrap transition-fast ${
+                  cat.to === "/classifieds"
+                    ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {cat.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-1 pb-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
@@ -66,8 +107,8 @@ const Classifieds = () => {
             )}
           </div>
 
-          {/* Search & Filters Bar */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          {/* Desktop Search & Filters Bar */}
+          <div className="hidden md:flex flex-col sm:flex-row gap-3 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -184,9 +225,108 @@ const Classifieds = () => {
             </Sheet>
           </div>
 
+          {/* Mobile: Sort & Filter row */}
+          <div className="flex md:hidden gap-2 mb-4">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="flex-1 h-9 text-xs">
+                <SelectValue placeholder="Ordenar" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">Mais recentes</SelectItem>
+                <SelectItem value="price-low">Menor preço</SelectItem>
+                <SelectItem value="price-high">Maior preço</SelectItem>
+                <SelectItem value="year-new">Ano mais novo</SelectItem>
+                <SelectItem value="views">Mais vistos</SelectItem>
+              </SelectContent>
+            </Select>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="h-9">
+                  <SlidersHorizontal className="w-4 h-4 mr-1" />
+                  Filtros
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Filtros</SheetTitle>
+                </SheetHeader>
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <Label>Condição</Label>
+                    <Select value={filters.condition} onValueChange={(v) => setFilters(p => ({ ...p, condition: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas</SelectItem>
+                        <SelectItem value="new">Novo</SelectItem>
+                        <SelectItem value="semi-new">Seminovo</SelectItem>
+                        <SelectItem value="used">Usado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Tipo</Label>
+                    <Select value={filters.vehicleType} onValueChange={(v) => setFilters(p => ({ ...p, vehicleType: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        <SelectItem value="sedan">Sedan</SelectItem>
+                        <SelectItem value="hatchback">Hatch</SelectItem>
+                        <SelectItem value="suv">SUV</SelectItem>
+                        <SelectItem value="pickup">Picape</SelectItem>
+                        <SelectItem value="van">Van</SelectItem>
+                        <SelectItem value="coupe">Cupê</SelectItem>
+                        <SelectItem value="convertible">Conversível</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Câmbio</Label>
+                    <Select value={filters.transmission} onValueChange={(v) => setFilters(p => ({ ...p, transmission: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        <SelectItem value="automatic">Automático</SelectItem>
+                        <SelectItem value="manual">Manual</SelectItem>
+                        <SelectItem value="cvt">CVT</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Combustível</Label>
+                    <Select value={filters.fuel} onValueChange={(v) => setFilters(p => ({ ...p, fuel: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        <SelectItem value="flex">Flex</SelectItem>
+                        <SelectItem value="gasoline">Gasolina</SelectItem>
+                        <SelectItem value="ethanol">Etanol</SelectItem>
+                        <SelectItem value="diesel">Diesel</SelectItem>
+                        <SelectItem value="electric">Elétrico</SelectItem>
+                        <SelectItem value="hybrid">Híbrido</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label>Preço mín.</Label>
+                      <CurrencyInput value={filters.minPrice || 0} onChange={(v) => setFilters(p => ({ ...p, minPrice: v || undefined }))} />
+                    </div>
+                    <div>
+                      <Label>Preço máx.</Label>
+                      <CurrencyInput value={filters.maxPrice || 0} onChange={(v) => setFilters(p => ({ ...p, maxPrice: v || undefined }))} />
+                    </div>
+                  </div>
+                  <Button variant="outline" className="w-full" onClick={() => setFilters({ vehicleType: "all", transmission: "all", fuel: "all", condition: "all", minPrice: undefined, maxPrice: undefined, city: "", minYear: undefined, maxYear: undefined })}>
+                    Limpar Filtros
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
           {/* Results count */}
           <div className="mb-4">
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               {isLoading ? "Carregando..." : (
                 <>Mostrando <span className="font-semibold text-foreground">{sortedListings.length}</span> anúncios</>
               )}
@@ -211,7 +351,7 @@ const Classifieds = () => {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {sortedListings.map((listing) => (
                 <ClassifiedCard key={listing.id} listing={listing} />
               ))}

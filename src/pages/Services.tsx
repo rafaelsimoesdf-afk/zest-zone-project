@@ -11,7 +11,6 @@ import { useServiceListings, SERVICE_CATEGORIES, getCategoryLabel, ServiceListin
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-
 const categoryIcons: Record<string, any> = {
   motorista_particular: Users,
   polimento: Sparkles,
@@ -25,6 +24,12 @@ const categoryIcons: Record<string, any> = {
   transporte: Truck,
   outros: Wrench,
 };
+
+const navCategories = [
+  { label: "Veículos", to: "/browse" },
+  { label: "Classificados", to: "/classifieds" },
+  { label: "Serviços", to: "/services" },
+];
 
 const ServiceCard = ({ service }: { service: ServiceListing }) => {
   const Icon = categoryIcons[service.category] || Wrench;
@@ -165,7 +170,6 @@ const Services = () => {
   const [category, setCategory] = useState("all");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
-  
 
   const { data: services, isLoading } = useServiceListings({
     category: category !== "all" ? category : undefined,
@@ -176,26 +180,59 @@ const Services = () => {
     setSearch(searchInput);
   };
 
-  // First 4 services as "featured"
   const featuredServices = services?.slice(0, 4) || [];
   const remainingServices = services?.slice(4) || [];
   const activeFilterLabel = category !== "all" ? getCategoryLabel(category) : null;
 
   return (
     <div className="bg-background">
-      <div className="pt-20 pb-12">
-        {/* Hero */}
-        <div className="bg-gradient-to-br from-primary/10 via-background to-accent/10 py-12">
-          <div className="container mx-auto px-4">
+      {/* Mobile: Pill Search Bar */}
+      <div className="md:hidden px-4 py-3">
+        <div className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3.5 shadow-airbnb">
+          <Search className="w-5 h-5 text-foreground" />
+          <input
+            type="text"
+            placeholder="Buscar serviços..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            className="flex-1 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+          />
+        </div>
+      </div>
+
+      {/* Category Tabs - Airbnb style */}
+      <div className="border-b border-border">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-around md:justify-start md:gap-8">
+            {navCategories.map((cat) => (
+              <Link
+                key={cat.to}
+                to={cat.to}
+                className={`relative py-3 md:py-4 text-sm font-medium whitespace-nowrap transition-fast ${
+                  cat.to === "/services"
+                    ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {cat.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="pb-12">
+        <div className="container mx-auto px-4 pt-6">
+          {/* Desktop Search */}
+          <div className="hidden md:block mb-8">
             <div className="max-w-3xl mx-auto text-center">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
                 Serviços Automotivos
               </h1>
-              <p className="text-muted-foreground text-lg mb-8">
+              <p className="text-muted-foreground text-lg mb-6">
                 Encontre profissionais qualificados para cuidar do seu veículo
               </p>
-
-              {/* Search bar with filter toggle */}
               <div className="flex gap-2 max-w-xl mx-auto">
                 <Input
                   placeholder="Buscar serviços..."
@@ -253,8 +290,6 @@ const Services = () => {
                   </SheetContent>
                 </Sheet>
               </div>
-
-              {/* Active filter indicator */}
               {activeFilterLabel && (
                 <div className="mt-3 flex justify-center">
                   <Badge
@@ -270,12 +305,38 @@ const Services = () => {
               )}
             </div>
           </div>
-        </div>
 
-        <div className="container mx-auto px-4 mt-8">
+          {/* Mobile: Filter chips */}
+          <div className="md:hidden mb-4">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+              <Button
+                variant={category === "all" ? "default" : "outline"}
+                size="sm"
+                className="rounded-full h-8 px-3 text-xs shrink-0"
+                onClick={() => setCategory("all")}
+              >
+                Todos
+              </Button>
+              {SERVICE_CATEGORIES.map((cat) => {
+                const Icon = categoryIcons[cat.value] || Wrench;
+                return (
+                  <Button
+                    key={cat.value}
+                    variant={category === cat.value ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-full h-8 px-3 text-xs shrink-0"
+                    onClick={() => setCategory(cat.value)}
+                  >
+                    <Icon className="w-3 h-3 mr-1" />
+                    {cat.label}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+
           {isLoading ? (
             <div className="space-y-10">
-              {/* Featured skeleton */}
               <div>
                 <div className="h-6 bg-muted rounded w-48 mb-4" />
                 <div className="flex gap-4 overflow-hidden">
@@ -293,7 +354,6 @@ const Services = () => {
                   ))}
                 </div>
               </div>
-              {/* Grid skeleton */}
               <div>
                 <div className="h-6 bg-muted rounded w-40 mb-4" />
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -312,7 +372,6 @@ const Services = () => {
             </div>
           ) : services && services.length > 0 ? (
             <div className="space-y-10">
-              {/* Featured / Destaques */}
               {featuredServices.length > 0 && (
                 <section>
                   <div className="flex items-center gap-2 mb-4">
@@ -327,7 +386,6 @@ const Services = () => {
                 </section>
               )}
 
-              {/* All services grid */}
               {remainingServices.length > 0 && (
                 <section>
                   <h2 className="text-xl font-bold text-foreground mb-4">
