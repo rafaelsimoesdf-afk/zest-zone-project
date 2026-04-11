@@ -43,7 +43,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
+      <div className="hidden md:block"><Navbar /></div>
 
       {/* Mobile: Fixed top section */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-background transition-all duration-300">
