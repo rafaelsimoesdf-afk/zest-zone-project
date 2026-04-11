@@ -8,14 +8,13 @@ import {
   Clock,
   Users,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   Zap,
-  Heart,
   Key,
+  Search,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BottomTabBar from "@/components/BottomTabBar";
 import { Button } from "@/components/ui/button";
 import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
@@ -26,15 +25,6 @@ import { useRef } from "react";
 const Index = () => {
   const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(8);
   const carouselRef = useRef<HTMLDivElement>(null);
-
-  const scrollCarousel = (direction: "left" | "right") => {
-    if (!carouselRef.current) return;
-    const scrollAmount = 320;
-    carouselRef.current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
 
   const categories = [
     { icon: Car, label: "Sedans", type: "sedan" },
@@ -49,8 +39,37 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
 
-      {/* Hero Section - Clean, Airbnb style */}
-      <section className="pt-[72px]">
+      {/* Mobile: Pill Search Bar (Airbnb style) */}
+      <div className="md:hidden pt-[72px] px-4 py-3">
+        <Link
+          to="/browse"
+          className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3.5 shadow-airbnb"
+        >
+          <Search className="w-5 h-5 text-foreground" />
+          <span className="text-sm text-muted-foreground">Inicie sua busca</span>
+        </Link>
+      </div>
+
+      {/* Mobile: Category Tabs with icons */}
+      <div className="md:hidden border-b border-border">
+        <div className="flex items-center gap-6 px-4 py-3 overflow-x-auto scrollbar-hide">
+          {categories.map((cat) => (
+            <Link
+              key={cat.type}
+              to={`/browse?type=${cat.type}`}
+              className="flex flex-col items-center gap-1.5 min-w-[56px] group"
+            >
+              <cat.icon className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-fast" />
+              <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground whitespace-nowrap transition-fast">
+                {cat.label}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop Hero */}
+      <section className="hidden md:block pt-[72px]">
         <div className="bg-muted/50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
             <div className="max-w-3xl mx-auto text-center mb-8">
@@ -61,15 +80,13 @@ const Index = () => {
                 Alugue carros de pessoas reais. Mais barato, mais prático, mais seguro.
               </p>
             </div>
-
-            {/* Search Bar */}
             <div className="max-w-4xl mx-auto">
               <TuroSearchBar />
             </div>
           </div>
         </div>
 
-        {/* Category Filter - Horizontal icons */}
+        {/* Desktop Category Filter */}
         <div className="border-b border-border">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-8 py-4 overflow-x-auto scrollbar-hide">
@@ -90,100 +107,90 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Cars - Airbnb Grid */}
-      <section className="py-8 sm:py-12">
+      {/* Featured Cars */}
+      <section className="py-6 md:py-12 flex-1">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-lg md:text-2xl font-semibold text-foreground">
               Carros em destaque
             </h2>
             <Link
               to="/browse"
-              className="text-sm font-semibold text-foreground hover:underline flex items-center gap-1"
+              className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:shadow-md transition-fast md:w-auto md:h-auto md:border-0 md:rounded-none"
             >
-              Mostrar todos
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 md:hidden" />
+              <span className="hidden md:flex items-center gap-1 text-sm font-semibold text-foreground hover:underline">
+                Mostrar todos
+                <ArrowRight className="w-4 h-4" />
+              </span>
             </Link>
           </div>
 
-          {/* Horizontal scrollable on mobile, grid on desktop */}
-          <div className="relative">
-            {/* Desktop grid */}
-            <div className="hidden sm:grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {isLoadingVehicles ? (
-                Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index}>
-                    <Skeleton className="aspect-[4/3] rounded-xl mb-2.5" />
-                    <Skeleton className="h-4 w-3/4 mb-1" />
-                    <Skeleton className="h-3.5 w-1/2 mb-1" />
-                    <Skeleton className="h-4 w-1/3" />
-                  </div>
-                ))
-              ) : featuredVehicles && featuredVehicles.length > 0 ? (
-                featuredVehicles.slice(0, 8).map((vehicle) => (
-                  <VehicleCard key={vehicle.id} vehicle={vehicle} />
-                ))
-              ) : (
-                <div className="col-span-full text-center py-12">
-                  <Car className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-                  <p className="text-muted-foreground">Nenhum veículo disponível no momento.</p>
-                  <Button className="mt-4" asChild>
-                    <Link to="/become-owner">Seja o primeiro a anunciar!</Link>
-                  </Button>
+          {/* Mobile: 2-column grid like Airbnb */}
+          <div className="grid grid-cols-2 gap-3 md:hidden">
+            {isLoadingVehicles ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index}>
+                  <Skeleton className="aspect-[4/3] rounded-xl mb-2" />
+                  <Skeleton className="h-3.5 w-3/4 mb-1" />
+                  <Skeleton className="h-3 w-1/2 mb-1" />
+                  <Skeleton className="h-3.5 w-1/3" />
                 </div>
-              )}
-            </div>
-
-            {/* Mobile carousel */}
-            <div className="sm:hidden">
-              <div
-                ref={carouselRef}
-                className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 -mx-4 px-4"
-              >
-                {isLoadingVehicles ? (
-                  Array.from({ length: 3 }).map((_, index) => (
-                    <div key={index} className="min-w-[280px] snap-start">
-                      <Skeleton className="aspect-[4/3] rounded-xl mb-2.5" />
-                      <Skeleton className="h-4 w-3/4 mb-1" />
-                      <Skeleton className="h-3.5 w-1/2" />
-                    </div>
-                  ))
-                ) : featuredVehicles && featuredVehicles.length > 0 ? (
-                  featuredVehicles.map((vehicle) => (
-                    <div key={vehicle.id} className="min-w-[280px] snap-start">
-                      <VehicleCard vehicle={vehicle} />
-                    </div>
-                  ))
-                ) : null}
+              ))
+            ) : featuredVehicles && featuredVehicles.length > 0 ? (
+              featuredVehicles.slice(0, 6).map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            ) : (
+              <div className="col-span-2 text-center py-12">
+                <Car className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">Nenhum veículo disponível no momento.</p>
+                <Button className="mt-4" asChild>
+                  <Link to="/become-owner">Seja o primeiro a anunciar!</Link>
+                </Button>
               </div>
-            </div>
+            )}
+          </div>
+
+          {/* Desktop grid */}
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {isLoadingVehicles ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index}>
+                  <Skeleton className="aspect-[4/3] rounded-xl mb-2.5" />
+                  <Skeleton className="h-4 w-3/4 mb-1" />
+                  <Skeleton className="h-3.5 w-1/2 mb-1" />
+                  <Skeleton className="h-4 w-1/3" />
+                </div>
+              ))
+            ) : featuredVehicles && featuredVehicles.length > 0 ? (
+              featuredVehicles.slice(0, 8).map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <Car className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">Nenhum veículo disponível no momento.</p>
+                <Button className="mt-4" asChild>
+                  <Link to="/become-owner">Seja o primeiro a anunciar!</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* How it works - Clean minimal */}
-      <section className="py-10 sm:py-16 bg-muted/30">
+      {/* How it works - Desktop only */}
+      <section className="hidden md:block py-10 sm:py-16 bg-muted/30">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-8 sm:mb-10">
             Como funciona
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12">
             {[
-              {
-                step: "1",
-                title: "Busque o carro ideal",
-                description: "Encontre por localização, data e tipo de veículo",
-              },
-              {
-                step: "2",
-                title: "Reserve com segurança",
-                description: "Pagamento protegido e comunicação direta com o proprietário",
-              },
-              {
-                step: "3",
-                title: "Retire e dirija",
-                description: "Encontre o proprietário, faça a vistoria e pegue as chaves",
-              },
+              { step: "1", title: "Busque o carro ideal", description: "Encontre por localização, data e tipo de veículo" },
+              { step: "2", title: "Reserve com segurança", description: "Pagamento protegido e comunicação direta com o proprietário" },
+              { step: "3", title: "Retire e dirija", description: "Encontre o proprietário, faça a vistoria e pegue as chaves" },
             ].map((item) => (
               <div key={item.step} className="flex gap-4">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold shrink-0">
@@ -207,8 +214,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA for Owners - Clean card */}
-      <section className="py-10 sm:py-16">
+      {/* CTA for Owners - Desktop only */}
+      <section className="hidden md:block py-10 sm:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-foreground text-background rounded-2xl p-8 sm:p-12 lg:p-16">
             <div className="grid lg:grid-cols-2 gap-8 items-center">
@@ -220,23 +227,14 @@ const Index = () => {
                   Transforme seu carro parado em fonte de renda. Milhares de proprietários já estão ganhando dinheiro com o InfiniteDrive.
                 </p>
                 <ul className="space-y-3 mb-8">
-                  {[
-                    "Cadastro gratuito e rápido",
-                    "Você define o preço e disponibilidade",
-                    "Seguro completo incluído",
-                    "Suporte dedicado 24/7",
-                  ].map((item) => (
+                  {["Cadastro gratuito e rápido", "Você define o preço e disponibilidade", "Seguro completo incluído", "Suporte dedicado 24/7"].map((item) => (
                     <li key={item} className="flex items-center gap-2.5 text-sm sm:text-base text-background/90">
                       <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
                       {item}
                     </li>
                   ))}
                 </ul>
-                <Button
-                  size="lg"
-                  className="bg-background text-foreground hover:bg-background/90 rounded-lg font-semibold"
-                  asChild
-                >
+                <Button size="lg" className="bg-background text-foreground hover:bg-background/90 rounded-lg font-semibold" asChild>
                   <Link to="/become-owner">
                     Começar agora
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -262,8 +260,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Benefits - Simple icons row */}
-      <section className="py-10 sm:py-16 border-t border-border">
+      {/* Benefits - Desktop only */}
+      <section className="hidden md:block py-10 sm:py-16 border-t border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {[
@@ -284,7 +282,13 @@ const Index = () => {
         </div>
       </section>
 
-      <Footer />
+      <div className="hidden md:block">
+        <Footer />
+      </div>
+
+      {/* Mobile bottom spacing for tab bar */}
+      <div className="h-14 md:hidden" />
+      <BottomTabBar />
     </div>
   );
 };
