@@ -4,8 +4,6 @@ import { useCreateBooking } from "@/hooks/useBookings";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle, AlertCircle } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { sendPaymentConfirmedEmail, getUserEmailData } from "@/hooks/useEmailNotifications";
@@ -107,9 +105,7 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-
+    <div className="flex flex-col bg-background">
       <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
         <div className="container mx-auto px-4 max-w-lg">
           <Card className="border shadow-lg">
@@ -156,8 +152,6 @@ const PaymentSuccess = () => {
           </Card>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

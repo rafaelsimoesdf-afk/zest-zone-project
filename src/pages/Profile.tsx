@@ -5,9 +5,6 @@ import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
 import { useDefaultAddress, useCreateAddress, useUpdateAddress } from "@/hooks/useAddresses";
 import { useAllUserReviews } from "@/hooks/useAllUserReviews";
 import { useUserRoles } from "@/hooks/useUserRoles";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import BottomTabBar from "@/components/BottomTabBar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,8 +110,7 @@ const Profile = () => {
 
   if (isLoading || isLoadingAddress) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navbar />
+      <div className="bg-background flex flex-col">
         <main className="flex-1 container mx-auto px-4 py-24 flex items-center justify-center">
           <p className="text-muted-foreground">Carregando...</p>
         </main>
@@ -134,7 +130,7 @@ const Profile = () => {
 
   // Mobile Airbnb-style profile
   const MobileProfile = () => (
-    <div className="md:hidden min-h-screen bg-background pb-20">
+    <div className="md:hidden bg-background pb-20">
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-14 pb-2">
         <h1 className="text-2xl font-bold text-foreground">Perfil</h1>
@@ -224,15 +220,12 @@ const Profile = () => {
           <span className="text-sm text-foreground">Sair da conta</span>
         </button>
       </div>
-
-      <BottomTabBar />
     </div>
   );
 
   // Desktop view (existing tabs)
   const DesktopProfile = () => (
-    <div className="hidden md:flex min-h-screen bg-background flex-col">
-      <Navbar />
+    <div className="hidden md:flex bg-background flex-col">
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-20 sm:py-24">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl sm:text-4xl font-display font-bold mb-4 sm:mb-8 text-primary">
@@ -460,7 +453,6 @@ const Profile = () => {
           </Tabs>
         </div>
       </main>
-      <Footer />
     </div>
   );
 

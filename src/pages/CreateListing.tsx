@@ -4,8 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMyVehicles } from "@/hooks/useVehicles";
 import { useCreateListing } from "@/hooks/useClassifieds";
 import { useProfile } from "@/hooks/useProfile";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -151,8 +149,7 @@ const CreateListing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="bg-background flex flex-col">
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         <div className="max-w-3xl mx-auto">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4">
@@ -381,7 +378,6 @@ const CreateListing = () => {
           </form>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

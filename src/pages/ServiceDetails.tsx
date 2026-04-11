@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, MessageSquare, Share2, Eye, Clock, Wrench, Send, Users, Sparkles, Car, Navigation, Truck, Camera, Shield, FileText } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -67,8 +65,7 @@ const ServiceDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <div className="bg-background">
         <div className="pt-24 container mx-auto px-4">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-muted rounded w-1/3" />
@@ -81,8 +78,7 @@ const ServiceDetails = () => {
 
   if (!service) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <div className="bg-background">
         <div className="pt-24 container mx-auto px-4 text-center py-20">
           <h2 className="text-2xl font-bold text-foreground mb-4">Serviço não encontrado</h2>
           <Button asChild><Link to="/services">Voltar aos serviços</Link></Button>
@@ -98,8 +94,7 @@ const ServiceDetails = () => {
   const isOwner = user?.id === service.provider_id;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="bg-background">
       <div className="pt-20 pb-12">
         <div className="container mx-auto px-4">
           {/* Back */}
@@ -280,7 +275,6 @@ const ServiceDetails = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

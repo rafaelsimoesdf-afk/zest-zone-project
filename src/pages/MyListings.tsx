@@ -1,7 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyListings, useUpdateListing, useDeleteListing } from "@/hooks/useClassifieds";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,8 +38,7 @@ const MyListings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="bg-background flex flex-col">
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
@@ -139,7 +136,6 @@ const MyListings = () => {
           )}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

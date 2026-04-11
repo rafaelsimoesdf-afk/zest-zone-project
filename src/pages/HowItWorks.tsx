@@ -11,8 +11,6 @@ import {
   Car,
   DollarSign,
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -143,9 +141,7 @@ const HowItWorks = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar />
-
+    <div className="flex flex-col">
       {/* Hero */}
       <section className="pt-32 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -308,8 +304,6 @@ const HowItWorks = () => {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 };

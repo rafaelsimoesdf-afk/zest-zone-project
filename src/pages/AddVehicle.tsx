@@ -5,8 +5,6 @@ import { useIsUserApproved } from "@/hooks/useProfile";
 import { useCreateAddress } from "@/hooks/useAddresses";
 import { useBrands, useModels } from "@/hooks/useBrands";
 import { useUserRoles, useAddUserRole } from "@/hooks/useUserRoles";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -390,8 +388,7 @@ const AddVehicle = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navbar />
+      <div className="bg-background flex flex-col">
         <main className="flex-1 container mx-auto px-4 py-24 flex items-center justify-center">
           <Card className="max-w-md">
             <CardContent className="pt-6 text-center">
@@ -402,41 +399,35 @@ const AddVehicle = () => {
             </CardContent>
           </Card>
         </main>
-        <Footer />
       </div>
     );
   }
 
   if (isLoadingVerification) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navbar />
+      <div className="bg-background flex flex-col">
         <main className="flex-1 container mx-auto px-4 py-24 flex items-center justify-center">
           <p className="text-muted-foreground">Carregando...</p>
         </main>
-        <Footer />
       </div>
     );
   }
 
   if (!isApproved) {
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <Navbar />
+      <div className="bg-background flex flex-col">
         <main className="flex-1 container mx-auto px-4 py-24 flex items-center justify-center">
           <VerificationRequired 
             action="cadastrar veículos" 
             verificationStatus={verificationStatus} 
           />
         </main>
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="bg-background flex flex-col">
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         <Button variant="ghost" className="mb-4 sm:mb-6 text-xs sm:text-sm" size="sm" asChild>
           <Link to="/become-owner">
@@ -1220,7 +1211,6 @@ const AddVehicle = () => {
           </form>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
