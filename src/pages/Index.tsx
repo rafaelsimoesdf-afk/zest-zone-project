@@ -8,10 +8,9 @@ import {
   Clock,
   Users,
   CheckCircle2,
+  Zap,
+  Key,
   Search,
-  CarFront,
-  Newspaper,
-  Wrench,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -21,64 +20,53 @@ import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleCard } from "@/components/browse/VehicleCard";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 
 const Index = () => {
   const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(8);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const quickLinks = [
-    { icon: Search, label: "Buscar Carros", to: "/browse" },
-    { icon: CarFront, label: "Motoristas", to: "/app-driver-rentals" },
-    { icon: Newspaper, label: "Classificados", to: "/classifieds" },
-    { icon: Wrench, label: "Serviços", to: "/services" },
+  const categories = [
+    { icon: Car, label: "Sedans", type: "sedan" },
+    { icon: Zap, label: "SUVs", type: "suv" },
+    { icon: Key, label: "Hatches", type: "hatch" },
+    { icon: Car, label: "Pickups", type: "pickup" },
+    { icon: Star, label: "Esportivos", type: "sports" },
+    { icon: Users, label: "Vans", type: "van" },
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <div className="hidden md:block"><Navbar /></div>
+      <Navbar />
 
-      {/* Mobile: Fixed top section */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-background transition-all duration-300">
-        <Navbar />
-        {/* Search bar */}
-        <div className="px-4 py-2">
-          <Link
-            to="/browse"
-            className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3 shadow-airbnb"
-          >
-            <Search className="w-5 h-5 text-foreground" />
-            <span className="text-sm text-muted-foreground">Inicie sua busca</span>
-          </Link>
-        </div>
-        {/* Quick nav - icons collapse on scroll */}
-        <div className={`border-b border-border transition-all duration-300 overflow-hidden ${scrolled ? "max-h-8 py-1" : "max-h-20 py-3"}`}>
-          <div className="flex items-center justify-around px-4">
-            {quickLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className="flex flex-col items-center gap-1 min-w-[56px] group"
-              >
-                <link.icon className={`text-muted-foreground group-hover:text-foreground transition-all duration-300 ${scrolled ? "w-0 h-0 opacity-0" : "w-6 h-6 opacity-100"}`} />
-                <span className={`font-medium text-muted-foreground group-hover:text-foreground whitespace-nowrap transition-fast ${scrolled ? "text-xs" : "text-[11px]"}`}>
-                  {link.label}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
+      {/* Mobile: Pill Search Bar (Airbnb style) */}
+      <div className="md:hidden pt-[72px] px-4 py-3">
+        <Link
+          to="/browse"
+          className="flex items-center gap-3 w-full bg-background border border-border rounded-full px-5 py-3.5 shadow-airbnb"
+        >
+          <Search className="w-5 h-5 text-foreground" />
+          <span className="text-sm text-muted-foreground">Inicie sua busca</span>
+        </Link>
       </div>
 
-      {/* Mobile spacer */}
-      <div className={`md:hidden transition-all duration-300 ${scrolled ? "h-[140px]" : "h-[185px]"}`} />
+      {/* Mobile: Category Tabs with icons */}
+      <div className="md:hidden border-b border-border">
+        <div className="flex items-center gap-6 px-4 py-3 overflow-x-auto scrollbar-hide">
+          {categories.map((cat) => (
+            <Link
+              key={cat.type}
+              to={`/browse?type=${cat.type}`}
+              className="flex flex-col items-center gap-1.5 min-w-[56px] group"
+            >
+              <cat.icon className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-fast" />
+              <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground whitespace-nowrap transition-fast">
+                {cat.label}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
 
       {/* Desktop Hero */}
       <section className="hidden md:block pt-[72px]">
@@ -98,19 +86,19 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Desktop Quick Navigation */}
+        {/* Desktop Category Filter */}
         <div className="border-b border-border">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-8 py-4 overflow-x-auto scrollbar-hide">
-              {quickLinks.map((link) => (
+              {categories.map((cat) => (
                 <Link
-                  key={link.to}
-                  to={link.to}
+                  key={cat.type}
+                  to={`/browse?type=${cat.type}`}
                   className="flex flex-col items-center gap-1.5 min-w-[56px] group"
                 >
-                  <link.icon className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-fast" />
+                  <cat.icon className="w-6 h-6 text-muted-foreground group-hover:text-foreground transition-fast" />
                   <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground whitespace-nowrap transition-fast">
-                    {link.label}
+                    {cat.label}
                   </span>
                 </Link>
               ))}
