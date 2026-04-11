@@ -11,6 +11,7 @@ import {
   Zap,
   Key,
   Search,
+  Smartphone,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -18,17 +19,18 @@ import BottomTabBar from "@/components/BottomTabBar";
 import { Button } from "@/components/ui/button";
 import { TuroSearchBar } from "@/components/TuroSearchBar";
 import { useFeaturedVehicles } from "@/hooks/useFeaturedVehicles";
+import { useAppDriverVehicles } from "@/hooks/useAppDriverVehicles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleCard } from "@/components/browse/VehicleCard";
 import { useRef } from "react";
 
 const Index = () => {
   const { data: featuredVehicles, isLoading: isLoadingVehicles } = useFeaturedVehicles(8);
+  const { data: appDriverVehicles, isLoading: isLoadingAppDriver } = useAppDriverVehicles(4);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const categories = [
     { label: "Veículos", to: "/browse" },
-    { label: "Motoristas de App", to: "/app-driver-rentals" },
     { label: "Classificados", to: "/classifieds" },
     { label: "Serviços", to: "/services" },
   ];
