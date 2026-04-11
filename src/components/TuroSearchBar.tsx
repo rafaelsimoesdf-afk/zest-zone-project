@@ -53,6 +53,7 @@ export function TuroSearchBar({
   initialFromTime = "10:00",
   initialUntilTime = "10:00",
   onSearch,
+  compact = false,
 }: TuroSearchBarProps) {
   const navigate = useNavigate();
   const [location, setLocation] = useState(initialLocation);
