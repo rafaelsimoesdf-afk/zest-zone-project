@@ -28,6 +28,14 @@ const timeOptions = [
   "22:00", "22:30", "23:00", "23:30"
 ];
 
+interface SearchParams {
+  city: string;
+  fromDate?: string;
+  untilDate?: string;
+  fromTime: string;
+  untilTime: string;
+}
+
 interface TuroSearchBarProps {
   initialLocation?: string;
   initialFromDate?: string;
@@ -35,6 +43,7 @@ interface TuroSearchBarProps {
   initialFromTime?: string;
   initialUntilTime?: string;
   compact?: boolean;
+  onSearch?: (params: SearchParams) => void;
 }
 
 export function TuroSearchBar({
@@ -43,6 +52,7 @@ export function TuroSearchBar({
   initialUntilDate,
   initialFromTime = "10:00",
   initialUntilTime = "10:00",
+  onSearch,
   compact = false,
 }: TuroSearchBarProps) {
   const navigate = useNavigate();
@@ -55,6 +65,20 @@ export function TuroSearchBar({
   );
   const [fromTime, setFromTime] = useState(initialFromTime);
   const [untilTime, setUntilTime] = useState(initialUntilTime);
+
+  const handleSearchInternal = () => {
+    if (onSearch) {
+      onSearch({
+        city: location,
+        fromDate: fromDate ? format(fromDate, "yyyy-MM-dd") : undefined,
+        untilDate: untilDate ? format(untilDate, "yyyy-MM-dd") : undefined,
+        fromTime,
+        untilTime,
+      });
+      return;
+    }
+    handleSearch();
+  };
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -185,7 +209,7 @@ export function TuroSearchBar({
 
         {/* Search Button */}
         <Button
-          onClick={handleSearch}
+          onClick={handleSearchInternal}
           size="icon"
           className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 m-2 flex-shrink-0"
         >
@@ -291,7 +315,7 @@ export function TuroSearchBar({
 
         {/* Search Button */}
         <Button
-          onClick={handleSearch}
+          onClick={handleSearchInternal}
           className="w-full rounded-lg"
         >
           <Search className="w-4 h-4 mr-2" />
