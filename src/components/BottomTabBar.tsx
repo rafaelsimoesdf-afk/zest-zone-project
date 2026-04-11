@@ -31,17 +31,7 @@ const BottomTabBar = () => {
               )}
             >
               <div className="relative">
-                <tab.icon
-                  className={cn(
-                    "w-5 h-5",
-                    isActive && tab.to === "/favorites" && "fill-current"
-                  )}
-                />
-                {tab.to === "/messages" && unreadCount && unreadCount > 0 ? (
-                  <span className="absolute -top-1 -right-2 min-w-[16px] h-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center px-1">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                ) : null}
+                <tab.icon className="w-5 h-5" />
               </div>
               <span className="text-[10px] font-medium">{tab.label}</span>
             </Link>
