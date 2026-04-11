@@ -209,7 +209,7 @@ export function TuroSearchBar({
 
         {/* Search Button */}
         <Button
-          onClick={handleSearch}
+          onClick={handleSearchInternal}
           size="icon"
           className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 m-2 flex-shrink-0"
         >
@@ -315,7 +315,7 @@ export function TuroSearchBar({
 
         {/* Search Button */}
         <Button
-          onClick={handleSearch}
+          onClick={handleSearchInternal}
           className="w-full rounded-lg"
         >
           <Search className="w-4 h-4 mr-2" />
