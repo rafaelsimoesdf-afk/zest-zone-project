@@ -27,12 +27,10 @@ const Index = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const categories = [
-    { icon: Car, label: "Sedans", type: "sedan" },
-    { icon: Zap, label: "SUVs", type: "suv" },
-    { icon: Key, label: "Hatches", type: "hatch" },
-    { icon: Car, label: "Pickups", type: "pickup" },
-    { icon: Star, label: "Esportivos", type: "sports" },
-    { icon: Users, label: "Vans", type: "van" },
+    { label: "Veículos", to: "/browse" },
+    { label: "Motoristas de App", to: "/app-driver-rentals" },
+    { label: "Classificados", to: "/classifieds" },
+    { label: "Serviços", to: "/services" },
   ];
 
   return (
