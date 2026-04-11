@@ -51,6 +51,10 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      boxShadow: {
+        "airbnb": "0 6px 20px rgba(0, 0, 0, 0.1)",
+        "airbnb-hover": "0 8px 28px rgba(0, 0, 0, 0.12)",
+      },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
         "gradient-hero": "var(--gradient-hero)",

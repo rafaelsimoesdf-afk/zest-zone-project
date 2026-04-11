@@ -34,6 +34,7 @@ interface TuroSearchBarProps {
   initialUntilDate?: string;
   initialFromTime?: string;
   initialUntilTime?: string;
+  compact?: boolean;
 }
 
 export function TuroSearchBar({
@@ -42,7 +43,8 @@ export function TuroSearchBar({
   initialUntilDate,
   initialFromTime = "10:00",
   initialUntilTime = "10:00",
-}: TuroSearchBarProps = {}) {
+  compact = false,
+}: TuroSearchBarProps) {
   const navigate = useNavigate();
   const [location, setLocation] = useState(initialLocation);
   const [fromDate, setFromDate] = useState<Date | undefined>(
@@ -61,41 +63,59 @@ export function TuroSearchBar({
     if (untilDate) params.set("until", format(untilDate, "yyyy-MM-dd"));
     if (fromTime) params.set("fromTime", fromTime);
     if (untilTime) params.set("untilTime", untilTime);
-    
     navigate(`/browse?${params.toString()}`);
   };
+
+  // Compact version for navbar
+  if (compact) {
+    return (
+      <button
+        onClick={() => navigate("/browse")}
+        className="flex items-center border border-border rounded-full shadow-sm hover:shadow-md transition-smooth px-4 py-2 gap-4 w-full max-w-lg bg-background"
+      >
+        <span className="text-sm font-medium text-foreground">Qualquer lugar</span>
+        <span className="h-5 w-px bg-border" />
+        <span className="text-sm font-medium text-foreground">Qualquer data</span>
+        <span className="h-5 w-px bg-border" />
+        <span className="text-sm text-muted-foreground">Buscar</span>
+        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-auto">
+          <Search className="w-4 h-4 text-primary-foreground" />
+        </div>
+      </button>
+    );
+  }
 
   return (
     <div className="w-full max-w-5xl mx-auto">
       {/* Desktop Version */}
-      <div className="hidden md:flex items-center !bg-white rounded-full shadow-xl border-l-4 border-l-primary" style={{ backgroundColor: 'white' }}>
+      <div className="hidden md:flex items-center bg-background rounded-full shadow-airbnb border border-border hover:shadow-airbnb-hover transition-smooth">
         {/* Where Section */}
-        <div className="flex-1 px-6 py-3 border-r border-gray-200">
-          <div className="text-xs font-medium text-gray-500 mb-1 text-left">Onde</div>
+        <div className="flex-1 px-6 py-3 rounded-full hover:bg-muted transition-fast cursor-pointer">
+          <div className="text-xs font-semibold text-foreground mb-0.5 text-left">Onde</div>
           <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <CityAutocomplete
               value={location}
               onChange={setLocation}
-              placeholder="Cidade ou endereço"
-              className="border-0 bg-transparent h-6 p-0 text-gray-900 placeholder:text-gray-400 focus-visible:ring-0 text-sm"
+              placeholder="Busque destinos"
+              className="border-0 bg-transparent h-6 p-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-0 text-sm"
               hideIcon
             />
           </div>
         </div>
 
+        <span className="h-8 w-px bg-border" />
+
         {/* From Date Section */}
-        <div className="px-4 py-3 border-r border-gray-200">
-          <div className="text-xs font-medium text-gray-500 mb-1 text-left">De</div>
+        <div className="px-4 py-3 rounded-full hover:bg-muted transition-fast cursor-pointer">
+          <div className="text-xs font-semibold text-foreground mb-0.5 text-left">De</div>
           <div className="flex items-center gap-2">
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center gap-1 text-sm text-gray-900 hover:text-primary transition-colors">
-                  {fromDate ? format(fromDate, "dd/MM/yyyy") : "Selecionar"}
-                  <ChevronDown className="w-3 h-3 text-gray-400" />
+                <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  {fromDate ? format(fromDate, "dd/MM/yyyy") : "Inserir datas"}
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-white" align="start">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={fromDate}
@@ -109,12 +129,12 @@ export function TuroSearchBar({
             </Popover>
 
             <Select value={fromTime} onValueChange={setFromTime}>
-              <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 gap-1 bg-white">
+              <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-muted-foreground focus:ring-0 gap-1 bg-transparent">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent>
                 {timeOptions.map((time) => (
-                  <SelectItem key={time} value={time} className="text-gray-900">
+                  <SelectItem key={time} value={time}>
                     {time}
                   </SelectItem>
                 ))}
@@ -123,18 +143,19 @@ export function TuroSearchBar({
           </div>
         </div>
 
+        <span className="h-8 w-px bg-border" />
+
         {/* Until Date Section */}
-        <div className="px-4 py-3">
-          <div className="text-xs font-medium text-gray-500 mb-1 text-left">Até</div>
+        <div className="px-4 py-3 rounded-full hover:bg-muted transition-fast cursor-pointer">
+          <div className="text-xs font-semibold text-foreground mb-0.5 text-left">Até</div>
           <div className="flex items-center gap-2">
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center gap-1 text-sm text-gray-900 hover:text-primary transition-colors">
-                  {untilDate ? format(untilDate, "dd/MM/yyyy") : "Selecionar"}
-                  <ChevronDown className="w-3 h-3 text-gray-400" />
+                <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  {untilDate ? format(untilDate, "dd/MM/yyyy") : "Inserir datas"}
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-white" align="start">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={untilDate}
@@ -148,12 +169,12 @@ export function TuroSearchBar({
             </Popover>
 
             <Select value={untilTime} onValueChange={setUntilTime}>
-              <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 gap-1 bg-white">
+              <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-muted-foreground focus:ring-0 gap-1 bg-transparent">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent>
                 {timeOptions.map((time) => (
-                  <SelectItem key={time} value={time} className="text-gray-900">
+                  <SelectItem key={time} value={time}>
                     {time}
                   </SelectItem>
                 ))}
@@ -168,22 +189,22 @@ export function TuroSearchBar({
           size="icon"
           className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 m-2 flex-shrink-0"
         >
-          <Search className="w-5 h-5 text-white" />
+          <Search className="w-5 h-5 text-primary-foreground" />
         </Button>
       </div>
 
       {/* Mobile Version */}
-      <div className="md:hidden !bg-white rounded-2xl shadow-xl border-l-4 border-l-primary p-4 space-y-4" style={{ backgroundColor: 'white' }}>
+      <div className="md:hidden bg-background rounded-2xl shadow-airbnb border border-border p-4 space-y-4">
         {/* Where */}
         <div>
-          <div className="text-xs font-medium text-gray-500 mb-1">Onde</div>
-          <div className="flex items-center gap-2 border-b border-gray-200 pb-3">
-            <MapPin className="w-4 h-4 text-gray-400" />
+          <div className="text-xs font-semibold text-foreground mb-1">Onde</div>
+          <div className="flex items-center gap-2 border-b border-border pb-3">
+            <MapPin className="w-4 h-4 text-muted-foreground" />
             <CityAutocomplete
               value={location}
               onChange={setLocation}
-              placeholder="Cidade ou endereço"
-              className="border-0 bg-transparent h-8 p-0 text-gray-900 placeholder:text-gray-400 focus-visible:ring-0"
+              placeholder="Busque destinos"
+              className="border-0 bg-transparent h-8 p-0 text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
               hideIcon
             />
           </div>
@@ -191,18 +212,17 @@ export function TuroSearchBar({
 
         {/* Dates Row */}
         <div className="flex gap-4">
-          {/* From */}
           <div className="flex-1">
-            <div className="text-xs font-medium text-gray-500 mb-1">De</div>
+            <div className="text-xs font-semibold text-foreground mb-1">De</div>
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="flex items-center gap-1 text-sm text-gray-900">
+                  <button className="flex items-center gap-1 text-sm text-muted-foreground">
                     {fromDate ? format(fromDate, "dd/MM/yyyy") : "Data"}
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                    <ChevronDown className="w-3 h-3" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white" align="start">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={fromDate}
@@ -216,12 +236,12 @@ export function TuroSearchBar({
               </Popover>
 
               <Select value={fromTime} onValueChange={setFromTime}>
-                <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 bg-white">
+                <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-muted-foreground focus:ring-0 bg-transparent">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent>
                   {timeOptions.map((time) => (
-                    <SelectItem key={time} value={time} className="text-gray-900">
+                    <SelectItem key={time} value={time}>
                       {time}
                     </SelectItem>
                   ))}
@@ -230,18 +250,17 @@ export function TuroSearchBar({
             </div>
           </div>
 
-          {/* Until */}
           <div className="flex-1">
-            <div className="text-xs font-medium text-gray-500 mb-1">Até</div>
+            <div className="text-xs font-semibold text-foreground mb-1">Até</div>
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="flex items-center gap-1 text-sm text-gray-900">
+                  <button className="flex items-center gap-1 text-sm text-muted-foreground">
                     {untilDate ? format(untilDate, "dd/MM/yyyy") : "Data"}
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                    <ChevronDown className="w-3 h-3" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white" align="start">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={untilDate}
@@ -255,12 +274,12 @@ export function TuroSearchBar({
               </Popover>
 
               <Select value={untilTime} onValueChange={setUntilTime}>
-                <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-gray-900 focus:ring-0 bg-white">
+                <SelectTrigger className="w-auto border-0 h-6 p-0 text-sm text-muted-foreground focus:ring-0 bg-transparent">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent>
                   {timeOptions.map((time) => (
-                    <SelectItem key={time} value={time} className="text-gray-900">
+                    <SelectItem key={time} value={time}>
                       {time}
                     </SelectItem>
                   ))}
@@ -273,7 +292,7 @@ export function TuroSearchBar({
         {/* Search Button */}
         <Button
           onClick={handleSearch}
-          className="w-full bg-primary hover:bg-primary/90"
+          className="w-full rounded-lg"
         >
           <Search className="w-4 h-4 mr-2" />
           Buscar
