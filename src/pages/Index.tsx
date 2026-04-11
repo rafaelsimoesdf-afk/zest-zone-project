@@ -8,9 +8,10 @@ import {
   Clock,
   Users,
   CheckCircle2,
-  Zap,
-  Key,
   Search,
+  CarFront,
+  Newspaper,
+  Wrench,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
