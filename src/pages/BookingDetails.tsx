@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBooking } from "@/hooks/useBookings";
 import { useExistingReview } from "@/hooks/useReviews";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,7 +59,8 @@ const BookingDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-background flex flex-col">
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navbar />
         <main className="flex-1 container mx-auto px-4 py-24">
           <div className="max-w-4xl mx-auto">
             <Card>
@@ -67,13 +70,15 @@ const BookingDetails = () => {
             </Card>
           </div>
         </main>
+        <Footer />
       </div>
     );
   }
 
   if (!booking) {
     return (
-      <div className="bg-background flex flex-col">
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navbar />
         <main className="flex-1 container mx-auto px-4 py-24">
           <div className="max-w-4xl mx-auto">
             <Card>
@@ -90,6 +95,7 @@ const BookingDetails = () => {
             </Card>
           </div>
         </main>
+        <Footer />
       </div>
     );
   }
@@ -109,7 +115,8 @@ const BookingDetails = () => {
   const createdAt = new Date(booking.created_at);
 
   return (
-    <div className="bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-20 sm:py-24">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -501,6 +508,7 @@ const BookingDetails = () => {
           />
         )}
       </main>
+      <Footer />
     </div>
   );
 };

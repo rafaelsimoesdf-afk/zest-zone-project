@@ -16,6 +16,8 @@ import {
   MessageSquare,
   Car,
 } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -119,30 +121,35 @@ const Checkout = () => {
 
   if (isLoadingVerification) {
     return (
-      <div className="flex flex-col">
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
         <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
           <p className="text-muted-foreground">Carregando...</p>
         </main>
+        <Footer />
       </div>
     );
   }
 
   if (!isApproved) {
     return (
-      <div className="flex flex-col">
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
         <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
           <VerificationRequired 
             action="fazer reservas" 
             verificationStatus={verificationStatus} 
           />
         </main>
+        <Footer />
       </div>
     );
   }
 
   if (!vehicleId || !startDate || !endDate) {
     return (
-      <div className="flex flex-col">
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
         <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
           <div className="text-center">
             <p className="text-muted-foreground mb-4">Dados de reserva inválidos</p>
@@ -151,23 +158,27 @@ const Checkout = () => {
             </Button>
           </div>
         </main>
+        <Footer />
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="flex flex-col">
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
         <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
           <p className="text-muted-foreground">Carregando...</p>
         </main>
+        <Footer />
       </div>
     );
   }
 
   if (!vehicle) {
     return (
-      <div className="flex flex-col">
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
         <main className="flex-1 pt-24 pb-20 flex items-center justify-center">
           <div className="text-center">
             <p className="text-muted-foreground mb-4">Veículo não encontrado</p>
@@ -176,6 +187,7 @@ const Checkout = () => {
             </Button>
           </div>
         </main>
+        <Footer />
       </div>
     );
   }
@@ -260,7 +272,9 @@ const Checkout = () => {
   };
 
   return (
-    <div className="flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
+
       <main className="flex-1 pt-20 sm:pt-24 pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
           {/* Header */}
@@ -644,6 +658,8 @@ const Checkout = () => {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 };

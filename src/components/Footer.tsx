@@ -1,97 +1,159 @@
 import { Link } from "react-router-dom";
+import { Facebook, Instagram, Twitter, Mail, Phone } from "lucide-react";
 
 const Footer = () => {
   return (
     <footer className="bg-muted border-t border-border">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* Suporte */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* Brand */}
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <span className="text-2xl sm:text-3xl font-display font-bold text-primary">
+                InfiniteDrive
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              A plataforma que conecta proprietários e locatários de veículos de forma segura e prática.
+            </p>
+            <div className="flex gap-3">
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-background border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-smooth"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-background border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-smooth"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a
+                href="#"
+                className="w-9 h-9 rounded-lg bg-background border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-smooth"
+              >
+                <Twitter className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+
+          {/* Para Locatários */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Suporte</h3>
-            <ul className="space-y-3">
-              {[
-                { to: "/support", label: "Central de Ajuda" },
-                { to: "/how-it-works", label: "Como Funciona" },
-                { to: "#", label: "Garantias e Seguros" },
-                { to: "#", label: "Opções de cancelamento" },
-              ].map(link => (
-                <li key={link.label}>
-                  <Link to={link.to} className="text-sm text-muted-foreground hover:text-foreground hover:underline transition-fast">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h3 className="font-semibold text-foreground mb-4">Para Locatários</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  to="/browse"
+                  className="text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Buscar Carros
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/how-it-works"
+                  className="text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Como Funciona
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="#"
+                  className="text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Garantias e Seguros
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="#"
+                  className="text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Perguntas Frequentes
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Locatários */}
+          {/* Para Proprietários */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Para Locatários</h3>
-            <ul className="space-y-3">
-              {[
-                { to: "/browse", label: "Buscar Carros" },
-                { to: "/classifieds", label: "Classificados" },
-                { to: "/services", label: "Serviços" },
-                { to: "/app-driver-rentals", label: "Motoristas de App" },
-              ].map(link => (
-                <li key={link.label}>
-                  <Link to={link.to} className="text-sm text-muted-foreground hover:text-foreground hover:underline transition-fast">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h3 className="font-semibold text-foreground mb-4">Para Proprietários</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  to="/become-owner"
+                  className="text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Anuncie seu Carro
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="#"
+                  className="text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Calcule seus Ganhos
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="#"
+                  className="text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Proteção do Veículo
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="#"
+                  className="text-sm text-muted-foreground hover:text-primary transition-fast"
+                >
+                  Guia do Proprietário
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Proprietários */}
+          {/* Contato */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">Para Proprietários</h3>
+            <h3 className="font-semibold text-foreground mb-4">Contato</h3>
             <ul className="space-y-3">
-              {[
-                { to: "/become-owner", label: "Anuncie seu Carro" },
-                { to: "#", label: "Proteção do Veículo" },
-                { to: "#", label: "Guia do Proprietário" },
-                { to: "#", label: "Calcule seus Ganhos" },
-              ].map(link => (
-                <li key={link.label}>
-                  <Link to={link.to} className="text-sm text-muted-foreground hover:text-foreground hover:underline transition-fast">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Mail className="w-4 h-4 text-primary" />
+                contato@infinitedrive.com.br
+              </li>
+              <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="w-4 h-4 text-primary" />
+                (11) 3000-0000
+              </li>
             </ul>
-          </div>
-
-          {/* InfiniteDrive */}
-          <div>
-            <h3 className="text-sm font-semibold text-foreground mb-4">InfiniteDrive</h3>
-            <ul className="space-y-3">
-              {[
-                { to: "#", label: "Termos de Uso" },
-                { to: "#", label: "Política de Privacidade" },
-                { to: "#", label: "Sobre Nós" },
-              ].map(link => (
-                <li key={link.label}>
-                  <Link to={link.to} className="text-sm text-muted-foreground hover:text-foreground hover:underline transition-fast">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <div className="mt-4 space-y-2">
+              <Link
+                to="#"
+                className="block text-sm text-muted-foreground hover:text-primary transition-fast"
+              >
+                Central de Ajuda
+              </Link>
+              <Link
+                to="#"
+                className="block text-sm text-muted-foreground hover:text-primary transition-fast"
+              >
+                Termos de Uso
+              </Link>
+              <Link
+                to="#"
+                className="block text-sm text-muted-foreground hover:text-primary transition-fast"
+              >
+                Política de Privacidade
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} InfiniteDrive. Todos os direitos reservados.
-          </p>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <Link to="#" className="hover:text-foreground hover:underline transition-fast">Privacidade</Link>
-            <span>·</span>
-            <Link to="#" className="hover:text-foreground hover:underline transition-fast">Termos</Link>
-            <span>·</span>
-            <Link to="#" className="hover:text-foreground hover:underline transition-fast">Mapa do Site</Link>
-          </div>
+        <div className="pt-8 border-t border-border text-center text-sm text-muted-foreground">
+          <p>&copy; {new Date().getFullYear()} InfiniteDrive. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>

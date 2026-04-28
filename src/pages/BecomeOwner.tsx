@@ -12,6 +12,8 @@ import {
   Star,
   Calendar,
 } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -127,7 +129,9 @@ const BecomeOwner = () => {
   ];
 
   return (
-    <div className="flex flex-col">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+
       {/* Hero Section */}
       <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-20 overflow-hidden">
         <div className="absolute inset-0 gradient-hero opacity-5" />
@@ -354,6 +358,8 @@ const BecomeOwner = () => {
           </Button>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

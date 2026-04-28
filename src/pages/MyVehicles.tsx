@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyVehicles, useDeleteVehicle } from "@/hooks/useVehicles";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,7 +31,8 @@ const MyVehicles = () => {
   };
 
   return (
-    <div className="bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-6 sm:mb-8">
@@ -163,6 +166,8 @@ const MyVehicles = () => {
           )}
         </div>
       </main>
+      <Footer />
+      
       <EditVehicleModal
         vehicle={selectedVehicle}
         open={editModalOpen}

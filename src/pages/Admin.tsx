@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -144,7 +146,9 @@ const Admin = () => {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      
       <main className="flex-grow container mx-auto px-4 pt-24 pb-8">
         <div className="mb-8">
           <div className="flex items-center gap-2 sm:gap-3 mb-2">
@@ -608,6 +612,9 @@ const Admin = () => {
           </TabsContent>
         </Tabs>
       </main>
+
+      <Footer />
+
       <EditVehicleModal
         vehicle={selectedVehicle}
         open={editVehicleModalOpen}

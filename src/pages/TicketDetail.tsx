@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   useSupportTicket,
@@ -64,20 +66,24 @@ const TicketDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar />
         <main className="flex-1 container mx-auto px-4 py-8 mt-16">
           <Skeleton className="h-96 w-full max-w-4xl mx-auto" />
         </main>
+        <Footer />
       </div>
     );
   }
 
   if (!ticket) {
     return (
-      <div className="flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-background">
+        <Navbar />
         <main className="flex-1 container mx-auto px-4 py-8 mt-16 text-center">
           <p className="text-muted-foreground">Chamado não encontrado.</p>
         </main>
+        <Footer />
       </div>
     );
   }
@@ -102,7 +108,8 @@ const TicketDetail = () => {
   };
 
   return (
-    <div className="flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
+      <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8 mt-16">
         <div className="max-w-4xl mx-auto space-y-4">
           <Button variant="ghost" onClick={() => navigate("/support")} className="mb-2">
@@ -278,6 +285,7 @@ const TicketDetail = () => {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

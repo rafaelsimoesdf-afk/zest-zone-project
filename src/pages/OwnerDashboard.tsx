@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -83,7 +85,7 @@ const OwnerDashboard = () => {
 
   if (authLoading || checkingVehicles) {
     return (
-      <div className="bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -126,7 +128,8 @@ const OwnerDashboard = () => {
   };
 
   return (
-    <div className="bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Navbar />
       <main className="flex-1 container mx-auto px-3 sm:px-4 py-16 sm:py-24">
         <div className="max-w-7xl mx-auto">
           <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -879,6 +882,8 @@ const OwnerDashboard = () => {
           customerImage={customerReputationModal.customer.profile_image}
         />
       )}
+
+      <Footer />
     </div>
   );
 };
