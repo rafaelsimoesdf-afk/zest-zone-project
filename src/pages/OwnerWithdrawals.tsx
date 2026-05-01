@@ -22,7 +22,6 @@ import {
   useRequestWithdrawal,
   useSaveWithdrawalSettings,
 } from "@/hooks/useWithdrawals";
-import { useStripeConnectStatus, useStartStripeOnboarding, useStripeBalance } from "@/hooks/useStripeConnect";
 import { useProfile } from "@/hooks/useProfile";
 import {
   Wallet,
@@ -34,8 +33,6 @@ import {
   Settings,
   TrendingUp,
   AlertCircle,
-  ExternalLink,
-  CreditCard,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -71,9 +68,6 @@ const OwnerWithdrawals = () => {
   const { data: withdrawals, isLoading: loadingWithdrawals } = useOwnerWithdrawals();
   const { data: settings } = useWithdrawalSettings();
   const { data: profile } = useProfile();
-  const { data: stripeStatus, refetch: refetchStripe } = useStripeConnectStatus();
-  const { data: stripeBalance, isLoading: loadingStripeBalance } = useStripeBalance();
-  const startOnboarding = useStartStripeOnboarding();
   const requestWithdrawal = useRequestWithdrawal();
   const saveSettings = useSaveWithdrawalSettings();
 
@@ -81,12 +75,10 @@ const OwnerWithdrawals = () => {
   const [frequency, setFrequency] = useState(settings?.frequency ?? "monthly");
   const [minAutoAmount, setMinAutoAmount] = useState(String(settings?.minimum_amount ?? 100));
 
-  // Refetch Stripe status after onboarding return
+  // Refetch on return from external flows (kept for backwards compat)
   useEffect(() => {
-    if (searchParams.get("stripe_onboarding") === "complete") {
-      refetchStripe();
-    }
-  }, [searchParams, refetchStripe]);
+    // no-op
+  }, [searchParams]);
 
   useEffect(() => {
     if (settings) {
@@ -144,46 +136,23 @@ const OwnerWithdrawals = () => {
             </p>
           </div>
 
-          {/* Stripe Connect Onboarding Card */}
-          {stripeStatus && !stripeStatus.onboarding_complete && (
-            <Card className="mb-6 border-primary/30 bg-primary/5">
-              <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                <CreditCard className="h-6 w-6 text-primary flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="font-medium text-sm">Configure sua conta Stripe Connect</p>
-                  <p className="text-xs text-muted-foreground">
-                    Para receber transferências automáticas, vincule sua conta bancária ao Stripe Connect.
-                    {stripeStatus.has_account && " Seu cadastro está incompleto."}
-                  </p>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => startOnboarding.mutate()}
-                  disabled={startOnboarding.isPending}
-                >
-                  <ExternalLink className="w-4 h-4 mr-1.5" />
-                  {startOnboarding.isPending ? "Abrindo..." : stripeStatus.has_account ? "Continuar Cadastro" : "Vincular Conta"}
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {stripeStatus?.onboarding_complete && (
-            <Card className="mb-6 border-green-500/30 bg-green-500/5">
-              <CardContent className="p-4 flex items-center gap-3">
-                <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                <div>
-                  <p className="font-medium text-sm text-green-700">Stripe Connect ativo</p>
-                  <p className="text-xs text-muted-foreground">Transferências automáticas habilitadas para sua conta.</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Info card: regra de comissão */}
+          <Card className="mb-6 border-primary/20 bg-primary/5">
+            <CardContent className="p-4 flex items-start gap-3">
+              <Banknote className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="text-xs sm:text-sm">
+                <p className="font-medium">Como funciona seu saldo</p>
+                <p className="text-muted-foreground">
+                  Você recebe <strong>85%</strong> do valor da locação (diárias + horas extras). A InfiniteDrive retém 15% de comissão e 100% do seguro. Os saques são pagos via PIX (Asaas) na chave CPF cadastrada no seu perfil.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Balance Cards */}
-          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-5 mb-6 sm:mb-8">
-            {(loadingBalance || loadingStripeBalance) ? (
-              Array(5).fill(0).map((_, i) => (
+          <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
+            {loadingBalance ? (
+              Array(4).fill(0).map((_, i) => (
                 <Card key={i}>
                   <CardHeader className="pb-2 p-3 sm:p-6"><Skeleton className="h-4 w-24" /></CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0"><Skeleton className="h-8 w-32" /></CardContent>
@@ -198,32 +167,14 @@ const OwnerWithdrawals = () => {
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
                     <div className="text-base sm:text-2xl font-bold text-green-600">
-                      {stripeBalance?.has_stripe ? formatCurrency(stripeBalance.available) : formatCurrency(0)}
+                      {formatCurrency(balance.available_balance)}
                     </div>
-                    {!stripeBalance?.has_stripe && (
-                      <p className="text-[10px] text-muted-foreground mt-1">Configure o Stripe Connect</p>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card className="border-yellow-500/20">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Pendente de Liberação</CardTitle>
-                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
-                  </CardHeader>
-                  <CardContent className="p-3 sm:p-6 pt-0">
-                    <div className="text-base sm:text-2xl font-bold text-yellow-600">
-                      {formatCurrency(balance.available_balance + (stripeBalance?.has_stripe ? stripeBalance.pending : 0))}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      Aguardando liberação no Stripe
-                    </p>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2 p-3 sm:p-6">
-                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Total Ganho</CardTitle>
+                    <CardTitle className="text-[10px] sm:text-sm font-medium text-muted-foreground">Total Recebido (85%)</CardTitle>
                     <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
                   </CardHeader>
                   <CardContent className="p-3 sm:p-6 pt-0">
