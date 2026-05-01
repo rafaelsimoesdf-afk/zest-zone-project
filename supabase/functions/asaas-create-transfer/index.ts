@@ -77,17 +77,18 @@ serve(async (req) => {
       });
     }
 
-    // Busca chave PIX do proprietário (assumindo que está em bank_accounts ou em campo do withdrawal)
-    // Aqui esperamos que withdrawal tenha pix_key e pix_key_type, ou puxe de bank_accounts.
-    const pixKey = withdrawal.pix_key;
-    const pixKeyType = withdrawal.pix_key_type; // CPF, CNPJ, EMAIL, PHONE, EVP
+    // Chave PIX = CPF do proprietário (regra atual da plataforma).
+    // O campo withdrawal.pix_key já contém o CPF (vide useRequestWithdrawal).
+    const rawPixKey = (withdrawal.pix_key || "").replace(/\D/g, "");
+    const pixKeyType = "CPF";
 
-    if (!pixKey || !pixKeyType) {
+    if (!rawPixKey || rawPixKey.length !== 11) {
       return new Response(
-        JSON.stringify({ error: "Saque sem chave PIX configurada. Solicite ao proprietário." }),
+        JSON.stringify({ error: "CPF (chave PIX) do proprietário inválido ou ausente." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+    const pixKey = rawPixKey;
 
     log("Creating transfer", { withdrawalId, value: withdrawal.net_amount, pixKeyType });
 
