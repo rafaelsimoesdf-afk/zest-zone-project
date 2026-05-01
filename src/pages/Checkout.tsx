@@ -373,7 +373,7 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2 sm:space-y-3">
+                <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as "pix" | "credit_card" | "boleto")} className="space-y-2 sm:space-y-3">
                   <div className="flex items-center space-x-2 sm:space-x-3 border rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="pix" id="pix" />
                     <Label htmlFor="pix" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
@@ -391,10 +391,10 @@ const Checkout = () => {
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2 sm:space-x-3 border rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="debit_card" id="debit_card" />
-                    <Label htmlFor="debit_card" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
+                    <RadioGroupItem value="boleto" id="boleto" />
+                    <Label htmlFor="boleto" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
                       <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
-                      <span className="font-medium text-sm sm:text-base">Cartão de débito</span>
+                      <span className="font-medium text-sm sm:text-base">Boleto bancário</span>
                     </Label>
                   </div>
                 </RadioGroup>
