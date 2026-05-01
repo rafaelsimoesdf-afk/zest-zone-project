@@ -682,6 +682,21 @@ const Checkout = () => {
       </main>
 
       <Footer />
+
+      {chargeData && (
+        <AsaasPaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          chargeId={chargeData.chargeId}
+          asaasPaymentId={chargeData.asaasPaymentId}
+          billingType={chargeData.billingType}
+          pixQrCode={chargeData.pixQrCode}
+          pixCopyPaste={chargeData.pixCopyPaste}
+          invoiceUrl={chargeData.invoiceUrl}
+          bankSlipUrl={chargeData.bankSlipUrl}
+          value={chargeData.value}
+        />
+      )}
     </div>
   );
 };
