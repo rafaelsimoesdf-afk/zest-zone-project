@@ -30,6 +30,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { VerificationRequired } from "@/components/VerificationRequired";
 import { Badge } from "@/components/ui/badge";
 import { maskCPF, formatCurrencyBRL } from "@/lib/validators";
+import { AsaasPaymentModal } from "@/components/checkout/AsaasPaymentModal";
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
@@ -49,11 +50,24 @@ const Checkout = () => {
   const { data: vehicle, isLoading } = useVehicle(vehicleId || "");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState("pix");
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card" | "boleto">("pix");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [cpf, setCpf] = useState("");
   const [message, setMessage] = useState("");
+
+  // Asaas payment modal state
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [chargeData, setChargeData] = useState<{
+    chargeId: string;
+    asaasPaymentId: string;
+    billingType: "PIX" | "BOLETO" | "CREDIT_CARD" | "UNDEFINED";
+    pixQrCode: string | null;
+    pixCopyPaste: string | null;
+    invoiceUrl: string | null;
+    bankSlipUrl: string | null;
+    value: number;
+  } | null>(null);
 
   // Acceptance checkboxes state
   const [acceptOwnerRules, setAcceptOwnerRules] = useState(false);
@@ -212,55 +226,63 @@ const Checkout = () => {
 
       const acceptanceTimestamp = new Date().toISOString();
 
-      const { data, error } = await supabase.functions.invoke('create-payment', {
+      const billingTypeMap = {
+        pix: "PIX",
+        credit_card: "CREDIT_CARD",
+        boleto: "BOLETO",
+      } as const;
+
+      const { data, error } = await supabase.functions.invoke('asaas-create-charge', {
         body: {
-          vehicleId: vehicle.id,
-          vehicleName: `${vehicle.brand} ${vehicle.model} ${vehicle.year}`,
-          startDate,
-          endDate,
-          startTime,
-          endTime,
-          days,
-          dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
-          dailySubtotal,
-          extraHours,
-          extraHoursCharge,
-          subtotal,
-          insurance,
-          totalPrice,
-          ownerId: vehicle.owner_id,
-          pickupLocation: pickupLocationStr,
-          notes: message || '',
-          appDriver: isAppDriver || false,
-          appDriverPeriod: appDriverPeriod || null,
-          // Acceptance data for legal compliance
-          acceptances: {
-            owner_rules_accepted: acceptOwnerRules,
-            owner_rules_accepted_at: acceptOwnerRules ? acceptanceTimestamp : null,
-            basic_rules_accepted: acceptBasicRules,
-            basic_rules_accepted_at: acceptBasicRules ? acceptanceTimestamp : null,
-            cancellation_policy_accepted: acceptCancellationPolicy,
-            cancellation_policy_accepted_at: acceptCancellationPolicy ? acceptanceTimestamp : null,
-            terms_of_service_accepted: acceptTermsOfService,
-            terms_of_service_accepted_at: acceptTermsOfService ? acceptanceTimestamp : null,
-            privacy_policy_accepted: acceptPrivacyPolicy,
-            privacy_policy_accepted_at: acceptPrivacyPolicy ? acceptanceTimestamp : null,
+          billingType: billingTypeMap[paymentMethod],
+          bookingPayload: {
+            vehicleId: vehicle.id,
+            ownerId: vehicle.owner_id,
+            startDate,
+            endDate,
+            startTime,
+            endTime,
+            days,
+            dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
+            totalPrice,
+            extraHours,
+            extraHoursCharge,
+            pickupLocation: pickupLocationStr,
+            notes: message || '',
+            acceptances: {
+              owner_rules_accepted: acceptOwnerRules,
+              owner_rules_accepted_at: acceptanceTimestamp,
+              basic_rules_accepted: acceptBasicRules,
+              basic_rules_accepted_at: acceptanceTimestamp,
+              cancellation_policy_accepted: acceptCancellationPolicy,
+              cancellation_policy_accepted_at: acceptanceTimestamp,
+              terms_of_service_accepted: acceptTermsOfService,
+              terms_of_service_accepted_at: acceptanceTimestamp,
+              privacy_policy_accepted: acceptPrivacyPolicy,
+              privacy_policy_accepted_at: acceptanceTimestamp,
+            },
           },
         },
       });
 
-      if (error) {
-        throw new Error(error.message || 'Erro ao processar pagamento');
-      }
+      if (error) throw new Error(error.message || 'Erro ao gerar cobrança');
+      if (!data?.chargeId) throw new Error('Resposta inválida do servidor de pagamento');
 
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('URL de pagamento não recebida');
-      }
+      setChargeData({
+        chargeId: data.chargeId,
+        asaasPaymentId: data.asaasPaymentId,
+        billingType: data.billingType,
+        pixQrCode: data.pixQrCode,
+        pixCopyPaste: data.pixCopyPaste,
+        invoiceUrl: data.invoiceUrl,
+        bankSlipUrl: data.bankSlipUrl,
+        value: data.value,
+      });
+      setPaymentModalOpen(true);
     } catch (error: any) {
       console.error('Payment error:', error);
       toast.error(error.message || 'Erro ao processar pagamento');
+    } finally {
       setIsProcessing(false);
     }
   };
@@ -351,7 +373,7 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2 sm:space-y-3">
+                <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as "pix" | "credit_card" | "boleto")} className="space-y-2 sm:space-y-3">
                   <div className="flex items-center space-x-2 sm:space-x-3 border rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-muted/50 transition-colors">
                     <RadioGroupItem value="pix" id="pix" />
                     <Label htmlFor="pix" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
@@ -369,10 +391,10 @@ const Checkout = () => {
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2 sm:space-x-3 border rounded-lg p-3 sm:p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="debit_card" id="debit_card" />
-                    <Label htmlFor="debit_card" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
+                    <RadioGroupItem value="boleto" id="boleto" />
+                    <Label htmlFor="boleto" className="flex items-center gap-2 sm:gap-3 cursor-pointer flex-1">
                       <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
-                      <span className="font-medium text-sm sm:text-base">Cartão de débito</span>
+                      <span className="font-medium text-sm sm:text-base">Boleto bancário</span>
                     </Label>
                   </div>
                 </RadioGroup>
@@ -660,6 +682,21 @@ const Checkout = () => {
       </main>
 
       <Footer />
+
+      {chargeData && (
+        <AsaasPaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          chargeId={chargeData.chargeId}
+          asaasPaymentId={chargeData.asaasPaymentId}
+          billingType={chargeData.billingType}
+          pixQrCode={chargeData.pixQrCode}
+          pixCopyPaste={chargeData.pixCopyPaste}
+          invoiceUrl={chargeData.invoiceUrl}
+          bankSlipUrl={chargeData.bankSlipUrl}
+          value={chargeData.value}
+        />
+      )}
     </div>
   );
 };
