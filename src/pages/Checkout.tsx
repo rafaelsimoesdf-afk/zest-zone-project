@@ -69,8 +69,26 @@ const Checkout = () => {
     pixCopyPaste: string | null;
     invoiceUrl: string | null;
     bankSlipUrl: string | null;
+    boletoIdentificationField: string | null;
+    initialStatus: string;
     value: number;
   } | null>(null);
+
+  // Cartão de crédito embutido
+  const { data: savedCards = [] } = useSavedCards();
+  const deleteCard = useDeleteSavedCard();
+  const [selectedCardId, setSelectedCardId] = useState<string>("new");
+  const [saveCard, setSaveCard] = useState(true);
+  const [cardForm, setCardForm] = useState<CreditCardFormData>({
+    holderName: "",
+    number: "",
+    expiryMonth: "",
+    expiryYear: "",
+    ccv: "",
+    postalCode: "",
+    addressNumber: "",
+  });
+
 
   // Acceptance checkboxes state
   const [acceptOwnerRules, setAcceptOwnerRules] = useState(false);
