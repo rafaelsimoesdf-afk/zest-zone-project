@@ -195,6 +195,19 @@ serve(async (req) => {
       }
     }
 
+    // Para boleto: busca a linha digitável (identificationField)
+    let boletoIdentificationField: string | null = null;
+    let boletoBarCode: string | null = null;
+    if (body.billingType === "BOLETO") {
+      try {
+        const id = await asaasFetch<any>(`/payments/${charge.id}/identificationField`);
+        boletoIdentificationField = id.identificationField ?? null;
+        boletoBarCode = id.barCode ?? null;
+      } catch (e) {
+        log("Boleto identificationField fetch failed", { error: String(e) });
+      }
+    }
+
     // Salva charge no banco com metadata da reserva (cria o booking depois do pagamento)
     const { data: stored, error: storeErr } = await supabaseAdmin
       .from("asaas_charges")
@@ -234,6 +247,8 @@ serve(async (req) => {
         pixQrCode,
         pixCopyPaste,
         pixExpiration,
+        boletoIdentificationField,
+        boletoBarCode,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
