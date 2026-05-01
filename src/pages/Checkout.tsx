@@ -830,6 +830,8 @@ const Checkout = () => {
           pixCopyPaste={chargeData.pixCopyPaste}
           invoiceUrl={chargeData.invoiceUrl}
           bankSlipUrl={chargeData.bankSlipUrl}
+          boletoIdentificationField={chargeData.boletoIdentificationField}
+          initialStatus={chargeData.initialStatus}
           value={chargeData.value}
         />
       )}
