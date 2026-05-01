@@ -240,6 +240,22 @@ const Checkout = () => {
 
     setIsProcessing(true);
 
+    // Validações específicas para cartão
+    if (paymentMethod === "credit_card") {
+      const usingSaved = selectedCardId !== "new";
+      if (!usingSaved) {
+        const c = cardForm;
+        if (!c.holderName || c.number.replace(/\D/g, "").length < 13 ||
+            !c.expiryMonth || c.expiryYear.length !== 4 || c.ccv.length < 3 ||
+            c.postalCode.replace(/\D/g, "").length !== 8 || !c.addressNumber) {
+          toast.error("Preencha todos os dados do cartão corretamente");
+          return;
+        }
+      }
+    }
+
+    setIsProcessing(true);
+
     try {
       const pickupLocationStr = address
         ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city} - ${address.state}`
@@ -253,37 +269,64 @@ const Checkout = () => {
         boleto: "BOLETO",
       } as const;
 
-      const { data, error } = await supabase.functions.invoke('asaas-create-charge', {
-        body: {
-          billingType: billingTypeMap[paymentMethod],
-          bookingPayload: {
-            vehicleId: vehicle.id,
-            ownerId: vehicle.owner_id,
-            startDate,
-            endDate,
-            startTime,
-            endTime,
-            days,
-            dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
-            totalPrice,
-            extraHours,
-            extraHoursCharge,
-            pickupLocation: pickupLocationStr,
-            notes: message || '',
-            acceptances: {
-              owner_rules_accepted: acceptOwnerRules,
-              owner_rules_accepted_at: acceptanceTimestamp,
-              basic_rules_accepted: acceptBasicRules,
-              basic_rules_accepted_at: acceptanceTimestamp,
-              cancellation_policy_accepted: acceptCancellationPolicy,
-              cancellation_policy_accepted_at: acceptanceTimestamp,
-              terms_of_service_accepted: acceptTermsOfService,
-              terms_of_service_accepted_at: acceptanceTimestamp,
-              privacy_policy_accepted: acceptPrivacyPolicy,
-              privacy_policy_accepted_at: acceptanceTimestamp,
-            },
+      const requestBody: any = {
+        billingType: billingTypeMap[paymentMethod],
+        bookingPayload: {
+          vehicleId: vehicle.id,
+          ownerId: vehicle.owner_id,
+          startDate,
+          endDate,
+          startTime,
+          endTime,
+          days,
+          dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
+          totalPrice,
+          extraHours,
+          extraHoursCharge,
+          pickupLocation: pickupLocationStr,
+          notes: message || '',
+          acceptances: {
+            owner_rules_accepted: acceptOwnerRules,
+            owner_rules_accepted_at: acceptanceTimestamp,
+            basic_rules_accepted: acceptBasicRules,
+            basic_rules_accepted_at: acceptanceTimestamp,
+            cancellation_policy_accepted: acceptCancellationPolicy,
+            cancellation_policy_accepted_at: acceptanceTimestamp,
+            terms_of_service_accepted: acceptTermsOfService,
+            terms_of_service_accepted_at: acceptanceTimestamp,
+            privacy_policy_accepted: acceptPrivacyPolicy,
+            privacy_policy_accepted_at: acceptanceTimestamp,
           },
         },
+      };
+
+      if (paymentMethod === "credit_card") {
+        if (selectedCardId !== "new") {
+          const saved = savedCards.find((c) => c.id === selectedCardId);
+          if (!saved) throw new Error("Cartão salvo não encontrado");
+          requestBody.creditCardToken = saved.credit_card_token;
+        } else {
+          requestBody.creditCard = {
+            holderName: cardForm.holderName,
+            number: cardForm.number.replace(/\D/g, ""),
+            expiryMonth: cardForm.expiryMonth.padStart(2, "0"),
+            expiryYear: cardForm.expiryYear,
+            ccv: cardForm.ccv,
+          };
+          requestBody.creditCardHolderInfo = {
+            name: `${firstName} ${lastName}`.trim(),
+            email: profile?.email ?? user.email ?? "",
+            cpfCnpj: cpf.replace(/\D/g, ""),
+            postalCode: cardForm.postalCode.replace(/\D/g, ""),
+            addressNumber: cardForm.addressNumber,
+            phone: profile?.phone_number ?? undefined,
+          };
+          requestBody.saveCard = saveCard;
+        }
+      }
+
+      const { data, error } = await supabase.functions.invoke('asaas-create-charge', {
+        body: requestBody,
       });
 
       if (error) throw new Error(error.message || 'Erro ao gerar cobrança');
@@ -297,6 +340,8 @@ const Checkout = () => {
         pixCopyPaste: data.pixCopyPaste,
         invoiceUrl: data.invoiceUrl,
         bankSlipUrl: data.bankSlipUrl,
+        boletoIdentificationField: data.boletoIdentificationField ?? null,
+        initialStatus: data.status ?? "PENDING",
         value: data.value,
       });
       setPaymentModalOpen(true);
@@ -307,6 +352,7 @@ const Checkout = () => {
       setIsProcessing(false);
     }
   };
+
 
   const formatDate = (dateStr: string) => {
     // Parse date without timezone issues
