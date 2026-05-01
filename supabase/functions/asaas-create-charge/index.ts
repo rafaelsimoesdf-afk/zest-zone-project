@@ -10,6 +10,23 @@ const corsHeaders = {
 const log = (step: string, details?: unknown) =>
   console.log(`[ASAAS-CHARGE] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
 
+interface CreditCardData {
+  holderName: string;
+  number: string;       // só dígitos
+  expiryMonth: string;  // MM
+  expiryYear: string;   // YYYY
+  ccv: string;
+}
+
+interface CreditCardHolderInfo {
+  name: string;
+  email: string;
+  cpfCnpj: string;
+  postalCode: string;
+  addressNumber: string;
+  phone?: string;
+}
+
 interface ChargeBody {
   bookingPayload: {
     vehicleId: string;
@@ -29,6 +46,12 @@ interface ChargeBody {
   };
   billingType: "PIX" | "BOLETO" | "CREDIT_CARD" | "UNDEFINED";
   dueDate?: string; // YYYY-MM-DD
+  // Apenas quando billingType = CREDIT_CARD:
+  creditCard?: CreditCardData;
+  creditCardHolderInfo?: CreditCardHolderInfo;
+  creditCardToken?: string;   // pagamento "1-clique"
+  remoteIp?: string;
+  saveCard?: boolean;         // tokeniza após cobrança bem-sucedida
 }
 
 serve(async (req) => {
@@ -92,19 +115,47 @@ serve(async (req) => {
     const dueDate = body.dueDate ?? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
     const description = `Reserva InfiniteDrive — ${body.bookingPayload.days} diária(s)`;
 
+    const chargePayload: Record<string, unknown> = {
+      customer: asaasCustomerId,
+      billingType: body.billingType,
+      value: Number(body.bookingPayload.totalPrice.toFixed(2)),
+      dueDate,
+      description,
+      externalReference: `vehicle:${body.bookingPayload.vehicleId}|user:${userId}`,
+    };
+
+    // Cartão de crédito embutido (sem redirect): envia dados ou token
+    if (body.billingType === "CREDIT_CARD") {
+      if (body.creditCardToken) {
+        chargePayload.creditCardToken = body.creditCardToken;
+      } else if (body.creditCard && body.creditCardHolderInfo) {
+        chargePayload.creditCard = {
+          holderName: body.creditCard.holderName,
+          number: body.creditCard.number.replace(/\D/g, ""),
+          expiryMonth: body.creditCard.expiryMonth,
+          expiryYear: body.creditCard.expiryYear,
+          ccv: body.creditCard.ccv,
+        };
+        chargePayload.creditCardHolderInfo = {
+          name: body.creditCardHolderInfo.name,
+          email: body.creditCardHolderInfo.email,
+          cpfCnpj: body.creditCardHolderInfo.cpfCnpj.replace(/\D/g, ""),
+          postalCode: body.creditCardHolderInfo.postalCode.replace(/\D/g, ""),
+          addressNumber: body.creditCardHolderInfo.addressNumber,
+          phone: body.creditCardHolderInfo.phone?.replace(/\D/g, ""),
+        };
+      } else {
+        throw new Error("Dados do cartão são obrigatórios");
+      }
+      chargePayload.remoteIp = body.remoteIp ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "0.0.0.0";
+    }
+
     const charge = await asaasFetch<any>("/payments", {
       method: "POST",
-      body: JSON.stringify({
-        customer: asaasCustomerId,
-        billingType: body.billingType,
-        value: Number(body.bookingPayload.totalPrice.toFixed(2)),
-        dueDate,
-        description,
-        externalReference: `vehicle:${body.bookingPayload.vehicleId}|user:${userId}`,
-      }),
+      body: JSON.stringify(chargePayload),
     });
 
-    log("Charge created", { id: charge.id, billingType: charge.billingType });
+    log("Charge created", { id: charge.id, billingType: charge.billingType, status: charge.status });
 
     // Se PIX, busca QR code
     let pixQrCode: string | null = null;
@@ -118,6 +169,42 @@ serve(async (req) => {
         pixExpiration = qr.expirationDate ?? null;
       } catch (e) {
         log("PIX QR fetch failed", { error: String(e) });
+      }
+    }
+
+    // Tokeniza cartão para próximas compras (se solicitado e foi cobrança nova com cartão)
+    if (
+      body.billingType === "CREDIT_CARD" &&
+      body.saveCard &&
+      !body.creditCardToken &&
+      charge.creditCard?.creditCardToken
+    ) {
+      try {
+        await supabaseAdmin.from("asaas_saved_cards").insert({
+          user_id: userId,
+          asaas_customer_id: asaasCustomerId,
+          credit_card_token: charge.creditCard.creditCardToken,
+          credit_card_brand: charge.creditCard.creditCardBrand ?? null,
+          credit_card_last_digits: charge.creditCard.creditCardNumber ?? null,
+          holder_name: body.creditCard?.holderName ?? null,
+          environment: getAsaasEnv(),
+        });
+        log("Card tokenized and saved");
+      } catch (e) {
+        log("Save card failed (non-fatal)", { error: String(e) });
+      }
+    }
+
+    // Para boleto: busca a linha digitável (identificationField)
+    let boletoIdentificationField: string | null = null;
+    let boletoBarCode: string | null = null;
+    if (body.billingType === "BOLETO") {
+      try {
+        const id = await asaasFetch<any>(`/payments/${charge.id}/identificationField`);
+        boletoIdentificationField = id.identificationField ?? null;
+        boletoBarCode = id.barCode ?? null;
+      } catch (e) {
+        log("Boleto identificationField fetch failed", { error: String(e) });
       }
     }
 
@@ -160,6 +247,8 @@ serve(async (req) => {
         pixQrCode,
         pixCopyPaste,
         pixExpiration,
+        boletoIdentificationField,
+        boletoBarCode,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

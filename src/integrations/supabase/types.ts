@@ -198,6 +198,48 @@ export type Database = {
           },
         ]
       }
+      asaas_saved_cards: {
+        Row: {
+          asaas_customer_id: string
+          created_at: string
+          credit_card_brand: string | null
+          credit_card_last_digits: string | null
+          credit_card_token: string
+          environment: string
+          holder_name: string | null
+          id: string
+          is_default: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asaas_customer_id: string
+          created_at?: string
+          credit_card_brand?: string | null
+          credit_card_last_digits?: string | null
+          credit_card_token: string
+          environment?: string
+          holder_name?: string | null
+          id?: string
+          is_default?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asaas_customer_id?: string
+          created_at?: string
+          credit_card_brand?: string | null
+          credit_card_last_digits?: string | null
+          credit_card_token?: string
+          environment?: string
+          holder_name?: string | null
+          id?: string
+          is_default?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       asaas_subscriptions: {
         Row: {
           asaas_customer_id: string

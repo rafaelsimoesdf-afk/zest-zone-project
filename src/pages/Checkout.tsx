@@ -31,6 +31,9 @@ import { VerificationRequired } from "@/components/VerificationRequired";
 import { Badge } from "@/components/ui/badge";
 import { maskCPF, formatCurrencyBRL } from "@/lib/validators";
 import { AsaasPaymentModal } from "@/components/checkout/AsaasPaymentModal";
+import { CreditCardForm, type CreditCardFormData } from "@/components/checkout/CreditCardForm";
+import { useSavedCards, useDeleteSavedCard } from "@/hooks/useSavedCards";
+import { Trash2 } from "lucide-react";
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
@@ -66,8 +69,26 @@ const Checkout = () => {
     pixCopyPaste: string | null;
     invoiceUrl: string | null;
     bankSlipUrl: string | null;
+    boletoIdentificationField: string | null;
+    initialStatus: string;
     value: number;
   } | null>(null);
+
+  // Cartão de crédito embutido
+  const { data: savedCards = [] } = useSavedCards();
+  const deleteCard = useDeleteSavedCard();
+  const [selectedCardId, setSelectedCardId] = useState<string>("new");
+  const [saveCard, setSaveCard] = useState(true);
+  const [cardForm, setCardForm] = useState<CreditCardFormData>({
+    holderName: "",
+    number: "",
+    expiryMonth: "",
+    expiryYear: "",
+    ccv: "",
+    postalCode: "",
+    addressNumber: "",
+  });
+
 
   // Acceptance checkboxes state
   const [acceptOwnerRules, setAcceptOwnerRules] = useState(false);
@@ -219,6 +240,22 @@ const Checkout = () => {
 
     setIsProcessing(true);
 
+    // Validações específicas para cartão
+    if (paymentMethod === "credit_card") {
+      const usingSaved = selectedCardId !== "new";
+      if (!usingSaved) {
+        const c = cardForm;
+        if (!c.holderName || c.number.replace(/\D/g, "").length < 13 ||
+            !c.expiryMonth || c.expiryYear.length !== 4 || c.ccv.length < 3 ||
+            c.postalCode.replace(/\D/g, "").length !== 8 || !c.addressNumber) {
+          toast.error("Preencha todos os dados do cartão corretamente");
+          return;
+        }
+      }
+    }
+
+    setIsProcessing(true);
+
     try {
       const pickupLocationStr = address
         ? `${address.street}, ${address.number} - ${address.neighborhood}, ${address.city} - ${address.state}`
@@ -232,37 +269,64 @@ const Checkout = () => {
         boleto: "BOLETO",
       } as const;
 
-      const { data, error } = await supabase.functions.invoke('asaas-create-charge', {
-        body: {
-          billingType: billingTypeMap[paymentMethod],
-          bookingPayload: {
-            vehicleId: vehicle.id,
-            ownerId: vehicle.owner_id,
-            startDate,
-            endDate,
-            startTime,
-            endTime,
-            days,
-            dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
-            totalPrice,
-            extraHours,
-            extraHoursCharge,
-            pickupLocation: pickupLocationStr,
-            notes: message || '',
-            acceptances: {
-              owner_rules_accepted: acceptOwnerRules,
-              owner_rules_accepted_at: acceptanceTimestamp,
-              basic_rules_accepted: acceptBasicRules,
-              basic_rules_accepted_at: acceptanceTimestamp,
-              cancellation_policy_accepted: acceptCancellationPolicy,
-              cancellation_policy_accepted_at: acceptanceTimestamp,
-              terms_of_service_accepted: acceptTermsOfService,
-              terms_of_service_accepted_at: acceptanceTimestamp,
-              privacy_policy_accepted: acceptPrivacyPolicy,
-              privacy_policy_accepted_at: acceptanceTimestamp,
-            },
+      const requestBody: any = {
+        billingType: billingTypeMap[paymentMethod],
+        bookingPayload: {
+          vehicleId: vehicle.id,
+          ownerId: vehicle.owner_id,
+          startDate,
+          endDate,
+          startTime,
+          endTime,
+          days,
+          dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
+          totalPrice,
+          extraHours,
+          extraHoursCharge,
+          pickupLocation: pickupLocationStr,
+          notes: message || '',
+          acceptances: {
+            owner_rules_accepted: acceptOwnerRules,
+            owner_rules_accepted_at: acceptanceTimestamp,
+            basic_rules_accepted: acceptBasicRules,
+            basic_rules_accepted_at: acceptanceTimestamp,
+            cancellation_policy_accepted: acceptCancellationPolicy,
+            cancellation_policy_accepted_at: acceptanceTimestamp,
+            terms_of_service_accepted: acceptTermsOfService,
+            terms_of_service_accepted_at: acceptanceTimestamp,
+            privacy_policy_accepted: acceptPrivacyPolicy,
+            privacy_policy_accepted_at: acceptanceTimestamp,
           },
         },
+      };
+
+      if (paymentMethod === "credit_card") {
+        if (selectedCardId !== "new") {
+          const saved = savedCards.find((c) => c.id === selectedCardId);
+          if (!saved) throw new Error("Cartão salvo não encontrado");
+          requestBody.creditCardToken = saved.credit_card_token;
+        } else {
+          requestBody.creditCard = {
+            holderName: cardForm.holderName,
+            number: cardForm.number.replace(/\D/g, ""),
+            expiryMonth: cardForm.expiryMonth.padStart(2, "0"),
+            expiryYear: cardForm.expiryYear,
+            ccv: cardForm.ccv,
+          };
+          requestBody.creditCardHolderInfo = {
+            name: `${firstName} ${lastName}`.trim(),
+            email: profile?.email ?? user.email ?? "",
+            cpfCnpj: cpf.replace(/\D/g, ""),
+            postalCode: cardForm.postalCode.replace(/\D/g, ""),
+            addressNumber: cardForm.addressNumber,
+            phone: profile?.phone_number ?? undefined,
+          };
+          requestBody.saveCard = saveCard;
+        }
+      }
+
+      const { data, error } = await supabase.functions.invoke('asaas-create-charge', {
+        body: requestBody,
       });
 
       if (error) throw new Error(error.message || 'Erro ao gerar cobrança');
@@ -276,6 +340,8 @@ const Checkout = () => {
         pixCopyPaste: data.pixCopyPaste,
         invoiceUrl: data.invoiceUrl,
         bankSlipUrl: data.bankSlipUrl,
+        boletoIdentificationField: data.boletoIdentificationField ?? null,
+        initialStatus: data.status ?? "PENDING",
         value: data.value,
       });
       setPaymentModalOpen(true);
@@ -286,6 +352,7 @@ const Checkout = () => {
       setIsProcessing(false);
     }
   };
+
 
   const formatDate = (dateStr: string) => {
     // Parse date without timezone issues
@@ -398,6 +465,75 @@ const Checkout = () => {
                     </Label>
                   </div>
                 </RadioGroup>
+
+                {/* Cartão de crédito embutido */}
+                {paymentMethod === "credit_card" && (
+                  <div className="mt-3 sm:mt-4 space-y-3">
+                    {savedCards.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-xs sm:text-sm font-medium">Seus cartões salvos</Label>
+                        {savedCards.map((c) => (
+                          <div
+                            key={c.id}
+                            className={`flex items-center gap-3 border rounded-lg p-3 cursor-pointer transition-colors ${
+                              selectedCardId === c.id ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                            }`}
+                            onClick={() => setSelectedCardId(c.id)}
+                          >
+                            <input
+                              type="radio"
+                              checked={selectedCardId === c.id}
+                              onChange={() => setSelectedCardId(c.id)}
+                              className="accent-primary"
+                            />
+                            <CreditCard className="w-5 h-5 text-muted-foreground" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">
+                                {c.credit_card_brand ?? "Cartão"} •••• {c.credit_card_last_digits ?? "****"}
+                              </p>
+                              {c.holder_name && (
+                                <p className="text-xs text-muted-foreground">{c.holder_name}</p>
+                              )}
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={(e) => { e.stopPropagation(); deleteCard.mutate(c.id); }}
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                        <div
+                          className={`flex items-center gap-3 border rounded-lg p-3 cursor-pointer transition-colors ${
+                            selectedCardId === "new" ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                          }`}
+                          onClick={() => setSelectedCardId("new")}
+                        >
+                          <input
+                            type="radio"
+                            checked={selectedCardId === "new"}
+                            onChange={() => setSelectedCardId("new")}
+                            className="accent-primary"
+                          />
+                          <span className="text-sm font-medium">Usar novo cartão</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedCardId === "new" && (
+                      <CreditCardForm
+                        value={cardForm}
+                        onChange={setCardForm}
+                        saveCard={saveCard}
+                        onSaveCardChange={setSaveCard}
+                      />
+                    )}
+                  </div>
+                )}
+
 
                 <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
                   <Input
@@ -594,7 +730,7 @@ const Checkout = () => {
                   onClick={handleConfirmBooking}
                   disabled={isProcessing}
                 >
-                  {isProcessing ? "Redirecionando..." : "Confirmar e pagar"}
+                  {isProcessing ? "Processando pagamento..." : "Confirmar e pagar"}
                 </Button>
               </section>
             </div>
@@ -694,6 +830,8 @@ const Checkout = () => {
           pixCopyPaste={chargeData.pixCopyPaste}
           invoiceUrl={chargeData.invoiceUrl}
           bankSlipUrl={chargeData.bankSlipUrl}
+          boletoIdentificationField={chargeData.boletoIdentificationField}
+          initialStatus={chargeData.initialStatus}
           value={chargeData.value}
         />
       )}
