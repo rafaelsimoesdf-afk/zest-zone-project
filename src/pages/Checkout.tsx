@@ -31,6 +31,9 @@ import { VerificationRequired } from "@/components/VerificationRequired";
 import { Badge } from "@/components/ui/badge";
 import { maskCPF, formatCurrencyBRL } from "@/lib/validators";
 import { AsaasPaymentModal } from "@/components/checkout/AsaasPaymentModal";
+import { CreditCardForm, type CreditCardFormData } from "@/components/checkout/CreditCardForm";
+import { useSavedCards, useDeleteSavedCard } from "@/hooks/useSavedCards";
+import { Trash2 } from "lucide-react";
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
