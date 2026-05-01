@@ -95,7 +95,7 @@ serve(async (req) => {
         user_id: userId,
         asaas_subscription_id: subscription.id,
         asaas_customer_id: asaasCustomerId,
-        status: subscription.status ?? "ACTIVE",
+        status: "PENDING",
         value: SERVICE_PROVIDER_VALUE,
         cycle: "MONTHLY",
         billing_type: billingType,
