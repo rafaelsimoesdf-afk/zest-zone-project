@@ -30,6 +30,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { VerificationRequired } from "@/components/VerificationRequired";
 import { Badge } from "@/components/ui/badge";
 import { maskCPF, formatCurrencyBRL } from "@/lib/validators";
+import { AsaasPaymentModal } from "@/components/checkout/AsaasPaymentModal";
 
 const Checkout = () => {
   const [searchParams] = useSearchParams();
