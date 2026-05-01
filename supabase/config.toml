@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.didit-webhook]
 verify_jwt = false
+
+[functions.asaas-webhook]
+verify_jwt = false
