@@ -9,8 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAllWithdrawals, useUpdateWithdrawalStatus } from "@/hooks/useWithdrawals";
-import { useProcessWithdrawalTransfer } from "@/hooks/useStripeConnect";
-import { CheckCircle, XCircle, Clock, Banknote, ArrowRight, Zap } from "lucide-react";
+import { useAsaasTransfer } from "@/hooks/useAsaasTransfer";
+import { CheckCircle, XCircle, Banknote, ArrowRight, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatCurrencyBRL } from "@/lib/validators";
@@ -42,7 +42,7 @@ const WithdrawalsTab = () => {
 
   const { data: withdrawals, isLoading } = useAllWithdrawals(statusFilter);
   const updateStatus = useUpdateWithdrawalStatus();
-  const processTransfer = useProcessWithdrawalTransfer();
+  const processTransfer = useAsaasTransfer();
 
   const handleAction = () => {
     if (!actionDialog.withdrawalId || !actionDialog.type) return;
@@ -142,30 +142,17 @@ const WithdrawalsTab = () => {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex gap-1 justify-end">
-                      {(w.status === "pending") && (
+                    <div className="flex gap-1 justify-end flex-wrap">
+                      {w.status === "pending" && (
                         <>
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="text-green-600 border-green-600 hover:bg-green-50"
-                            onClick={() => {
-                              // Try automatic Stripe transfer first
-                              processTransfer.mutate(w.id);
-                            }}
+                            className="bg-primary text-white hover:bg-primary/90"
+                            onClick={() => processTransfer.mutate(w.id)}
                             disabled={processTransfer.isPending}
                           >
                             <Zap className="w-3.5 h-3.5 mr-1" />
-                            {processTransfer.isPending ? "..." : "Aprovar + Transferir"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600 border-green-600 hover:bg-green-50"
-                            onClick={() => setActionDialog({ type: "approve", withdrawalId: w.id })}
-                          >
-                            <CheckCircle className="w-3.5 h-3.5 mr-1" />
-                            Aprovar Manual
+                            {processTransfer.isPending ? "Enviando..." : "Pagar via PIX (Asaas)"}
                           </Button>
                           <Button
                             size="sm"
@@ -178,24 +165,24 @@ const WithdrawalsTab = () => {
                           </Button>
                         </>
                       )}
-                  {(w.status === "approved" || w.status === "processing") && (
+                      {(w.status === "approved" || w.status === "processing") && (
                         <>
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="text-green-600 border-green-600 hover:bg-green-50"
+                            className="bg-primary text-white hover:bg-primary/90"
                             onClick={() => processTransfer.mutate(w.id)}
                             disabled={processTransfer.isPending}
                           >
                             <Zap className="w-3.5 h-3.5 mr-1" />
-                            {processTransfer.isPending ? "..." : "Transferir via Stripe"}
+                            {processTransfer.isPending ? "Enviando..." : "Reenviar PIX (Asaas)"}
                           </Button>
                           <Button
                             size="sm"
+                            variant="outline"
                             onClick={() => setActionDialog({ type: "complete", withdrawalId: w.id })}
                           >
                             <ArrowRight className="w-3.5 h-3.5 mr-1" />
-                            Concluir Manual
+                            Marcar Concluído
                           </Button>
                         </>
                       )}
