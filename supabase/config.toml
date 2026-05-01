@@ -3,31 +3,13 @@ project_id = "ptimwsvsizqpecakzkcn"
 [functions.google-places-autocomplete]
 verify_jwt = false
 
-[functions.create-payment]
-verify_jwt = true
-
 [functions.upload-selfie]
 verify_jwt = false
 
 [functions.send-email]
 verify_jwt = false
 
-[functions.stripe-connect-onboarding]
-verify_jwt = false
-
-[functions.process-withdrawal-transfer]
-verify_jwt = false
-
-[functions.verify-payment]
-verify_jwt = false
-
 [functions.check-selfie-session]
-verify_jwt = false
-
-[functions.create-service-subscription]
-verify_jwt = false
-
-[functions.check-service-subscription]
 verify_jwt = false
 
 [functions.create-zapsign-document]
