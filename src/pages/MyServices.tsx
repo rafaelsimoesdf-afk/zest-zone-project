@@ -72,8 +72,14 @@ const MyServices = () => {
 
   const handleSubscribe = async () => {
     try {
-      const result = await subscribeMutation.mutateAsync();
-      if (result?.url) window.open(result.url, "_blank");
+      const result = await subscribeMutation.mutateAsync("PIX");
+      if (result?.invoiceUrl) {
+        window.open(result.invoiceUrl, "_blank");
+        toast.success("Assinatura criada! Pague via PIX para ativar.");
+      } else {
+        toast.success("Assinatura criada! Verifique seu e-mail para o link de pagamento.");
+      }
+      refetchSub();
     } catch {}
   };
 
