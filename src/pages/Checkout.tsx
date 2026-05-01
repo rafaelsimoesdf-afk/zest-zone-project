@@ -226,55 +226,63 @@ const Checkout = () => {
 
       const acceptanceTimestamp = new Date().toISOString();
 
-      const { data, error } = await supabase.functions.invoke('create-payment', {
+      const billingTypeMap = {
+        pix: "PIX",
+        credit_card: "CREDIT_CARD",
+        boleto: "BOLETO",
+      } as const;
+
+      const { data, error } = await supabase.functions.invoke('asaas-create-charge', {
         body: {
-          vehicleId: vehicle.id,
-          vehicleName: `${vehicle.brand} ${vehicle.model} ${vehicle.year}`,
-          startDate,
-          endDate,
-          startTime,
-          endTime,
-          days,
-          dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
-          dailySubtotal,
-          extraHours,
-          extraHoursCharge,
-          subtotal,
-          insurance,
-          totalPrice,
-          ownerId: vehicle.owner_id,
-          pickupLocation: pickupLocationStr,
-          notes: message || '',
-          appDriver: isAppDriver || false,
-          appDriverPeriod: appDriverPeriod || null,
-          // Acceptance data for legal compliance
-          acceptances: {
-            owner_rules_accepted: acceptOwnerRules,
-            owner_rules_accepted_at: acceptOwnerRules ? acceptanceTimestamp : null,
-            basic_rules_accepted: acceptBasicRules,
-            basic_rules_accepted_at: acceptBasicRules ? acceptanceTimestamp : null,
-            cancellation_policy_accepted: acceptCancellationPolicy,
-            cancellation_policy_accepted_at: acceptCancellationPolicy ? acceptanceTimestamp : null,
-            terms_of_service_accepted: acceptTermsOfService,
-            terms_of_service_accepted_at: acceptTermsOfService ? acceptanceTimestamp : null,
-            privacy_policy_accepted: acceptPrivacyPolicy,
-            privacy_policy_accepted_at: acceptPrivacyPolicy ? acceptanceTimestamp : null,
+          billingType: billingTypeMap[paymentMethod],
+          bookingPayload: {
+            vehicleId: vehicle.id,
+            ownerId: vehicle.owner_id,
+            startDate,
+            endDate,
+            startTime,
+            endTime,
+            days,
+            dailyRate: isAppDriver ? appDriverPrice : vehicle.daily_price,
+            totalPrice,
+            extraHours,
+            extraHoursCharge,
+            pickupLocation: pickupLocationStr,
+            notes: message || '',
+            acceptances: {
+              owner_rules_accepted: acceptOwnerRules,
+              owner_rules_accepted_at: acceptanceTimestamp,
+              basic_rules_accepted: acceptBasicRules,
+              basic_rules_accepted_at: acceptanceTimestamp,
+              cancellation_policy_accepted: acceptCancellationPolicy,
+              cancellation_policy_accepted_at: acceptanceTimestamp,
+              terms_of_service_accepted: acceptTermsOfService,
+              terms_of_service_accepted_at: acceptanceTimestamp,
+              privacy_policy_accepted: acceptPrivacyPolicy,
+              privacy_policy_accepted_at: acceptanceTimestamp,
+            },
           },
         },
       });
 
-      if (error) {
-        throw new Error(error.message || 'Erro ao processar pagamento');
-      }
+      if (error) throw new Error(error.message || 'Erro ao gerar cobrança');
+      if (!data?.chargeId) throw new Error('Resposta inválida do servidor de pagamento');
 
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('URL de pagamento não recebida');
-      }
+      setChargeData({
+        chargeId: data.chargeId,
+        asaasPaymentId: data.asaasPaymentId,
+        billingType: data.billingType,
+        pixQrCode: data.pixQrCode,
+        pixCopyPaste: data.pixCopyPaste,
+        invoiceUrl: data.invoiceUrl,
+        bankSlipUrl: data.bankSlipUrl,
+        value: data.value,
+      });
+      setPaymentModalOpen(true);
     } catch (error: any) {
       console.error('Payment error:', error);
       toast.error(error.message || 'Erro ao processar pagamento');
+    } finally {
       setIsProcessing(false);
     }
   };
