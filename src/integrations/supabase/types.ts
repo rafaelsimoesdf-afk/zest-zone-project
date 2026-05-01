@@ -73,6 +73,298 @@ export type Database = {
           },
         ]
       }
+      asaas_charges: {
+        Row: {
+          asaas_customer_id: string
+          asaas_payment_id: string
+          bank_slip_url: string | null
+          billing_type: string
+          booking_id: string | null
+          created_at: string
+          customer_id: string
+          description: string | null
+          due_date: string
+          environment: string
+          id: string
+          invoice_url: string | null
+          metadata: Json | null
+          net_value: number | null
+          paid_at: string | null
+          pix_copy_paste: string | null
+          pix_expiration_date: string | null
+          pix_qr_code: string | null
+          status: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          asaas_customer_id: string
+          asaas_payment_id: string
+          bank_slip_url?: string | null
+          billing_type: string
+          booking_id?: string | null
+          created_at?: string
+          customer_id: string
+          description?: string | null
+          due_date: string
+          environment?: string
+          id?: string
+          invoice_url?: string | null
+          metadata?: Json | null
+          net_value?: number | null
+          paid_at?: string | null
+          pix_copy_paste?: string | null
+          pix_expiration_date?: string | null
+          pix_qr_code?: string | null
+          status?: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          asaas_customer_id?: string
+          asaas_payment_id?: string
+          bank_slip_url?: string | null
+          billing_type?: string
+          booking_id?: string | null
+          created_at?: string
+          customer_id?: string
+          description?: string | null
+          due_date?: string
+          environment?: string
+          id?: string
+          invoice_url?: string | null
+          metadata?: Json | null
+          net_value?: number | null
+          paid_at?: string | null
+          pix_copy_paste?: string | null
+          pix_expiration_date?: string | null
+          pix_qr_code?: string | null
+          status?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_charges_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_charges_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_customers: {
+        Row: {
+          asaas_customer_id: string
+          cpf_cnpj: string | null
+          created_at: string
+          environment: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          asaas_customer_id: string
+          cpf_cnpj?: string | null
+          created_at?: string
+          environment?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          asaas_customer_id?: string
+          cpf_cnpj?: string | null
+          created_at?: string
+          environment?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_customers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_subscriptions: {
+        Row: {
+          asaas_customer_id: string
+          asaas_subscription_id: string
+          billing_type: string
+          cancelled_at: string | null
+          created_at: string
+          cycle: string
+          description: string | null
+          environment: string
+          id: string
+          metadata: Json | null
+          next_due_date: string | null
+          plan_type: string
+          status: string
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          asaas_customer_id: string
+          asaas_subscription_id: string
+          billing_type?: string
+          cancelled_at?: string | null
+          created_at?: string
+          cycle?: string
+          description?: string | null
+          environment?: string
+          id?: string
+          metadata?: Json | null
+          next_due_date?: string | null
+          plan_type?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          asaas_customer_id?: string
+          asaas_subscription_id?: string
+          billing_type?: string
+          cancelled_at?: string | null
+          created_at?: string
+          cycle?: string
+          description?: string | null
+          environment?: string
+          id?: string
+          metadata?: Json | null
+          next_due_date?: string | null
+          plan_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_transfers: {
+        Row: {
+          asaas_transfer_id: string | null
+          created_at: string
+          effective_date: string | null
+          environment: string
+          failure_reason: string | null
+          id: string
+          metadata: Json | null
+          net_value: number | null
+          owner_id: string
+          pix_key: string | null
+          pix_key_type: string | null
+          scheduled_date: string | null
+          status: string
+          transfer_fee: number | null
+          updated_at: string
+          value: number
+          withdrawal_id: string | null
+        }
+        Insert: {
+          asaas_transfer_id?: string | null
+          created_at?: string
+          effective_date?: string | null
+          environment?: string
+          failure_reason?: string | null
+          id?: string
+          metadata?: Json | null
+          net_value?: number | null
+          owner_id: string
+          pix_key?: string | null
+          pix_key_type?: string | null
+          scheduled_date?: string | null
+          status?: string
+          transfer_fee?: number | null
+          updated_at?: string
+          value: number
+          withdrawal_id?: string | null
+        }
+        Update: {
+          asaas_transfer_id?: string | null
+          created_at?: string
+          effective_date?: string | null
+          environment?: string
+          failure_reason?: string | null
+          id?: string
+          metadata?: Json | null
+          net_value?: number | null
+          owner_id?: string
+          pix_key?: string | null
+          pix_key_type?: string | null
+          scheduled_date?: string | null
+          status?: string
+          transfer_fee?: number | null
+          updated_at?: string
+          value?: number
+          withdrawal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_transfers_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_transfers_withdrawal_id_fkey"
+            columns: ["withdrawal_id"]
+            isOneToOne: false
+            referencedRelation: "withdrawals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_webhook_logs: {
+        Row: {
+          created_at: string
+          event: string | null
+          id: string
+          payload: Json
+          processed: boolean
+          processing_error: string | null
+        }
+        Insert: {
+          created_at?: string
+          event?: string | null
+          id?: string
+          payload: Json
+          processed?: boolean
+          processing_error?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string | null
+          id?: string
+          payload?: Json
+          processed?: boolean
+          processing_error?: string | null
+        }
+        Relationships: []
+      }
       bank_accounts: {
         Row: {
           account_holder_name: string
