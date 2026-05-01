@@ -466,6 +466,75 @@ const Checkout = () => {
                   </div>
                 </RadioGroup>
 
+                {/* Cartão de crédito embutido */}
+                {paymentMethod === "credit_card" && (
+                  <div className="mt-3 sm:mt-4 space-y-3">
+                    {savedCards.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-xs sm:text-sm font-medium">Seus cartões salvos</Label>
+                        {savedCards.map((c) => (
+                          <div
+                            key={c.id}
+                            className={`flex items-center gap-3 border rounded-lg p-3 cursor-pointer transition-colors ${
+                              selectedCardId === c.id ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                            }`}
+                            onClick={() => setSelectedCardId(c.id)}
+                          >
+                            <input
+                              type="radio"
+                              checked={selectedCardId === c.id}
+                              onChange={() => setSelectedCardId(c.id)}
+                              className="accent-primary"
+                            />
+                            <CreditCard className="w-5 h-5 text-muted-foreground" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">
+                                {c.credit_card_brand ?? "Cartão"} •••• {c.credit_card_last_digits ?? "****"}
+                              </p>
+                              {c.holder_name && (
+                                <p className="text-xs text-muted-foreground">{c.holder_name}</p>
+                              )}
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={(e) => { e.stopPropagation(); deleteCard.mutate(c.id); }}
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                        <div
+                          className={`flex items-center gap-3 border rounded-lg p-3 cursor-pointer transition-colors ${
+                            selectedCardId === "new" ? "border-primary bg-primary/5" : "hover:bg-muted/50"
+                          }`}
+                          onClick={() => setSelectedCardId("new")}
+                        >
+                          <input
+                            type="radio"
+                            checked={selectedCardId === "new"}
+                            onChange={() => setSelectedCardId("new")}
+                            className="accent-primary"
+                          />
+                          <span className="text-sm font-medium">Usar novo cartão</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedCardId === "new" && (
+                      <CreditCardForm
+                        value={cardForm}
+                        onChange={setCardForm}
+                        saveCard={saveCard}
+                        onSaveCardChange={setSaveCard}
+                      />
+                    )}
+                  </div>
+                )}
+
+
                 <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
                   <Input
                     placeholder="Nome"
