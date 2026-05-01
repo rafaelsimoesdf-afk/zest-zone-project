@@ -10,6 +10,23 @@ const corsHeaders = {
 const log = (step: string, details?: unknown) =>
   console.log(`[ASAAS-CHARGE] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
 
+interface CreditCardData {
+  holderName: string;
+  number: string;       // só dígitos
+  expiryMonth: string;  // MM
+  expiryYear: string;   // YYYY
+  ccv: string;
+}
+
+interface CreditCardHolderInfo {
+  name: string;
+  email: string;
+  cpfCnpj: string;
+  postalCode: string;
+  addressNumber: string;
+  phone?: string;
+}
+
 interface ChargeBody {
   bookingPayload: {
     vehicleId: string;
@@ -29,6 +46,12 @@ interface ChargeBody {
   };
   billingType: "PIX" | "BOLETO" | "CREDIT_CARD" | "UNDEFINED";
   dueDate?: string; // YYYY-MM-DD
+  // Apenas quando billingType = CREDIT_CARD:
+  creditCard?: CreditCardData;
+  creditCardHolderInfo?: CreditCardHolderInfo;
+  creditCardToken?: string;   // pagamento "1-clique"
+  remoteIp?: string;
+  saveCard?: boolean;         // tokeniza após cobrança bem-sucedida
 }
 
 serve(async (req) => {
