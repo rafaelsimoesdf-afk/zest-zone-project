@@ -74,16 +74,16 @@ serve(async (req) => {
     // Carrega perfil do usuário
     const { data: profile, error: profileErr } = await supabaseAdmin
       .from("profiles")
-      .select("id, first_name, last_name, email, cpf, phone_number, status")
+      .select("id, first_name, last_name, email, cpf, phone_number, status, verification_status")
       .eq("id", userId)
       .single();
 
     if (profileErr || !profile) throw new Error("Perfil não encontrado");
-    if (profile.status !== "approved") {
+    if (profile.verification_status !== "approved") {
       throw new Error("Apenas usuários verificados podem realizar reservas");
     }
 
-    log("Profile loaded", { userId, status: profile.status });
+    log("Profile loaded", { userId, verification_status: profile.verification_status });
 
     const { asaasCustomerId } = await getOrCreateAsaasCustomer(supabaseAdmin, profile);
     log("Customer ready", { asaasCustomerId });
