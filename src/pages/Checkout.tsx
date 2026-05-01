@@ -730,7 +730,7 @@ const Checkout = () => {
                   onClick={handleConfirmBooking}
                   disabled={isProcessing}
                 >
-                  {isProcessing ? "Redirecionando..." : "Confirmar e pagar"}
+                  {isProcessing ? "Processando pagamento..." : "Confirmar e pagar"}
                 </Button>
               </section>
             </div>
