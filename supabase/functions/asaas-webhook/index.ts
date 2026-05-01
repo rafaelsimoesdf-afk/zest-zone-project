@@ -121,6 +121,21 @@ async function handlePaymentEvent(supabase: any, event: string, payment: any) {
     await supabase.from("asaas_charges").update(updates).eq("id", charge.id);
   }
 
+  // Pagamento de uma assinatura → ativa a assinatura correspondente
+  if (
+    (event === "PAYMENT_CONFIRMED" || event === "PAYMENT_RECEIVED") &&
+    payment.subscription
+  ) {
+    log("Activating subscription from payment", { subscriptionId: payment.subscription });
+    await supabase
+      .from("asaas_subscriptions")
+      .update({
+        status: "ACTIVE",
+        next_due_date: payment.dueDate ?? null,
+      })
+      .eq("asaas_subscription_id", payment.subscription);
+  }
+
   // Pagamento confirmado e ainda sem booking criado → cria a reserva
   if (
     (event === "PAYMENT_CONFIRMED" || event === "PAYMENT_RECEIVED") &&

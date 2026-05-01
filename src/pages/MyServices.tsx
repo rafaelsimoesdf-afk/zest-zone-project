@@ -72,8 +72,14 @@ const MyServices = () => {
 
   const handleSubscribe = async () => {
     try {
-      const result = await subscribeMutation.mutateAsync();
-      if (result?.url) window.open(result.url, "_blank");
+      const result = await subscribeMutation.mutateAsync("PIX");
+      if (result?.invoiceUrl) {
+        window.open(result.invoiceUrl, "_blank");
+        toast.success("Assinatura criada! Pague via PIX para ativar.");
+      } else {
+        toast.success("Assinatura criada! Verifique seu e-mail para o link de pagamento.");
+      }
+      refetchSub();
     } catch {}
   };
 
@@ -408,6 +414,27 @@ const MyServices = () => {
                 </CardContent>
               </Card>
             </div>
+          ) : (subscription as any)?.pending ? (
+            <Card className="border-amber-500/30 bg-amber-500/5 mb-8">
+              <CardContent className="p-8 text-center">
+                <CreditCard className="w-14 h-14 mx-auto text-amber-500 mb-4" />
+                <h3 className="text-xl font-bold text-foreground mb-2">Assinatura aguardando pagamento</h3>
+                <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                  Sua assinatura foi criada. Pague o PIX/boleto para ativar e começar a anunciar.
+                </p>
+                <div className="space-y-3">
+                  <Button size="lg" onClick={handleSubscribe} disabled={subscribeMutation.isPending}>
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Reabrir link de pagamento
+                  </Button>
+                  <div>
+                    <Button variant="link" size="sm" onClick={handleRefreshSubscription} className="text-muted-foreground">
+                      <RefreshCw className="w-3 h-3 mr-1" /> Já paguei? Verificar
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ) : (
             <Card className="border-amber-500/30 bg-amber-500/5 mb-8">
               <CardContent className="p-8 text-center">
@@ -425,7 +452,7 @@ const MyServices = () => {
                 <div className="space-y-3">
                   <Button size="lg" onClick={handleSubscribe} disabled={subscribeMutation.isPending}>
                     <CreditCard className="w-4 h-4 mr-2" />
-                    {subscribeMutation.isPending ? "Redirecionando..." : "Assinar agora — R$ 59,90/mês"}
+                    {subscribeMutation.isPending ? "Gerando PIX..." : "Assinar via PIX — R$ 59,90/mês"}
                   </Button>
                   <div>
                     <Button variant="link" size="sm" onClick={handleRefreshSubscription} className="text-muted-foreground">

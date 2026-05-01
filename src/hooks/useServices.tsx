@@ -231,34 +231,53 @@ export const useServiceSubscription = () => {
   return useQuery({
     queryKey: ["serviceSubscription", user?.id],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return { subscribed: false };
+      if (!user) return { subscribed: false };
 
-      const { data, error } = await supabase.functions.invoke("check-service-subscription", {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
+      const { data, error } = await supabase
+        .from("asaas_subscriptions")
+        .select("id, status, next_due_date, asaas_subscription_id")
+        .eq("user_id", user.id)
+        .eq("plan_type", "service_provider")
+        .in("status", ["ACTIVE", "PENDING"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error) throw error;
-      return data as { subscribed: boolean; subscription_end?: string; subscription_id?: string };
+      if (!data) return { subscribed: false };
+
+      return {
+        subscribed: data.status === "ACTIVE",
+        pending: data.status === "PENDING",
+        subscription_end: data.next_due_date ?? undefined,
+        subscription_id: data.asaas_subscription_id ?? undefined,
+      } as { subscribed: boolean; pending?: boolean; subscription_end?: string; subscription_id?: string };
     },
     enabled: !!user,
-    refetchInterval: 60000,
+    refetchInterval: 15000,
   });
 };
 
 export const useSubscribeToServices = () => {
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (billingType: "PIX" | "BOLETO" | "CREDIT_CARD" = "PIX") => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
 
-      const { data, error } = await supabase.functions.invoke("create-service-subscription", {
+      const { data, error } = await supabase.functions.invoke("asaas-create-subscription", {
+        body: { billingType },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      return data as { url: string };
+      return data as {
+        subscriptionId: string;
+        asaasSubscriptionId: string;
+        invoiceUrl: string | null;
+        nextDueDate: string;
+        value: number;
+      };
     },
     onError: (error: Error) => {
       toast.error(error.message);
