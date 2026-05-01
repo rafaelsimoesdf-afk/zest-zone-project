@@ -1,0 +1,173 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import { asaasFetch, getAsaasEnv, getOrCreateAsaasCustomer } from "../_shared/asaas.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const log = (step: string, details?: unknown) =>
+  console.log(`[ASAAS-CHARGE] ${step}${details ? " - " + JSON.stringify(details) : ""}`);
+
+interface ChargeBody {
+  bookingPayload: {
+    vehicleId: string;
+    ownerId: string;
+    startDate: string;
+    endDate: string;
+    days: number;
+    dailyRate: number;
+    totalPrice: number;
+    pickupLocation?: string;
+    notes?: string;
+    startTime?: string;
+    endTime?: string;
+    extraHours?: number;
+    extraHoursCharge?: number;
+    acceptances?: any;
+  };
+  billingType: "PIX" | "BOLETO" | "CREDIT_CARD" | "UNDEFINED";
+  dueDate?: string; // YYYY-MM-DD
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseAuth = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsErr } = await supabaseAuth.auth.getClaims(token);
+    if (claimsErr || !claims?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userId = claims.claims.sub as string;
+
+    const body = (await req.json()) as ChargeBody;
+    if (!body?.bookingPayload || !body?.billingType) {
+      return new Response(JSON.stringify({ error: "Payload inválido" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    // Carrega perfil do usuário
+    const { data: profile, error: profileErr } = await supabaseAdmin
+      .from("profiles")
+      .select("id, first_name, last_name, email, cpf, phone_number, status")
+      .eq("id", userId)
+      .single();
+
+    if (profileErr || !profile) throw new Error("Perfil não encontrado");
+    if (profile.status !== "approved") {
+      throw new Error("Apenas usuários verificados podem realizar reservas");
+    }
+
+    log("Profile loaded", { userId, status: profile.status });
+
+    const { asaasCustomerId } = await getOrCreateAsaasCustomer(supabaseAdmin, profile);
+    log("Customer ready", { asaasCustomerId });
+
+    // Cria cobrança
+    const dueDate = body.dueDate ?? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const description = `Reserva InfiniteDrive — ${body.bookingPayload.days} diária(s)`;
+
+    const charge = await asaasFetch<any>("/payments", {
+      method: "POST",
+      body: JSON.stringify({
+        customer: asaasCustomerId,
+        billingType: body.billingType,
+        value: Number(body.bookingPayload.totalPrice.toFixed(2)),
+        dueDate,
+        description,
+        externalReference: `vehicle:${body.bookingPayload.vehicleId}|user:${userId}`,
+      }),
+    });
+
+    log("Charge created", { id: charge.id, billingType: charge.billingType });
+
+    // Se PIX, busca QR code
+    let pixQrCode: string | null = null;
+    let pixCopyPaste: string | null = null;
+    let pixExpiration: string | null = null;
+    if (body.billingType === "PIX") {
+      try {
+        const qr = await asaasFetch<any>(`/payments/${charge.id}/pixQrCode`);
+        pixQrCode = qr.encodedImage ? `data:image/png;base64,${qr.encodedImage}` : null;
+        pixCopyPaste = qr.payload ?? null;
+        pixExpiration = qr.expirationDate ?? null;
+      } catch (e) {
+        log("PIX QR fetch failed", { error: String(e) });
+      }
+    }
+
+    // Salva charge no banco com metadata da reserva (cria o booking depois do pagamento)
+    const { data: stored, error: storeErr } = await supabaseAdmin
+      .from("asaas_charges")
+      .insert({
+        booking_id: null, // será preenchido após confirmação de pagamento
+        customer_id: userId,
+        asaas_payment_id: charge.id,
+        asaas_customer_id: asaasCustomerId,
+        billing_type: body.billingType,
+        status: charge.status,
+        value: charge.value,
+        net_value: charge.netValue ?? null,
+        due_date: charge.dueDate,
+        description,
+        invoice_url: charge.invoiceUrl ?? null,
+        bank_slip_url: charge.bankSlipUrl ?? null,
+        pix_qr_code: pixQrCode,
+        pix_copy_paste: pixCopyPaste,
+        pix_expiration_date: pixExpiration,
+        environment: getAsaasEnv(),
+        metadata: { bookingPayload: body.bookingPayload },
+      })
+      .select()
+      .single();
+
+    if (storeErr) throw storeErr;
+
+    return new Response(
+      JSON.stringify({
+        chargeId: stored.id,
+        asaasPaymentId: charge.id,
+        billingType: charge.billingType,
+        status: charge.status,
+        value: charge.value,
+        invoiceUrl: charge.invoiceUrl,
+        bankSlipUrl: charge.bankSlipUrl,
+        pixQrCode,
+        pixCopyPaste,
+        pixExpiration,
+      }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    log("ERROR", { msg });
+    return new Response(JSON.stringify({ error: msg }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
