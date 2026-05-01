@@ -50,11 +50,24 @@ const Checkout = () => {
   const { data: vehicle, isLoading } = useVehicle(vehicleId || "");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const [paymentMethod, setPaymentMethod] = useState("pix");
+  const [paymentMethod, setPaymentMethod] = useState<"pix" | "credit_card" | "boleto">("pix");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [cpf, setCpf] = useState("");
   const [message, setMessage] = useState("");
+
+  // Asaas payment modal state
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [chargeData, setChargeData] = useState<{
+    chargeId: string;
+    asaasPaymentId: string;
+    billingType: "PIX" | "BOLETO" | "CREDIT_CARD" | "UNDEFINED";
+    pixQrCode: string | null;
+    pixCopyPaste: string | null;
+    invoiceUrl: string | null;
+    bankSlipUrl: string | null;
+    value: number;
+  } | null>(null);
 
   // Acceptance checkboxes state
   const [acceptOwnerRules, setAcceptOwnerRules] = useState(false);
