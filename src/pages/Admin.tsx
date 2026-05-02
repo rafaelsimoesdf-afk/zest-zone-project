@@ -27,6 +27,7 @@ import { formatCurrencyBRL } from "@/lib/validators";
 const Admin = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   
   const { data: stats } = useAdminStats();
   const { data: pendingVehicles } = usePendingVehicles();
