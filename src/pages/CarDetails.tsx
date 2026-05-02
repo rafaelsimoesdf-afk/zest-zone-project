@@ -1039,7 +1039,7 @@ const CarDetails = () => {
                             ? (vehicle.app_driver_weekly_price || 0)
                             : (vehicle.app_driver_monthly_price || 0);
                           const periodLabel = appDriverPeriod === "weekly" ? "Semanal" : "Mensal";
-                          const insurance = periodDays * 20;
+                          const insurance = periodDays * 35;
                           const total = periodPrice + insurance;
 
                           const calcEndDate = new Date(startDate.getTime() + periodDays * 24 * 60 * 60 * 1000);
@@ -1088,7 +1088,7 @@ const CarDetails = () => {
                             exHoursCharge = (vehicle.daily_price / 24) * exHours;
                           }
                           const subtotal = vehicle.daily_price * days + exHoursCharge;
-                          const insurance = days * 20;
+                          const insurance = days * 35;
                           const total = subtotal + insurance;
                           const hasConflict = !isDateRangeAvailable(startDate, endDate, vehicleBookings);
 

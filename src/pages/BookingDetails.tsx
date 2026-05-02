@@ -349,7 +349,7 @@ const BookingDetails = () => {
                 <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-2 sm:space-y-3">
                   {(() => {
                     const dailySubtotal = booking.daily_rate * booking.total_days;
-                    const insurance = booking.total_days * 20;
+                    const insurance = booking.total_days * 35;
                     const extraHoursCharge = Number((booking as any).extra_hours_charge) || 0;
                     const extraHours = Number((booking as any).extra_hours) || 0;
                     

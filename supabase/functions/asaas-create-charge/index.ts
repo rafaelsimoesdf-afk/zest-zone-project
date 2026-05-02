@@ -120,7 +120,7 @@ serve(async (req) => {
     // === SPLIT DE PAGAMENTO ===========================================
     // Política: o aluguel (daily_rate * days) + horas extras tem 15% de
     // comissão da plataforma. Os 85% restantes são creditados na subconta
-    // Asaas do proprietário via "split". O seguro (R$ 20/dia) não entra
+    // Asaas do proprietário via "split". O seguro (R$ 35/dia) não entra
     // no cálculo do split — fica integralmente com a plataforma.
     const bp = body.bookingPayload;
     const rentalAmount = Number(((bp.dailyRate * bp.days) + (bp.extraHoursCharge ?? 0)).toFixed(2));
