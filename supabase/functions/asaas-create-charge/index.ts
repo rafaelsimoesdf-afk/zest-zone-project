@@ -267,6 +267,9 @@ serve(async (req) => {
         pix_copy_paste: pixCopyPaste,
         pix_expiration_date: pixExpiration,
         environment: getAsaasEnv(),
+        split_owner_amount: ownerShare,
+        split_platform_amount: Number((Number(bp.totalPrice) - ownerShare).toFixed(2)),
+        split_wallet_id: splitWalletId,
         metadata: { bookingPayload: body.bookingPayload },
       })
       .select()
