@@ -209,6 +209,11 @@ export const useConfirmInspection = () => {
               .update({ status: "completed" })
               .eq("id", bookingId);
 
+            // Dispara saque automático (split Asaas) — não bloqueia o fluxo
+            supabase.functions.invoke("asaas-auto-withdraw", {
+              body: { bookingId },
+            }).catch((e) => console.warn("[auto-withdraw] failed (non-fatal)", e));
+
             // Send completion emails to both parties
             const { data: bookingDetails } = await supabase
               .from("bookings")
