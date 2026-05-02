@@ -1,6 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-import { asaasFetch, getAsaasEnv, getOrCreateAsaasCustomer } from "../_shared/asaas.ts";
+import {
+  asaasFetch,
+  getAsaasEnv,
+  getOrCreateAsaasCustomer,
+  getOrCreateAsaasSubaccount,
+  loadOwnerForSubaccount,
+} from "../_shared/asaas.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -111,18 +117,51 @@ serve(async (req) => {
     const { asaasCustomerId } = await getOrCreateAsaasCustomer(supabaseAdmin, profile);
     log("Customer ready", { asaasCustomerId });
 
+    // === SPLIT DE PAGAMENTO ===========================================
+    // Política: o aluguel (daily_rate * days) + horas extras tem 15% de
+    // comissão da plataforma. Os 85% restantes são creditados na subconta
+    // Asaas do proprietário via "split". O seguro (R$ 20/dia) não entra
+    // no cálculo do split — fica integralmente com a plataforma.
+    const bp = body.bookingPayload;
+    const rentalAmount = Number(((bp.dailyRate * bp.days) + (bp.extraHoursCharge ?? 0)).toFixed(2));
+    const ownerShare = Number((rentalAmount * 0.85).toFixed(2));
+
+    let splitWalletId: string | null = null;
+    const splitArr: Array<Record<string, unknown>> = [];
+
+    try {
+      const ownerProfile = await loadOwnerForSubaccount(supabaseAdmin, bp.ownerId);
+      const { walletId } = await getOrCreateAsaasSubaccount(supabaseAdmin, ownerProfile);
+      splitWalletId = walletId;
+      if (ownerShare > 0) {
+        splitArr.push({ walletId, fixedValue: ownerShare });
+      }
+      log("Split prepared", { walletId, ownerShare, totalPrice: bp.totalPrice });
+    } catch (splitErr) {
+      // Falha ao preparar subconta não deve bloquear a cobrança em sandbox/dev,
+      // mas em produção é fatal — o owner precisa ter subconta válida.
+      log("Split setup failed", { error: String(splitErr) });
+      if (getAsaasEnv() === "production") {
+        throw new Error(`Falha ao preparar split do proprietário: ${(splitErr as Error).message}`);
+      }
+    }
+
     // Cria cobrança
     const dueDate = body.dueDate ?? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-    const description = `Reserva InfiniteDrive — ${body.bookingPayload.days} diária(s)`;
+    const description = `Reserva InfiniteDrive — ${bp.days} diária(s)`;
 
     const chargePayload: Record<string, unknown> = {
       customer: asaasCustomerId,
       billingType: body.billingType,
-      value: Number(body.bookingPayload.totalPrice.toFixed(2)),
+      value: Number(bp.totalPrice.toFixed(2)),
       dueDate,
       description,
-      externalReference: `vehicle:${body.bookingPayload.vehicleId}|user:${userId}`,
+      externalReference: `vehicle:${bp.vehicleId}|user:${userId}`,
     };
+
+    if (splitArr.length > 0) {
+      chargePayload.split = splitArr;
+    }
 
     // Cartão de crédito embutido (sem redirect): envia dados ou token
     if (body.billingType === "CREDIT_CARD") {
@@ -228,6 +267,9 @@ serve(async (req) => {
         pix_copy_paste: pixCopyPaste,
         pix_expiration_date: pixExpiration,
         environment: getAsaasEnv(),
+        split_owner_amount: ownerShare,
+        split_platform_amount: Number((Number(bp.totalPrice) - ownerShare).toFixed(2)),
+        split_wallet_id: splitWalletId,
         metadata: { bookingPayload: body.bookingPayload },
       })
       .select()
