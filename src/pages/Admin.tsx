@@ -65,8 +65,11 @@ const Admin = () => {
         });
 
         if (error || !data) {
+          setIsAdmin(false);
           toast.error("Acesso negado. Apenas administradores podem acessar esta página.");
           navigate("/");
+        } else {
+          setIsAdmin(true);
         }
       }
     };
