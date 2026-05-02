@@ -233,26 +233,36 @@ export const useSendMessage = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Validate inputs
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(bookingId) || !uuidRegex.test(receiverId)) {
+        throw new Error("Identificadores inválidos");
+      }
+      const trimmed = content.trim();
+      if (!trimmed) throw new Error("Mensagem vazia");
+      const sanitized = trimmed.slice(0, 2000);
+
       const { data, error } = await supabase
         .from("messages")
         .insert({
           booking_id: bookingId,
           sender_id: user.id,
           receiver_id: receiverId,
-          content: content.trim(),
+          content: sanitized,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      // Create notification for receiver with action URL
-      await supabase.from("notifications").insert({
-        user_id: receiverId,
-        title: "Nova mensagem recebida",
-        message: `Você recebeu uma nova mensagem sobre sua reserva. Clique aqui para ver a conversa!`,
-        notification_type: "support",
-        action_url: `/messages?booking=${bookingId}`,
+      // Server-side validated notification (verifies booking participation,
+      // sanitizes inputs, and constructs the action URL safely).
+      await supabase.rpc("notify_booking_participant", {
+        _booking_id: bookingId,
+        _receiver_id: receiverId,
+        _title: "Nova mensagem recebida",
+        _message: "Você recebeu uma nova mensagem sobre sua reserva.",
+        _notification_type: "support",
       });
 
       // Send email notification

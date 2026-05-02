@@ -2646,6 +2646,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      notify_booking_participant: {
+        Args: {
+          _booking_id: string
+          _message: string
+          _notification_type: Database["public"]["Enums"]["notification_type"]
+          _receiver_id: string
+          _title: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "customer" | "owner" | "admin"
