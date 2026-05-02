@@ -1,0 +1,1 @@
+UPDATE public.bookings SET status='pending' WHERE id='d7d10df1-638d-4c62-b57c-6efbe0c27e9a';
