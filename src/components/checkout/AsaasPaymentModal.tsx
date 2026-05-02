@@ -70,10 +70,6 @@ export function AsaasPaymentModal({
         if (["RECEIVED", "CONFIRMED", "RECEIVED_IN_CASH"].includes(data.status)) {
           setConfirmed(true);
           toast.success("Pagamento confirmado! Sua reserva foi criada.");
-          setTimeout(() => {
-            onOpenChange(false);
-            navigate("/my-bookings");
-          }, 1500);
         }
       }
     }, 4000);
