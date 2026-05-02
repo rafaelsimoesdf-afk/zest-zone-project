@@ -93,6 +93,9 @@ export type Database = {
           pix_copy_paste: string | null
           pix_expiration_date: string | null
           pix_qr_code: string | null
+          split_owner_amount: number | null
+          split_platform_amount: number | null
+          split_wallet_id: string | null
           status: string
           updated_at: string
           value: number
@@ -116,6 +119,9 @@ export type Database = {
           pix_copy_paste?: string | null
           pix_expiration_date?: string | null
           pix_qr_code?: string | null
+          split_owner_amount?: number | null
+          split_platform_amount?: number | null
+          split_wallet_id?: string | null
           status?: string
           updated_at?: string
           value: number
@@ -139,6 +145,9 @@ export type Database = {
           pix_copy_paste?: string | null
           pix_expiration_date?: string | null
           pix_qr_code?: string | null
+          split_owner_amount?: number | null
+          split_platform_amount?: number | null
+          split_wallet_id?: string | null
           status?: string
           updated_at?: string
           value?: number
@@ -163,28 +172,37 @@ export type Database = {
       asaas_customers: {
         Row: {
           asaas_customer_id: string
+          asaas_subaccount_api_key: string | null
+          asaas_wallet_id: string | null
           cpf_cnpj: string | null
           created_at: string
           environment: string
           id: string
+          is_subaccount: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
           asaas_customer_id: string
+          asaas_subaccount_api_key?: string | null
+          asaas_wallet_id?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           environment?: string
           id?: string
+          is_subaccount?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
           asaas_customer_id?: string
+          asaas_subaccount_api_key?: string | null
+          asaas_wallet_id?: string | null
           cpf_cnpj?: string | null
           created_at?: string
           environment?: string
           id?: string
+          is_subaccount?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -537,6 +555,7 @@ export type Database = {
       }
       bookings: {
         Row: {
+          auto_withdraw_triggered_at: string | null
           cancelled_reason: string | null
           created_at: string
           customer_id: string
@@ -559,6 +578,7 @@ export type Database = {
           vehicle_id: string
         }
         Insert: {
+          auto_withdraw_triggered_at?: string | null
           cancelled_reason?: string | null
           created_at?: string
           customer_id: string
@@ -581,6 +601,7 @@ export type Database = {
           vehicle_id: string
         }
         Update: {
+          auto_withdraw_triggered_at?: string | null
           cancelled_reason?: string | null
           created_at?: string
           customer_id?: string
