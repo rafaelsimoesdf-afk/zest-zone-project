@@ -27,6 +27,7 @@ import { formatCurrencyBRL } from "@/lib/validators";
 const Admin = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   
   const { data: stats } = useAdminStats();
   const { data: pendingVehicles } = usePendingVehicles();
@@ -64,8 +65,11 @@ const Admin = () => {
         });
 
         if (error || !data) {
+          setIsAdmin(false);
           toast.error("Acesso negado. Apenas administradores podem acessar esta página.");
           navigate("/");
+        } else {
+          setIsAdmin(true);
         }
       }
     };
@@ -141,8 +145,12 @@ const Admin = () => {
     );
   };
 
-  if (loading) {
+  if (loading || isAdmin === null) {
     return <div className="min-h-screen flex items-center justify-center">Carregando...</div>;
+  }
+
+  if (!isAdmin) {
+    return null;
   }
 
   return (
