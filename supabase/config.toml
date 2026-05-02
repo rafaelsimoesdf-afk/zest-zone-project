@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.asaas-create-subscription]
 verify_jwt = false
+
+[functions.asaas-auto-withdraw]
+verify_jwt = false
