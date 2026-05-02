@@ -46,6 +46,16 @@ export function AsaasPaymentModal({
     }
   }, [initialStatus]);
 
+  // Quando confirmado (por polling ou initialStatus), fecha modal e redireciona
+  useEffect(() => {
+    if (!confirmed || !open) return;
+    const t = setTimeout(() => {
+      onOpenChange(false);
+      navigate("/my-bookings");
+    }, 1800);
+    return () => clearTimeout(t);
+  }, [confirmed, open, onOpenChange, navigate]);
+
   // Polling status
   useEffect(() => {
     if (!open || !chargeId || confirmed) return;
