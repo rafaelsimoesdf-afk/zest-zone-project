@@ -166,22 +166,22 @@ async function handlePaymentEvent(supabase: any, event: string, payment: any) {
       log("Booking creation failed", { error: rpcErr.message });
     } else {
       await supabase.from("asaas_charges").update({ booking_id: bookingId }).eq("id", charge.id);
-      // confirmar booking
-      await supabase.from("bookings").update({ status: "confirmed" }).eq("id", bookingId);
+      // Mantém a reserva como "pending" — aguarda aprovação do proprietário.
+      // O pagamento já está confirmado, mas a reserva só vira "confirmed" quando o owner aceitar.
 
       await supabase.from("notifications").insert([
         {
           user_id: charge.customer_id,
           notification_type: "booking",
           title: "Pagamento confirmado!",
-          message: "Sua reserva foi criada com sucesso.",
+          message: "Sua solicitação de reserva foi enviada e está aguardando aprovação do proprietário.",
           action_url: "/my-bookings",
         },
         {
           user_id: bp.ownerId,
           notification_type: "booking",
-          title: "Nova reserva confirmada!",
-          message: "Você recebeu uma nova reserva paga.",
+          title: "Nova solicitação de reserva!",
+          message: "Você recebeu uma nova solicitação de reserva paga. Aprove ou recuse no seu painel.",
           action_url: "/owner-dashboard",
         },
       ]);
