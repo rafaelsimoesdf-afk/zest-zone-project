@@ -142,7 +142,7 @@ const Checkout = () => {
   
   const dailySubtotal = isAppDriver ? appDriverPrice : (vehicle ? vehicle.daily_price * days : 0);
   const subtotal = dailySubtotal + extraHoursCharge;
-  const insurance = days * 20;
+  const insurance = days * 35;
   const totalPrice = subtotal + insurance;
 
   const owner = vehicle?.profiles as any;

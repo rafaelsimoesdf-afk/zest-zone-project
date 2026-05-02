@@ -118,7 +118,7 @@ export const useOwnerDashboardStats = () => {
       // O locatário paga: diárias + horas extras + seguro
       // O proprietário recebe: (diárias + horas extras) - 15% = 85% do valor das diárias + horas extras
       const PLATFORM_FEE_RATE = 0.15;
-      const INSURANCE_PER_DAY = 20;
+      const INSURANCE_PER_DAY = 35;
       
       let grossRevenue = 0;
       let platformFees = 0;
@@ -226,7 +226,7 @@ export const useOwnerVehicleStats = () => {
       const allBookings = bookings || [];
 
       const PLATFORM_FEE_RATE = 0.15;
-      const INSURANCE_PER_DAY = 20;
+      const INSURANCE_PER_DAY = 35;
       
       return vehicles.map(vehicle => {
         const vehicleBookings = allBookings.filter(b => b.vehicle_id === vehicle.id);
