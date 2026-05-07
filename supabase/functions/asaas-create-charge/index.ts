@@ -138,12 +138,10 @@ serve(async (req) => {
       }
       log("Split prepared", { walletId, ownerShare, totalPrice: bp.totalPrice });
     } catch (splitErr) {
-      // Falha ao preparar subconta não deve bloquear a cobrança em sandbox/dev,
-      // mas em produção é fatal — o owner precisa ter subconta válida.
-      log("Split setup failed", { error: String(splitErr) });
-      if (getAsaasEnv() === "production") {
-        throw new Error(`Falha ao preparar split do proprietário: ${(splitErr as Error).message}`);
-      }
+      // O split é obrigatório em qualquer ambiente: criar cobrança sem walletId
+      // deixa o owner sem repasse no Asaas e dificulta a auditoria no sandbox.
+      log("Split setup failed", { ownerId: bp.ownerId, ownerShare, error: String(splitErr) });
+      throw new Error(`Falha ao preparar split do proprietário: ${(splitErr as Error).message}`);
     }
 
     // Cria cobrança
